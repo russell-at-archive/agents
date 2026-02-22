@@ -1,0 +1,144 @@
+# Pi CLI Help
+
+- Generated: `2026-03-10T10:26:35Z`
+- Command: `pi --help`
+
+```text
+pi - AI coding assistant with read, bash, edit, write tools
+
+Usage:
+  pi [options] [@files...] [messages...]
+
+Commands:
+  pi install <source> [-l]    Install extension source and add to settings
+  pi remove <source> [-l]     Remove extension source from settings
+  pi update [source]          Update installed extensions (skips pinned sources)
+  pi list                     List installed extensions from settings
+  pi config                   Open TUI to enable/disable package resources
+  pi <command> --help         Show help for install/remove/update/list
+
+Options:
+  --provider <name>              Provider name (default: google)
+  --model <pattern>              Model pattern or ID (supports "provider/id" and optional ":<thinking>")
+  --api-key <key>                API key (defaults to env vars)
+  --system-prompt <text>         System prompt (default: coding assistant prompt)
+  --append-system-prompt <text>  Append text or file contents to the system prompt
+  --mode <mode>                  Output mode: text (default), json, or rpc
+  --print, -p                    Non-interactive mode: process prompt and exit
+  --continue, -c                 Continue previous session
+  --resume, -r                   Select a session to resume
+  --session <path>               Use specific session file
+  --session-dir <dir>            Directory for session storage and lookup
+  --no-session                   Don't save session (ephemeral)
+  --models <patterns>            Comma-separated model patterns for Ctrl+P cycling
+                                 Supports globs (anthropic/*, *sonnet*) and fuzzy matching
+  --no-tools                     Disable all built-in tools
+  --tools <tools>                Comma-separated list of tools to enable (default: read,bash,edit,write)
+                                 Available: read, bash, edit, write, grep, find, ls
+  --thinking <level>             Set thinking level: off, minimal, low, medium, high, xhigh
+  --extension, -e <path>         Load an extension file (can be used multiple times)
+  --no-extensions, -ne           Disable extension discovery (explicit -e paths still work)
+  --skill <path>                 Load a skill file or directory (can be used multiple times)
+  --no-skills, -ns               Disable skills discovery and loading
+  --prompt-template <path>       Load a prompt template file or directory (can be used multiple times)
+  --no-prompt-templates, -np     Disable prompt template discovery and loading
+  --theme <path>                 Load a theme file or directory (can be used multiple times)
+  --no-themes                    Disable theme discovery and loading
+  --export <file>                Export session file to HTML and exit
+  --list-models [search]         List available models (with optional fuzzy search)
+  --verbose                      Force verbose startup (overrides quietStartup setting)
+  --offline                      Disable startup network operations (same as PI_OFFLINE=1)
+  --help, -h                     Show this help
+  --version, -v                  Show version number
+
+Extensions can register additional flags (e.g., --plan from plan-mode extension).
+
+Examples:
+  # Interactive mode
+  pi
+
+  # Interactive mode with initial prompt
+  pi "List all .ts files in src/"
+
+  # Include files in initial message
+  pi @prompt.md @image.png "What color is the sky?"
+
+  # Non-interactive mode (process and exit)
+  pi -p "List all .ts files in src/"
+
+  # Multiple messages (interactive)
+  pi "Read package.json" "What dependencies do we have?"
+
+  # Continue previous session
+  pi --continue "What did we discuss?"
+
+  # Use different model
+  pi --provider openai --model gpt-4o-mini "Help me refactor this code"
+
+  # Use model with provider prefix (no --provider needed)
+  pi --model openai/gpt-4o "Help me refactor this code"
+
+  # Use model with thinking level shorthand
+  pi --model sonnet:high "Solve this complex problem"
+
+  # Limit model cycling to specific models
+  pi --models claude-sonnet,claude-haiku,gpt-4o
+
+  # Limit to a specific provider with glob pattern
+  pi --models "github-copilot/*"
+
+  # Cycle models with fixed thinking levels
+  pi --models sonnet:high,haiku:low
+
+  # Start with a specific thinking level
+  pi --thinking high "Solve this complex problem"
+
+  # Read-only mode (no file modifications possible)
+  pi --tools read,grep,find,ls -p "Review the code in src/"
+
+  # Export a session file to HTML
+  pi --export ~/.pi/agent/sessions/--path--/session.jsonl
+  pi --export session.jsonl output.html
+
+Environment Variables:
+  ANTHROPIC_API_KEY                - Anthropic Claude API key
+  ANTHROPIC_OAUTH_TOKEN            - Anthropic OAuth token (alternative to API key)
+  OPENAI_API_KEY                   - OpenAI GPT API key
+  AZURE_OPENAI_API_KEY             - Azure OpenAI API key
+  AZURE_OPENAI_BASE_URL            - Azure OpenAI base URL (https://{resource}.openai.azure.com/openai/v1)
+  AZURE_OPENAI_RESOURCE_NAME       - Azure OpenAI resource name (alternative to base URL)
+  AZURE_OPENAI_API_VERSION         - Azure OpenAI API version (default: v1)
+  AZURE_OPENAI_DEPLOYMENT_NAME_MAP - Azure OpenAI model=deployment map (comma-separated)
+  GEMINI_API_KEY                   - Google Gemini API key
+  GROQ_API_KEY                     - Groq API key
+  CEREBRAS_API_KEY                 - Cerebras API key
+  XAI_API_KEY                      - xAI Grok API key
+  OPENROUTER_API_KEY               - OpenRouter API key
+  AI_GATEWAY_API_KEY               - Vercel AI Gateway API key
+  ZAI_API_KEY                      - ZAI API key
+  MISTRAL_API_KEY                  - Mistral API key
+  MINIMAX_API_KEY                  - MiniMax API key
+  OPENCODE_API_KEY                 - OpenCode Zen/OpenCode Go API key
+  KIMI_API_KEY                     - Kimi For Coding API key
+  AWS_PROFILE                      - AWS profile for Amazon Bedrock
+  AWS_ACCESS_KEY_ID                - AWS access key for Amazon Bedrock
+  AWS_SECRET_ACCESS_KEY            - AWS secret key for Amazon Bedrock
+  AWS_BEARER_TOKEN_BEDROCK         - Bedrock API key (bearer token)
+  AWS_REGION                       - AWS region for Amazon Bedrock (e.g., us-east-1)
+  PI_CODING_AGENT_DIR              - Session storage directory (default: ~/.pi/agent)
+  PI_PACKAGE_DIR                   - Override package directory (for Nix/Guix store paths)
+  PI_OFFLINE                       - Disable startup network operations when set to 1/true/yes
+  PI_SHARE_VIEWER_URL              - Base URL for /share command (default: https://pi.dev/session/)
+  PI_AI_ANTIGRAVITY_VERSION        - Override Antigravity User-Agent version (e.g., 1.23.0)
+
+Available Tools (default: read, bash, edit, write):
+  read   - Read file contents
+  bash   - Execute bash commands
+  edit   - Edit files with find/replace
+  write  - Write files (creates/overwrites)
+  grep   - Search file contents (read-only, off by default)
+  find   - Find files by glob pattern (read-only, off by default)
+  ls     - List directory contents (read-only, off by default)
+
+
+```
