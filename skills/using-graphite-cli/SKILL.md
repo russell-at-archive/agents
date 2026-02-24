@@ -10,12 +10,12 @@ description: Use when instructed to perform any git operation; branching,
 ## Overview
 
 **All git operations MUST use the Graphite CLI (`gt`) instead of raw
-`git` or `gh` commands.** All pull requests MUST use Graphite stacks
+`git` commands.** All pull requests MUST use Graphite stacks
 via `gt submit`.
 
 ## The Rule
 
-**NEVER run `git` or `gh` commands when a `gt` equivalent exists.**
+**NEVER run `git` commands when a `gt` equivalent exists.**
 Use `gt` for branch creation, committing, syncing, submitting PRs,
 and navigation.
 

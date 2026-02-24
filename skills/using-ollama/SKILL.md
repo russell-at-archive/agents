@@ -101,7 +101,7 @@ echo "Summarize this" | ollama run mistral \
   > /tmp/ollama-local-task.md 2>&1
 
 # Remote instance - heavy task needing a large model
-OLLAMA_HOST=http://gpu-server.local:11434 \
+export OLLAMA_HOST=http://gpu-server.local:11434 \
   echo "Analyze this codebase" | ollama run llama3.3:70b \
   > /tmp/ollama-remote-task.md 2>&1
 ```
@@ -126,7 +126,7 @@ cat src/auth/handler.ts | ollama run <model> "Explain this code and identify pot
 
 ### Wait-and-Integrate
 
-Run in background via Bash tool with `run_in_background: true`. Capture output with redirection:
+Run in background via Bash tool. Capture output with redirection:
 
 ```bash
 echo "Your analysis prompt" | ollama run <model> > /tmp/ollama-output-TASKNAME.md 2>&1

@@ -43,15 +43,12 @@ codex exec --full-auto -C /path/to/project "Your task prompt here"
 
 ### Wait-and-Integrate
 
-Run in background. Read output file later to integrate results.
+Run in background via Bash tool. Read output file later to integrate results.
 
 ```bash
-# Run via Bash tool with run_in_background: true
 codex exec --full-auto -C /path/to/project \
   -o /tmp/codex-output-TASKNAME.md \
   "Your task prompt here"
-
-# Later, read the output file to get results
 ```
 
 Use unique filenames for `-o` when dispatching multiple tasks.

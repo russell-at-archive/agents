@@ -62,7 +62,7 @@ gemini -y -p "Your prompt" file1.ts
 
 ### Wait-and-Integrate
 
-Run in background via Bash tool with `run_in_background: true`. Gemini outputs to stdout; capture with redirection:
+Run in background via Bash tool. Capture output with redirection:
 
 ```bash
 gemini -p "Your analysis prompt" src/ > /tmp/gemini-output-TASKNAME.md 2>&1
