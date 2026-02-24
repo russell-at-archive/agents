@@ -1,7 +1,7 @@
 # Gemini CLI
 
-Official docs: https://google-gemini.github.io/gemini-cli/
-GitHub: https://github.com/google-gemini/gemini-cli
+Official docs: <https://google-gemini.github.io/gemini-cli/>
+GitHub: <https://github.com/google-gemini/gemini-cli>
 
 ---
 
@@ -9,12 +9,12 @@ GitHub: https://github.com/google-gemini/gemini-cli
 
 All found files are concatenated with origin indicators.
 
-| File | Scope |
-|------|-------|
-| `~/.gemini/GEMINI.md` | User |
-| `GEMINI.md` (project hierarchy, scanned up to git root) | Project |
-| Up to 200 subdirectories below cwd | Sub-project |
-| Extension-bundled context files | Extension-scoped |
+| File                               | Scope                                |
+|------------------------------------|--------------------------------------|
+| `~/.gemini/GEMINI.md`              | User                                 |
+| `GEMINI.md` (project hierarchy, scanned up to git root) | Project         |
+| Up to 200 subdirectories below cwd | Sub-project                          |
+| Extension-bundled context files    | Extension-scoped                     |
 
 - `@path/to/file.md` import syntax (same as Claude Code)
 - `/memory show` and `/memory refresh` slash commands
@@ -24,11 +24,11 @@ All found files are concatenated with origin indicators.
 
 ## Settings Files
 
-| File | Scope |
-|------|-------|
-| `~/.gemini/settings.json` | User |
-| `.gemini/settings.json` | Project (workspace overrides user) |
-| `/etc/gemini-cli/settings.json` | System (highest precedence) |
+| File                             | Scope                                |
+|----------------------------------|--------------------------------------|
+| `~/.gemini/settings.json`        | User                                 |
+| `.gemini/settings.json`          | Project (workspace overrides user)   |
+| `/etc/gemini-cli/settings.json`  | System (highest precedence)          |
 
 Format: JSON.
 
@@ -68,10 +68,10 @@ MCP tools appear as `mcp__<server_name>__<tool_name>` in hook matchers.
 
 Project or user-level TOML files.
 
-| Location | Scope |
-|----------|-------|
-| `~/.gemini/commands/` | User |
-| `.gemini/commands/` | Project |
+| Location              | Scope   |
+|-----------------------|---------|
+| `~/.gemini/commands/` | User    |
+| `.gemini/commands/`   | Project |
 
 ```toml
 description = "Refactor code into pure functions"
@@ -84,7 +84,8 @@ Include: @{path/to/context.md}
 
 - `{{args}}` — user arguments
 - `!{command}` — execute shell and inject output
-- `@{path}` — inject file/directory content (supports images, PDFs, audio, video)
+- `@{path}` — inject file or directory content
+  (supports images, PDFs, audio, video)
 - Namespacing: `git/commit.toml` → `/git:commit`
 - `/commands reload` to refresh without restart
 
@@ -92,17 +93,22 @@ Include: @{path/to/context.md}
 
 ## Skills
 
-Follows the [Agent Skills open standard](https://agentskills.io/specification). Same `SKILL.md` format as Claude Code and Codex.
+Follows the [Agent Skills open standard](https://agentskills.io/specification).
+Uses the same `SKILL.md` format as Claude Code and Codex.
 
-| Location | Scope |
-|----------|-------|
-| `~/.gemini/skills/<name>` | User |
-| `.gemini/skills/<name>` | Project |
-| `.agents/skills/<name>` | Cross-tool (takes precedence) |
+| Location                  | Scope                         |
+|---------------------------|-------------------------------|
+| `~/.gemini/skills/<name>` | User                          |
+| `.gemini/skills/<name>`   | Project                       |
+| `.agents/skills/<name>`   | Cross-tool (takes precedence) |
 
-Shared directory mechanism: Gemini automatically prefers `.agents/skills/` for cross-tool skills. For linked development workflows, use `gemini skills link <path>` (creates a link in Gemini's skills location).
+Shared directory mechanism: Gemini automatically prefers
+`.agents/skills/` for cross-tool skills. For linked development
+workflows, use `gemini skills link <path>` to create a link in
+Gemini's skills location.
 
 Management:
+
 ```bash
 gemini skills install <git-url-or-path>
 gemini skills link <path>          # Dev mode (symlink)
@@ -110,7 +116,8 @@ gemini skills enable/disable <name>
 /skills list
 ```
 
-Skills load name/description at session start; full content loads on activation via `activate_skill` (user sees confirmation prompt).
+Skills load name and description at session start. Full content
+loads on activation via `activate_skill` after user confirmation.
 
 ---
 
@@ -120,18 +127,20 @@ Configured in `hooks` key of `settings.json`.
 
 ### Hook Events (10 total)
 
-| Event | Blockable | Description |
-|-------|-----------|-------------|
-| `SessionStart` | No | Session begins |
-| `SessionEnd` | No | Session ends |
-| `BeforeAgent` | Yes | After user prompt, before planning |
-| `AfterAgent` | Yes (retry) | Agent loop completes; `"deny"` forces retry |
-| `BeforeModel` | Yes | Before LLM request; can modify/replace request |
-| `AfterModel` | Yes | After LLM response; can redact chunks |
-| `BeforeToolSelection` | Yes | Before tool selection; can filter available tools |
-| `BeforeTool` | Yes | Before tool execution; can block/rewrite args |
-| `AfterTool` | Yes | After tool executes; can hide results |
-| `Notification` | No | Observability only |
+- `SessionStart` (No): Session begins.
+- `SessionEnd` (No): Session ends.
+- `BeforeAgent` (Yes): After user prompt, before planning.
+- `AfterAgent` (Yes, retry): Agent loop completes; `"deny"`
+  forces retry.
+- `BeforeModel` (Yes): Before LLM request; can modify or
+  replace the request.
+- `AfterModel` (Yes): After LLM response; can redact chunks.
+- `BeforeToolSelection` (Yes): Before tool selection; can
+  filter available tools.
+- `BeforeTool` (Yes): Before tool execution; can block or
+  rewrite args.
+- `AfterTool` (Yes): After tool execution; can hide results.
+- `Notification` (No): Observability only.
 
 ### Hook Type
 
@@ -167,11 +176,13 @@ Matcher: regex for tool events, exact string for lifecycle events.
 - `GEMINI_CWD`
 
 ### Exit Codes
-- `0` + JSON stdout: structured control (`decision`, `reason`, `tool_input`, `additionalContext`)
+- `0` + JSON stdout: structured control (`decision`, `reason`,
+  `tool_input`, `additionalContext`)
 - `2`: system block
 - Other: non-blocking warning
 
-**Security:** Project-level hooks are fingerprinted; changes after `git pull` require re-confirmation.
+**Security:** Project-level hooks are fingerprinted. Changes
+after `git pull` require re-confirmation.
 
 ---
 
@@ -180,7 +191,7 @@ Matcher: regex for tool events, exact string for lifecycle events.
 Extensions bundle context files, slash commands, and MCP servers. They are
 the primary distribution mechanism.
 
-```
+```text
 my-extension/
 ├── gemini-extension.json    # Manifest
 ├── GEMINI.md               # Context (or custom contextFileName)
@@ -206,9 +217,11 @@ my-extension/
 }
 ```
 
-Variables in manifest: `${extensionPath}`, `${workspacePath}`, `${/}` (path separator).
+Variables in manifest: `${extensionPath}`, `${workspacePath}`,
+and `${/}` (path separator).
 
 Management:
+
 ```bash
 gemini extensions install <url-or-path>
 gemini extensions link ./local-path        # Dev mode

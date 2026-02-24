@@ -1,6 +1,6 @@
 # Claude Code
 
-Official docs: https://code.claude.com/docs/en/
+Official docs: <https://code.claude.com/docs/en/>
 
 ---
 
@@ -11,13 +11,14 @@ All files are loaded hierarchically and merged at startup.
 | File | Scope |
 |------|-------|
 | `~/.claude/CLAUDE.md` | User (all projects) |
-| `./CLAUDE.md` or `./.claude/CLAUDE.md` | Project (team-shared, commit to VCS) |
+| `./CLAUDE.md` or `./.claude/CLAUDE.md` | Project (team-shared, committed) |
 | `./CLAUDE.local.md` | Project (personal, auto-gitignored) |
-| `./.claude/rules/*.md` | Modular rules; YAML `paths:` frontmatter enables conditional loading by file glob |
+| `./.claude/rules/*.md` | Modular rules; YAML `paths:` controls loading |
 
 - `@path/to/file` import syntax (max 5 hops deep)
 - Child directory `CLAUDE.md` files load on-demand, not at startup
-- AI auto-memory at `~/.claude/projects/<project>/memory/MEMORY.md` (first 200 lines loaded)
+- AI auto-memory at `~/.claude/projects/<project>/memory/MEMORY.md`
+  (first 200 lines loaded)
 
 ---
 
@@ -73,7 +74,9 @@ Skills are the primary custom command mechanism. Users invoke them as
 | `.claude/skills/<name>/SKILL.md` | Project |
 | `.agents/skills/<name>/SKILL.md` | Cross-tool (portable) |
 
-Shared directory mechanism: Claude has no dedicated `skills_path` setting. To use one shared directory, expose it at `.agents/skills/` (or `~/.claude/skills/`) via symlink.
+Shared directory mechanism: Claude has no dedicated `skills_path`
+setting. To use one shared directory, expose it at `.agents/skills/`
+(or `~/.claude/skills/`) via symlink.
 
 Format: YAML frontmatter + Markdown body.
 
@@ -105,7 +108,8 @@ Legacy location: `.claude/commands/<name>.md` (still supported, same format).
 
 ## Hooks
 
-Configured in `hooks` key of `settings.json`, plugin `hooks/hooks.json`, or skill YAML frontmatter.
+Configured in `hooks` key of `settings.json`, plugin
+`hooks/hooks.json`, or skill YAML frontmatter.
 
 ### Hook Events (17 total)
 
@@ -159,7 +163,7 @@ Async support: `"async": true` runs hook in background.
 
 Plugins bundle skills, hooks, MCP servers, agents, and settings.
 
-```
+```text
 my-plugin/
 ├── .claude-plugin/
 │   └── plugin.json

@@ -1,7 +1,7 @@
 # OpenAI Codex CLI
 
-Official docs: https://developers.openai.com/codex/
-GitHub: https://github.com/openai/codex
+Official docs: <https://developers.openai.com/codex/>
+GitHub: <https://github.com/openai/codex>
 
 ---
 
@@ -15,7 +15,9 @@ All found files are concatenated from git root downward.
 | `AGENTS.md` (in each dir from git root to cwd) | Project |
 | `AGENTS.override.md` | Overrides AGENTS.md at same level |
 
-**Cross-tool fallback:** Configure `project_doc_fallback_filenames` in `config.toml` to also read `CLAUDE.md`:
+**Cross-tool fallback:** Configure
+`project_doc_fallback_filenames` in `config.toml` to also read
+`CLAUDE.md`:
 
 ```toml
 project_doc_fallback_filenames = ["AGENTS.md", "CLAUDE.md"]
@@ -71,6 +73,7 @@ disabled_tools = ["dangerous-tool"]
 ```
 
 CLI management:
+
 ```bash
 codex mcp add <name> -- <command>
 codex mcp list
@@ -90,7 +93,9 @@ It uses the same `SKILL.md` format as Claude Code.
 | `~/.agents/skills/<name>` | User |
 | `.agents/skills/<name>` (git root, parent dirs, cwd) | Project (portable) |
 
-Shared directory mechanism: Codex auto-discovers these paths. To use one shared directory, point `~/.agents/skills` (or project `.agents/skills`) to it via symlink.
+Shared directory mechanism: Codex auto-discovers these paths. To use
+one shared directory, point `~/.agents/skills` (or project
+`.agents/skills`) to it via symlink.
 
 Additional `agents/openai.yaml` per skill for UI customization:
 
@@ -108,32 +113,37 @@ dependencies:
 ```
 
 Disable a specific skill in config:
+
 ```toml
 [[skills.config]]
 path = "/path/to/skill/SKILL.md"
 enabled = false
 ```
 
-Invocation: `/skills` command, `$skill-name` mention syntax, or implicit by model.
+Invocation: `/skills` command, `$skill-name` mention syntax,
+or implicit model selection.
 
 ---
 
 ## Hooks
 
-**Status:** Actively developed; hooks are newer and less mature than Claude Code or Gemini CLI.
+**Status:** Actively developed; hooks are newer and less
+mature than Claude Code or Gemini CLI.
 
 Configuration in `codex.json` at project level or in `config.toml`.
 
 Known events: `BeforeToolUse`, `AfterToolUse`, file write hooks, prompt
 gating, and stop hooks.
 
-The hooks system lacks the breadth of event types and decision control available in Claude Code and Gemini CLI.
+The hooks system lacks the breadth of event types and
+decision control available in Claude Code and Gemini CLI.
 
 ---
 
 ## Plugin System
 
-No formal plugin/extension system equivalent to Claude Code plugins or Gemini CLI extensions. Extensibility is through:
+No formal plugin or extension system equivalent to Claude
+Code plugins or Gemini CLI extensions. Extensibility is through:
 - Skills (`.agents/skills/`)
 - MCP servers
 - Agents SDK (programmatic)
@@ -142,4 +152,5 @@ No formal plugin/extension system equivalent to Claude Code plugins or Gemini CL
 
 ## Multi-Agent
 
-Experimental. Enable with `features.multi_agent = true` in `config.toml`. Configuration in `[agents]` section.
+Experimental. Enable with `features.multi_agent = true` in
+`config.toml`. Configure options in `[agents]`.

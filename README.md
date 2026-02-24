@@ -1,18 +1,7 @@
 # Agents
 
 This directory contains shared customizations for AI agents.
-
-## Governance
-
-All development work follows a mandatory phase-gated workflow.
-
-The canonical development lifecycle is:
-
-```
-Plan (Spec Kit) → Worktree → TDD Implementation → Pre-PR Gate → Submit (Graphite) → Post-Merge
-```
-
-Each phase has a human approval gate. No phase may be skipped.
+Currently just a collection of skills.
 
 ## Skills Index
 
