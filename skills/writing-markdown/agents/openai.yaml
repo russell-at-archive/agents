@@ -1,0 +1,4 @@
+interface:
+  display_name: "Markdown Lint Writer"
+  short_description: "Write markdown that passes markdownlint"
+  default_prompt: "Use $writing-markdown to rewrite this document so it passes markdownlint with zero errors."

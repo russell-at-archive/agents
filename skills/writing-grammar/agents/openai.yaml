@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grammar Review"
+  short_description: "Run a strict line-by-line grammar review"
+  default_prompt: "Use $writing-grammar to review this document sentence by sentence against the full checklist."

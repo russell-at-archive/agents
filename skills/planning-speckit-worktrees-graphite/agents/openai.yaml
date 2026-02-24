@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spec Kit + Worktrees + Graphite"
+  short_description: "Plan features with Spec Kit and stacked delivery"
+  default_prompt: "Use $planning-speckit-worktrees-graphite to plan this feature and require implementation via git worktrees and Graphite stacked PRs."

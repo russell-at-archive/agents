@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitLab CLI Operations"
+  short_description: "Run GitLab CLI operations non-interactively"
+  default_prompt: "Use $using-gitlab-cli to run the needed glab commands with explicit flags and JSON output."

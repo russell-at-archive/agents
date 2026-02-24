@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex CLI Dispatcher"
+  short_description: "Dispatch tasks with Codex CLI"
+  default_prompt: "Use $using-codex-cli to dispatch this task with codex exec in full-auto mode."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Spec Kit Planning"
+  short_description: "Plan features with GitHub Spec Kit"
+  default_prompt: "Use $using-github-speckit to create a full /specify, /plan, and /tasks package for this feature."

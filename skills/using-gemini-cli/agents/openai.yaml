@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gemini CLI Analyzer"
+  short_description: "Use Gemini CLI for large-context analysis"
+  default_prompt: "Use $using-gemini-cli to analyze this codebase with Gemini across all relevant files."

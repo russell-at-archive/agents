@@ -1,0 +1,4 @@
+interface:
+  display_name: "Graphite Stack Workflow"
+  short_description: "Manage stacked PR workflows with Graphite"
+  default_prompt: "Use $using-graphite-cli to handle branch, stack, and submit operations with gt commands only."
