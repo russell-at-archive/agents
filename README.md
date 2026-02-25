@@ -3,11 +3,6 @@
 This directory contains shared customizations for AI agents.
 Currently just a collection of skills.
 
-## Process Guides
-
-- [Delivery Standards](./docs/delivery-standards.md): planning hierarchy,
-  task decomposition, commit conventions, PR sizing, and stacked PR workflow.
-
 ## Skills Index
 
 Current skills available in this environment:
@@ -70,3 +65,6 @@ Current skills available in this environment:
 - [writing-prds](./skills/writing-prds/SKILL.md): Use when creating or updating
   a Product Requirements Document, when a feature or initiative needs a formal
   specification, or when asked to write a PRD.
+- [writing-skills](./skills/writing-skills/SKILL.md): Creates a new agent
+  skill directory with a compliant SKILL.md and supporting reference files.
+  Use when asked to build, write, add, or create a skill.
