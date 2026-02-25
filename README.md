@@ -43,6 +43,9 @@ Current skills available in this environment:
 - [writing-adrs](./skills/writing-adrs/SKILL.md): Use when creating or updating
   Architectural Decision Records, when a significant technical or
   architectural choice needs documenting, or when asked to write an ADR.
+- [writing-prds](./skills/writing-prds/SKILL.md): Use when creating or updating
+  a Product Requirements Document, when a feature or initiative needs a formal
+  specification, or when asked to write a PRD.
 - [writing-grammar](./skills/writing-grammar/SKILL.md): Apply a structured
   grammar checklist to a document line by line. Use when any document
   requires a thorough, consistent grammar review before publication or
