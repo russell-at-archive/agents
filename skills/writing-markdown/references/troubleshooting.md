@@ -11,6 +11,8 @@
 - **Inconsistent list markers**: Use `-` everywhere
 - **Unequal column widths**: Pad all cells to the widest
   cell in their column; match separator dash count
+- **Table lint failures**: Fix table pipe spacing, alignment,
+  and column widths first; convert to lists only as a last resort
 - **Missing alt text on images**: Always add alt text
 - **Generic link text**: Use descriptive text
 - **Multiple H1 headings**: Only one `#` per document
@@ -28,4 +30,3 @@
 - Code fence missing language identifier
 - Two blank lines in a row anywhere
 - Heading without blank line above or below
-

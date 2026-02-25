@@ -39,27 +39,27 @@ This means:
 Planning artifacts flow from high-level intent to executable tasks.
 Each level answers a different question.
 
-| Document    | Question               | Owner           | When to Write                         |
-| ----------- | ---------------------- | --------------- | ------------------------------------- |
-| PRD         | What and why?          | Product         | Before any engineering begins         |
-| ADR         | Why this architecture? | Engineering     | When a significant tech choice is made |
-| Tech Plan   | How to build it?       | Engineering     | Before breaking down tasks            |
-| Task List   | What to do, in order?  | Engineering     | After tech plan is approved           |
-| PR          | What changed and why?  | Author          | For every logical change              |
+| Document    | Question         | Owner       | When                         |
+| ----------- | ---------------- | ----------- | ---------------------------- |
+| PRD         | What and why     | Product     | Before engineering begins    |
+| ADR         | Why architecture | Engineering | At major technical choices   |
+| Tech Plan   | How to build     | Engineering | Before task breakdown        |
+| Task List   | What to do/order | Engineering | After tech plan approval     |
+| PR          | What changed/why | Author      | For each logical change      |
 
 Do not skip levels. A task list without a tech plan produces
 uncoordinated implementation. A PR without a linked task is untraceable.
 
 ### Skill mapping
 
-| Artifact  | Skill                     |
-| --------- | ------------------------- |
-| PRD       | `writing-prds`            |
-| ADR       | `writing-adrs`            |
-| Tech Plan | `using-github-speckit`    |
-| Task List | `decomposing-work`        |
-| Commit    | `writing-conventional-commits` |
-| PR Stack  | `using-graphite-cli`      |
+| Artifact   | Skill                          |
+| ---------- | ------------------------------ |
+| PRD        | `writing-prds`                 |
+| ADR        | `writing-adrs`                 |
+| Tech Plan  | `using-github-speckit`         |
+| Task List  | `decomposing-work`             |
+| Commit     | `writing-conventional-commits` |
+| PR Stack   | `using-graphite-cli`           |
 
 ---
 
@@ -78,14 +78,14 @@ uncoordinated implementation. A PR without a linked task is untraceable.
 
 Each task must satisfy INVEST:
 
-| Letter | Meaning       | Check                                           |
-| ------ | ------------- | ----------------------------------------------- |
-| I      | Independent   | Does not require another in-progress task       |
-| N      | Negotiable    | Scope can be adjusted without abandoning the goal |
-| V      | Valuable      | Delivers something a reviewer can verify        |
-| E      | Estimable     | Scope is clear enough to start immediately      |
-| S      | Small         | Fits in one PR; under 400 lines of net change   |
-| T      | Testable      | Has acceptance criteria that can be checked     |
+| Letter | Meaning     | Check                               |
+| ------ | ----------- | ----------------------------------- |
+| I      | Independent | Not blocked by another in-progress  |
+| N      | Negotiable  | Scope can be adjusted               |
+| V      | Valuable    | Reviewer can verify outcome         |
+| E      | Estimable   | Scope is clear enough to start      |
+| S      | Small       | Fits one PR; target < 400 net lines |
+| T      | Testable    | Acceptance criteria are verifiable  |
 
 ### Task Template
 
@@ -121,13 +121,13 @@ Each task must satisfy INVEST:
 
 ### Sizing Guidelines
 
-| Signal                               | Action                       |
-| ------------------------------------ | ---------------------------- |
-| PR touches more than 3 modules       | Split into smaller tasks     |
-| PR mixes feature and refactor work   | Separate refactor PR first   |
-| PR is purely mechanical (renaming)   | Acceptable in one PR         |
-| PR requires a design doc to explain  | Technical plan is incomplete |
-| Review will take more than 30 min    | Split the PR                 |
+| Signal                         | Action                      |
+| ------------------------------ | --------------------------- |
+| Touches > 3 modules            | Split into smaller tasks    |
+| Mixes feature + refactor       | Separate refactor first     |
+| Purely mechanical rename       | Acceptable in one PR        |
+| Needs design doc to explain    | Tech plan is incomplete     |
+| Review > 30 minutes            | Split the PR                |
 
 ---
 
@@ -138,7 +138,7 @@ See `skills/writing-conventional-commits/SKILL.md` for the full reference.
 
 ### Quick Reference
 
-```
+```text
 <type>(<scope>): <short description>
 
 [optional body]
@@ -177,13 +177,13 @@ Breaking change: append `!` after type/scope, e.g. `feat!:`, and add
 
 Branch names must communicate type and intent at a glance.
 
-```
+```text
 <type>/<task-id>-<short-slug>
 ```
 
 Examples:
 
-```
+```text
 feat/TASK-012-user-auth-token
 fix/TASK-034-null-pointer-on-logout
 refactor/TASK-018-extract-config-loader
@@ -206,7 +206,8 @@ Rules:
 
 Every PR must have:
 
-1. **Title** — `<type>(<scope>): <short description>` matching the branch commit
+1. **Title** — `<type>(<scope>): <short description>` matching the
+   branch commit
 2. **Summary** — What changed and why (3-5 bullets max)
 3. **Type of Change** — Checkbox from the PR template
 4. **Linked Issue / Task** — `Closes #NNN` or `Refs #NNN`
@@ -215,12 +216,12 @@ Every PR must have:
 
 ### Size
 
-| Guideline         | Target                        |
-| ----------------- | ----------------------------- |
-| Lines changed     | Under 400 net lines           |
-| Files touched     | Under 10 files                |
-| Reviewable in     | Under 30 minutes              |
-| Logical concerns  | Exactly one                   |
+| Guideline         | Target              |
+| ----------------- | ------------------- |
+| Lines changed     | < 400 net lines     |
+| Files touched     | < 10 files          |
+| Review time       | < 30 minutes        |
+| Logical concerns  | Exactly one         |
 
 These are guidelines, not hard limits. A 1-line change in 20 files
 (e.g., a rename) is acceptable. A 300-line PR mixing 3 features is not.
@@ -252,7 +253,7 @@ gt submit --stack --no-interactive --publish --reviewer <username>
 
 ## Delivery Workflow Summary
 
-```
+```text
 PRD → ADR (if needed) → Tech Plan → Task List
                                          │
                          ┌───────────────┘
@@ -303,7 +304,7 @@ body must include:
 
 Use GitHub closing keywords in the PR body to auto-close issues on merge:
 
-```
+```text
 Closes #123
 Fixes #456
 Refs #789
@@ -315,17 +316,17 @@ Use `Refs` when the PR contributes to but does not fully resolve an issue.
 
 ## Anti-Patterns
 
-| Anti-Pattern              | Problem                              | Fix                                    |
-| ------------------------- | ------------------------------------ | -------------------------------------- |
-| Mega PR                   | Unreviable, risky to merge           | Split by task                          |
-| Mixed concerns in one PR  | Untraceable, hard to revert          | Separate PRs per concern               |
-| Vague commit messages     | History is unreadable                | Follow Conventional Commits            |
-| No acceptance criteria    | Done is undefined                    | Write criteria before coding           |
-| Skip the tech plan        | Uncoordinated implementation         | Always plan before tasking             |
-| Implement in trunk        | No isolation, risky                  | Always use worktrees                   |
-| Submit without validation | CI becomes first gate                | Run checks locally first               |
-| Draft PR without reviewer | PR sits unreviewed                   | Always `--publish --reviewer`          |
-| Tasks with no task ID     | Untraceable to plan                  | Every branch references a task         |
+| Anti-Pattern              | Problem           | Fix                         |
+| ------------------------- | ----------------- | --------------------------- |
+| Mega PR                   | Risky, unreviable | Split by task               |
+| Mixed concerns            | Hard to trace     | Separate PRs per concern    |
+| Vague commits             | Poor history      | Use Conventional Commits    |
+| No acceptance criteria    | Undefined done    | Define criteria first       |
+| Skip tech plan            | Uncoordinated     | Always plan before tasks    |
+| Implement in trunk        | No isolation      | Use worktrees               |
+| Submit without validation | CI is first gate  | Run local checks first      |
+| Draft PR w/o reviewer     | Sits unreviewed   | Use `--publish --reviewer`  |
+| No task ID                | Untraceable       | Reference task in branch    |
 
 ---
 
@@ -334,7 +335,8 @@ Use `Refs` when the PR contributes to but does not fully resolve an issue.
 ### Standards
 
 - Conventional Commits: <https://www.conventionalcommits.org/en/v1.0.0/>
-- Google Code Review Guidelines: <https://google.github.io/eng-practices/review/>
+- Google Code Review Guidelines:
+  <https://google.github.io/eng-practices/review/>
 - Trunk-Based Development: <https://trunkbaseddevelopment.com/>
 
 ### Tools
@@ -343,8 +345,10 @@ Use `Refs` when the PR contributes to but does not fully resolve an issue.
 - Graphite CLI tutorials: <https://graphite.com/docs/cli-tutorials>
 - Graphite create and submit PRs: <https://graphite.com/docs/create-submit-prs>
 - Git worktree docs: <https://git-scm.com/docs/git-worktree>
-- GitHub Projects: <https://docs.github.com/en/issues/planning-and-tracking-with-projects>
-- GitHub issue and PR templates: <https://docs.github.com/articles/about-issue-and-pull-request-templates/>
+- GitHub Projects:
+  <https://docs.github.com/en/issues/planning-and-tracking-with-projects>
+- GitHub issue and PR templates:
+  <https://docs.github.com/articles/about-issue-and-pull-request-templates/>
 - Linking PRs to issues: <https://docs.github.com/articles/closing-issues-using-keywords/>
 
 ### Related Skills

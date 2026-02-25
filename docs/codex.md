@@ -9,11 +9,11 @@ GitHub: <https://github.com/openai/codex>
 
 All found files are concatenated from git root downward.
 
-| File | Scope |
-|------|-------|
-| `~/.codex/AGENTS.md` | User (all projects) |
-| `AGENTS.md` (in each dir from git root to cwd) | Project |
-| `AGENTS.override.md` | Overrides AGENTS.md at same level |
+| File                                  | Scope               |
+| ------------------------------------- | ------------------- |
+| `~/.codex/AGENTS.md`                  | User (all projects) |
+| `AGENTS.md` from root to cwd          | Project             |
+| `AGENTS.override.md`                  | Local override      |
 
 **Cross-tool fallback:** Configure
 `project_doc_fallback_filenames` in `config.toml` to also read
@@ -28,12 +28,12 @@ project_doc_max_bytes = 32768
 
 ## Settings Files
 
-| File | Scope |
-|------|-------|
-| `~/.codex/config.toml` | User |
-| `.codex/config.toml` | Project (trusted projects only) |
-| `/etc/codex/config.toml` | System |
-| `~/.codex/requirements.toml` | Admin-enforced constraints |
+| File                          | Scope               |
+| ----------------------------- | ------------------- |
+| `~/.codex/config.toml`        | User                |
+| `.codex/config.toml`          | Project (trusted)   |
+| `/etc/codex/config.toml`      | System              |
+| `~/.codex/requirements.toml`  | Admin constraints   |
 
 Format: TOML.
 
@@ -87,11 +87,11 @@ codex mcp login <server-name>   # OAuth flow
 Follows the [Agent Skills open standard](https://agentskills.io/specification).
 It uses the same `SKILL.md` format as Claude Code.
 
-| Location | Scope |
-|----------|-------|
-| `/etc/codex/skills` | System/admin |
-| `~/.agents/skills/<name>` | User |
-| `.agents/skills/<name>` (git root, parent dirs, cwd) | Project (portable) |
+| Location                              | Scope              |
+| ------------------------------------- | ------------------ |
+| `/etc/codex/skills`                   | System/admin       |
+| `~/.agents/skills/<name>`             | User               |
+| `.agents/skills/<name>`               | Project (portable) |
 
 Shared directory mechanism: Codex auto-discovers these paths. To use
 one shared directory, point `~/.agents/skills` (or project
@@ -144,6 +144,7 @@ decision control available in Claude Code and Gemini CLI.
 
 No formal plugin or extension system equivalent to Claude
 Code plugins or Gemini CLI extensions. Extensibility is through:
+
 - Skills (`.agents/skills/`)
 - MCP servers
 - Agents SDK (programmatic)

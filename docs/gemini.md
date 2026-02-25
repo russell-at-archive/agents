@@ -9,12 +9,12 @@ GitHub: <https://github.com/google-gemini/gemini-cli>
 
 All found files are concatenated with origin indicators.
 
-| File                               | Scope                                |
-|------------------------------------|--------------------------------------|
-| `~/.gemini/GEMINI.md`              | User                                 |
-| `GEMINI.md` (project hierarchy, scanned up to git root) | Project         |
-| Up to 200 subdirectories below cwd | Sub-project                          |
-| Extension-bundled context files    | Extension-scoped                     |
+| File                                | Scope            |
+| ----------------------------------- | ---------------- |
+| `~/.gemini/GEMINI.md`               | User             |
+| `GEMINI.md` (project hierarchy)     | Project          |
+| Up to 200 subdirectories below cwd  | Sub-project      |
+| Extension-bundled context files     | Extension scope  |
 
 - `@path/to/file.md` import syntax (same as Claude Code)
 - `/memory show` and `/memory refresh` slash commands
@@ -24,11 +24,11 @@ All found files are concatenated with origin indicators.
 
 ## Settings Files
 
-| File                             | Scope                                |
-|----------------------------------|--------------------------------------|
-| `~/.gemini/settings.json`        | User                                 |
-| `.gemini/settings.json`          | Project (workspace overrides user)   |
-| `/etc/gemini-cli/settings.json`  | System (highest precedence)          |
+| File                              | Scope               |
+| --------------------------------- | ------------------- |
+| `~/.gemini/settings.json`         | User                |
+| `.gemini/settings.json`           | Project override    |
+| `/etc/gemini-cli/settings.json`   | System (highest)    |
 
 Format: JSON.
 
@@ -68,10 +68,10 @@ MCP tools appear as `mcp__<server_name>__<tool_name>` in hook matchers.
 
 Project or user-level TOML files.
 
-| Location              | Scope   |
-|-----------------------|---------|
-| `~/.gemini/commands/` | User    |
-| `.gemini/commands/`   | Project |
+| Location               | Scope   |
+| ---------------------- | ------- |
+| `~/.gemini/commands/`  | User    |
+| `.gemini/commands/`    | Project |
 
 ```toml
 description = "Refactor code into pure functions"
@@ -96,11 +96,11 @@ Include: @{path/to/context.md}
 Follows the [Agent Skills open standard](https://agentskills.io/specification).
 Uses the same `SKILL.md` format as Claude Code and Codex.
 
-| Location                  | Scope                         |
-|---------------------------|-------------------------------|
-| `~/.gemini/skills/<name>` | User                          |
-| `.gemini/skills/<name>`   | Project                       |
-| `.agents/skills/<name>`   | Cross-tool (takes precedence) |
+| Location                    | Scope                         |
+| --------------------------- | ----------------------------- |
+| `~/.gemini/skills/<name>`   | User                          |
+| `.gemini/skills/<name>`     | Project                       |
+| `.agents/skills/<name>`     | Cross-tool (takes precedence) |
 
 Shared directory mechanism: Gemini automatically prefers
 `.agents/skills/` for cross-tool skills. For linked development
@@ -171,11 +171,13 @@ Currently only `type: "command"` (shell scripts).
 Matcher: regex for tool events, exact string for lifecycle events.
 
 ### Environment Variables in Hooks
+
 - `GEMINI_PROJECT_DIR` (also aliased as `CLAUDE_PROJECT_DIR` for compatibility)
 - `GEMINI_SESSION_ID`
 - `GEMINI_CWD`
 
 ### Exit Codes
+
 - `0` + JSON stdout: structured control (`decision`, `reason`,
   `tool_input`, `additionalContext`)
 - `2`: system block
@@ -201,6 +203,7 @@ my-extension/
 ```
 
 `gemini-extension.json`:
+
 ```json
 {
   "name": "my-extension",

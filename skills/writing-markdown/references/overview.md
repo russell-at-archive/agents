@@ -49,7 +49,9 @@ Tables are the #2 source of violations. Rules:
 - Every row (including separator) must be under 80 chars
 - All pipes in a column MUST align vertically
 - Use padded style with spaces after/before pipes
-- If a table exceeds 80 chars, convert to a list
+- Prefer fixing table width/alignment first.
+- Convert to a list only when a table cannot be made lint-compliant
+  without harming readability.
 - **Each column width must equal the width of its widest
   cell** — pad all shorter cells with trailing spaces
 - **Separator dashes must span the full column width** —
@@ -144,4 +146,5 @@ After writing any markdown file, mentally verify:
 10. Consistent markers: `-` for lists, `*` for emphasis
 11. Every table column is padded to equal width; separator
     dashes match the widest cell in each column
-
+12. Table lint issues were fixed by repairing table formatting
+    rather than converting tables to lists

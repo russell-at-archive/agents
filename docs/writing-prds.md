@@ -23,13 +23,13 @@ A good PRD should:
 
 PRDs exist within a hierarchy of planning artifacts. Understand where each fits:
 
-| Artifact | Owner | Answers | Scope |
-| -------- | ----- | ------- | ----- |
-| PRD | Product Manager | What & Why | Feature or initiative |
-| RFC / Design Doc | Engineer | How | Technical implementation |
-| ADR | Engineer / Architect | Which & Why | Single architectural decision |
-| Technical Spec | Engineering | How (detailed) | System or service design |
-| Task Breakdown | Team | Steps | Sprint-level execution |
+| Artifact         | Owner          | Answers     | Scope                    |
+| ---------------- | -------------- | ----------- | ------------------------ |
+| PRD              | Product Mgr    | What & Why  | Feature or initiative    |
+| RFC / Design Doc | Engineer       | How         | Technical implementation |
+| ADR              | Eng/Architect  | Which & Why | Single architecture call |
+| Technical Spec   | Engineering    | How detail  | System or service design |
+| Task Breakdown   | Team           | Steps       | Sprint-level execution   |
 
 PRDs feed into RFCs and Design Docs. ADRs record the architectural decisions
 made during that process.
@@ -162,14 +162,14 @@ Cover happy paths, error states, and edge cases.
 Use the ISO 25010 checklist to avoid gaps. Include a threshold for each
 applicable attribute:
 
-| Attribute | Requirement | Threshold |
-| --------- | ----------- | --------- |
-| Performance | p95 latency | < 500ms |
-| Availability | Uptime | 99.9% |
-| Security | Auth required | All endpoints |
-| Accessibility | WCAG level | AA |
-| Scalability | Concurrent users | 10,000 |
-| Data retention | Log history | 90 days |
+| Attribute      | Requirement      | Threshold     |
+| -------------- | ---------------- | ------------- |
+| Performance    | p95 latency      | < 500ms       |
+| Availability   | Uptime           | 99.9%         |
+| Security       | Auth required    | All endpoints |
+| Accessibility  | WCAG level       | AA            |
+| Scalability    | Concurrent users | 10,000        |
+| Data retention | Log history      | 90 days       |
 
 ### 10. Design and UX
 
@@ -204,12 +204,12 @@ Call out anything that could block or limit implementation:
 
 Explicitly address the four big risks:
 
-| Risk Category | Description | Mitigation |
-| ------------- | ----------- | ---------- |
-| Value risk | Will users want this? | User research, prototype testing |
-| Usability risk | Can users figure it out? | Usability testing, walkthrough |
-| Feasibility risk | Can engineering build it? | Technical spike, arch review |
-| Business viability | Aligns with legal, financial constraints? | Stakeholder review |
+| Risk        | Question                 | Mitigation           |
+| ----------- | ------------------------ | -------------------- |
+| Value       | Will users want this     | Research + prototype |
+| Usability   | Can users use it         | Usability testing    |
+| Feasibility | Can engineering build it | Technical spike      |
+| Viability   | Legal/financial fit      | Stakeholder review   |
 
 List assumptions separately with owners and due dates for validation:
 
@@ -243,14 +243,16 @@ Track every material update at the bottom of the document.
 
 ## Writing Style
 
-- **Solution-agnostic**: Describe behaviors and outcomes. Let engineering choose
-  the implementation.
-- **Data-backed**: Support problem statements with evidence—analytics, support
-  tickets, user research. Vague claims weaken credibility.
-- **Concise**: Remove every sentence that does not help a reader decide or act.
-  Bullet points for requirements, prose for context.
-- **Unambiguous**: Replace "fast", "secure", "easy" with thresholds. Ambiguity
-  forces assumptions.
+- **Solution-agnostic**: Describe behaviors and outcomes.
+  Let engineering choose the implementation.
+- **Data-backed**: Support problem statements with evidence:
+  analytics, support tickets, and user research.
+  Vague claims weaken credibility.
+- **Concise**: Remove every sentence that does not help a
+  reader decide or act. Use bullet points for requirements
+  and prose for context.
+- **Unambiguous**: Replace "fast", "secure", and "easy"
+  with thresholds. Ambiguity forces assumptions.
 - **Status-aware**: Mark unresolved sections `TBD [owner]` to signal gaps are
   known, not forgotten.
 
@@ -271,17 +273,17 @@ one stakeholder.
 
 ## Anti-Patterns to Avoid
 
-| Anti-Pattern | Symptom | Fix |
-| ------------ | ------- | --- |
-| Solution first | PRD describes UI before problem | Start with problem and user goals |
-| Vacuous content | Generic filler ("ensure alignment") | Replace with specific requirements |
-| Missing evidence | No data supporting the problem | Cite analytics, research, support volume |
-| Vague criteria | "The page should be fast" | State "p95 load time < 2 seconds" |
-| Spec bloat | Edge cases disconnected from goals | Tie requirements to user stories |
-| Unfinished thinking | Rough ideas handed to design | Include rough sketches or mockups |
-| Static document | PRD never updated | Update changelog with every material change |
-| Siloed authorship | First review is at handoff | Collaborate early with design and engineering |
-| Over-scoping | Everything in one PRD | Split into focused, deliverable PRDs |
+| Anti-Pattern      | Symptom                  | Fix                     |
+| ----------------- | ------------------------ | ----------------------- |
+| Solution first    | UI before problem        | Start with user problem |
+| Vacuous content   | Generic filler           | Use specific reqs       |
+| Missing evidence  | No supporting data       | Cite analytics/research |
+| Vague criteria    | No measurable targets    | Define concrete targets |
+| Spec bloat        | Edge cases off-goal      | Tie to user stories     |
+| Unfinished draft  | Rough handoff to design  | Include rough mockups   |
+| Static document   | Never updated            | Update changelog often  |
+| Siloed authorship | Review starts at handoff | Collaborate early       |
+| Over-scoping      | Too much in one PRD      | Split into focused PRDs |
 
 ---
 
@@ -308,12 +310,12 @@ Before circulating a PRD for review:
 
 ## Relationship to Adjacent Artifacts
 
-| When to write a PRD | When to write something else |
-| ------------------- | --------------------------- |
-| Defining a new feature or major change | ADR for a significant architectural decision |
-| Scoping a release | RFC/Design Doc for technical implementation |
-| Aligning stakeholders before engineering starts | Project plan for timeline and resource tracking |
-| Documenting user needs and success criteria | User research report for qualitative findings |
+| Write a PRD for          | Use another doc for   |
+| ------------------------ | --------------------- |
+| New feature/major change | ADR on architecture   |
+| Release scope/outcomes   | RFC/design for impl   |
+| Stakeholder alignment    | Project timeline plan |
+| Needs + success criteria | User research report  |
 
 A PRD should reference related ADRs, RFCs, and design docs. It does not replace
 them.

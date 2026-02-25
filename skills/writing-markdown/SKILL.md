@@ -33,6 +33,8 @@ Detailed guidance: `references/overview.md`.
 
 - do not execute destructive or irreversible actions without approval
 - follow repository-specific constraints before making changes
+- preserve tables when resolving lint errors by fixing alignment and
+  column widths; convert to lists only if explicitly requested
 
 ## Failure Handling
 

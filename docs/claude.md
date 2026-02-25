@@ -8,12 +8,12 @@ Official docs: <https://code.claude.com/docs/en/>
 
 All files are loaded hierarchically and merged at startup.
 
-| File | Scope |
-|------|-------|
-| `~/.claude/CLAUDE.md` | User (all projects) |
-| `./CLAUDE.md` or `./.claude/CLAUDE.md` | Project (team-shared, committed) |
-| `./CLAUDE.local.md` | Project (personal, auto-gitignored) |
-| `./.claude/rules/*.md` | Modular rules; YAML `paths:` controls loading |
+| File                               | Scope                    |
+| ---------------------------------- | ------------------------ |
+| `~/.claude/CLAUDE.md`              | User (all projects)      |
+| `./CLAUDE.md` or `./.claude/`      | Project (team-shared)    |
+| `./CLAUDE.local.md`                | Project (personal)       |
+| `./.claude/rules/*.md`             | Modular rules (`paths:`) |
 
 - `@path/to/file` import syntax (max 5 hops deep)
 - Child directory `CLAUDE.md` files load on-demand, not at startup
@@ -24,11 +24,11 @@ All files are loaded hierarchically and merged at startup.
 
 ## Settings Files
 
-| File | Scope |
-|------|-------|
-| `~/.claude/settings.json` | User |
-| `.claude/settings.json` | Project (shared) |
-| `.claude/settings.local.json` | Project (personal, gitignored) |
+| File                           | Scope              |
+| ------------------------------ | ------------------ |
+| `~/.claude/settings.json`      | User               |
+| `.claude/settings.json`        | Project (shared)   |
+| `.claude/settings.local.json`  | Project (personal) |
 
 Key fields: `hooks`, `permissions`, `env`, `mcpServers`, `model`,
 `allowedTools`, and `disallowedTools`
@@ -37,10 +37,10 @@ Key fields: `hooks`, `permissions`, `env`, `mcpServers`, `model`,
 
 ## MCP Servers
 
-| File | Scope |
-|------|-------|
-| `~/.claude.json` | User/local |
-| `.mcp.json` | Project (commit to VCS) |
+| File             | Scope                    |
+| ---------------- | ------------------------ |
+| `~/.claude.json` | User/local               |
+| `.mcp.json`      | Project (commit to VCS)  |
 
 ```json
 {
@@ -68,11 +68,11 @@ MCP tools appear as `mcp__<server>__<tool>` in hook matchers.
 Skills are the primary custom command mechanism. Users invoke them as
 `/skill-name [args]`.
 
-| Location | Scope |
-|----------|-------|
-| `~/.claude/skills/<name>/SKILL.md` | User |
-| `.claude/skills/<name>/SKILL.md` | Project |
-| `.agents/skills/<name>/SKILL.md` | Cross-tool (portable) |
+| Location                         | Scope                 |
+| -------------------------------- | --------------------- |
+| `~/.claude/skills/<name>/`       | User                  |
+| `.claude/skills/<name>/`         | Project               |
+| `.agents/skills/<name>/`         | Cross-tool (portable) |
 
 Shared directory mechanism: Claude has no dedicated `skills_path`
 setting. To use one shared directory, expose it at `.agents/skills/`
@@ -113,37 +113,40 @@ Configured in `hooks` key of `settings.json`, plugin
 
 ### Hook Events (17 total)
 
-| Event | Blockable |
-|-------|-----------|
-| `SessionStart` | No |
-| `UserPromptSubmit` | Yes |
-| `PreToolUse` | Yes |
-| `PermissionRequest` | Yes |
-| `PostToolUse` | Partial |
-| `PostToolUseFailure` | No |
-| `Stop` | Yes |
-| `SubagentStart` | No |
-| `SubagentStop` | Yes |
-| `TaskCompleted` | Yes |
-| `TeammateIdle` | Yes |
-| `ConfigChange` | Yes |
-| `WorktreeCreate` | Yes |
-| `WorktreeRemove` | No |
-| `PreCompact` | No |
-| `Notification` | No |
-| `SessionEnd` | No |
+| Event              | Blockable |
+| ------------------ | --------- |
+| `SessionStart`     | No        |
+| `UserPromptSubmit` | Yes       |
+| `PreToolUse`       | Yes       |
+| `PermissionRequest`| Yes       |
+| `PostToolUse`      | Partial   |
+| `PostToolUseFail`  | No        |
+| `Stop`             | Yes       |
+| `SubagentStart`    | No        |
+| `SubagentStop`     | Yes       |
+| `TaskCompleted`    | Yes       |
+| `TeammateIdle`     | Yes       |
+| `ConfigChange`     | Yes       |
+| `WorktreeCreate`   | Yes       |
+| `WorktreeRemove`   | No        |
+| `PreCompact`       | No        |
+| `Notification`     | No        |
+| `SessionEnd`       | No        |
 
 ### Hook Types
+
 - `type: "command"` — shell script, receives JSON on stdin
 - `type: "prompt"` — single-turn LLM evaluation
 - `type: "agent"` — multi-turn subagent with Read/Grep/Glob tools
 
 ### Exit Codes
+
 - `0` + JSON stdout: structured control (allow/deny/modify input)
 - `2`: blocking error (feeds stderr to Claude)
 - Other: non-blocking warning
 
 ### PreToolUse JSON output
+
 ```json
 {
   "hookSpecificOutput": {
@@ -184,10 +187,10 @@ Skills namespaced as `/plugin-name:skill-name`.
 
 ## Custom Subagents
 
-| Location | Scope |
-|----------|-------|
-| `.claude/agents/<name>.md` | Project |
-| `~/.claude/agents/<name>.md` | User |
+| Location                    | Scope   |
+| --------------------------- | ------- |
+| `.claude/agents/<name>.md`  | Project |
+| `~/.claude/agents/<name>.md`| User    |
 
 Format: YAML frontmatter + Markdown system prompt.
 
