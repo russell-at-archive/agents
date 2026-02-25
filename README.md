@@ -3,10 +3,23 @@
 This directory contains shared customizations for AI agents.
 Currently just a collection of skills.
 
+## Process Guides
+
+- [Delivery Standards](./docs/delivery-standards.md): planning hierarchy,
+  task decomposition, commit conventions, PR sizing, and stacked PR workflow.
+
 ## Skills Index
 
 Current skills available in this environment:
 
+- [decomposing-work](./skills/decomposing-work/SKILL.md): Use when breaking a
+  feature plan into implementation tasks. Produces a task list where each task
+  maps to exactly one branch and one PR. Invoke after a tech plan is approved
+  and before any implementation begins.
+- [planning-speckit-worktrees-graphite](./skills/planning-speckit-worktrees-graphite/SKILL.md):
+  Use when planning and delivering features that must follow GitHub Spec Kit
+  planning, git worktrees for isolation, and Graphite stacked pull requests.
+  Combines using-github-speckit, using-git-worktrees, and using-graphite-cli.
 - [using-codex-cli](./skills/using-codex-cli/SKILL.md): Use when you need to
   dispatch tasks to the Codex CLI tool for parallel execution, offloading
   long-running work, or leveraging OpenAI models. Invoke before running any
@@ -43,9 +56,10 @@ Current skills available in this environment:
 - [writing-adrs](./skills/writing-adrs/SKILL.md): Use when creating or updating
   Architectural Decision Records, when a significant technical or
   architectural choice needs documenting, or when asked to write an ADR.
-- [writing-prds](./skills/writing-prds/SKILL.md): Use when creating or updating
-  a Product Requirements Document, when a feature or initiative needs a formal
-  specification, or when asked to write a PRD.
+- [writing-conventional-commits](./skills/writing-conventional-commits/SKILL.md):
+  Use when writing any git commit message. Enforces Conventional Commits format
+  for readable history, automated changelogs, and semantic versioning. Invoke
+  before every commit.
 - [writing-grammar](./skills/writing-grammar/SKILL.md): Apply a structured
   grammar checklist to a document line by line. Use when any document
   requires a thorough, consistent grammar review before publication or
@@ -53,3 +67,6 @@ Current skills available in this environment:
 - [writing-markdown](./skills/writing-markdown/SKILL.md): Use when writing or
   editing any markdown document, README, or .md file to ensure strict
   compliance with all markdownlint rules.
+- [writing-prds](./skills/writing-prds/SKILL.md): Use when creating or updating
+  a Product Requirements Document, when a feature or initiative needs a formal
+  specification, or when asked to write a PRD.
