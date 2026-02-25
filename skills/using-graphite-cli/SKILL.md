@@ -19,28 +19,30 @@ via `gt submit`.
 Use `gt` for branch creation, committing, syncing, submitting PRs,
 and navigation.
 
-**Violating the letter of this rule is violating the spirit of the rule.**
+**Violating the letter of this rule is violating the spirit of the
+rule.**
 
 ## Command Mapping
 
-| Instead of (git/gh)               | Use (gt)                       | Notes                                       |
-| --------------------------------- | ------------------------------ | ------------------------------------------- |
-| `git checkout -b <name>`          | `gt create <name>`             | Creates branch + commits staged changes     |
-| `git commit`                      | `gt create <name>` or `gt modify` | New branch commit or amend current |
-| `git add . && git commit --amend` | `gt modify`                    | Amends current branch and restacks descendants |
-| `git rebase origin/main`          | `gt sync`                      | Sync trunk and restack branches |
-| `git push`                        | `gt submit`                    | Pushes current branch + all downstack to GitHub |
-| `git push` (full stack)           | `gt submit --stack`            | Pushes entire stack                         |
-| `gh pr create`                    | `gt submit`                    | Creates or updates PRs as part of submit |
-| `git checkout <branch>`           | `gt checkout`                  | Interactive branch checkout                 |
-| `git log --graph`                 | `gt log`                       | Shows current stack graphically             |
-| `git checkout` (up in stack)      | `gt up`                        | Move up one branch in the stack             |
-| `git checkout` (down in stack)    | `gt down`                      | Move down one branch in the stack           |
-| `git rebase` (reorder stack)      | `gt restack`                   | Rebases every PR in a stack                 |
+| git / gh                          | gt equivalent             |
+| --------------------------------- | ------------------------- |
+| `git checkout -b <name>`          | `gt create <name>`        |
+| `git commit`                      | `gt create` / `gt modify` |
+| `git add . && git commit --amend` | `gt modify`               |
+| `git rebase origin/main`          | `gt sync`                 |
+| `git push`                        | `gt submit`               |
+| `git push` (full stack)           | `gt submit --stack`       |
+| `gh pr create`                    | `gt submit`               |
+| `git checkout <branch>`           | `gt checkout`             |
+| `git log --graph`                 | `gt log`                  |
+| `git checkout` (up in stack)      | `gt up`                   |
+| `git checkout` (down in stack)    | `gt down`                 |
+| `git rebase` (reorder stack)      | `gt restack`              |
 
 ## Core Workflow
 
 ### Creating a new branch with changes
+
 ```bash
 # Stage your changes first
 git add <files>
@@ -49,6 +51,7 @@ gt create feature-name -m "commit message"
 ```
 
 ### Stacking another PR on top
+
 ```bash
 # From current branch, stage changes, then:
 gt create next-feature -m "commit message"
@@ -56,6 +59,7 @@ gt create next-feature -m "commit message"
 ```
 
 ### Modifying the current branch
+
 ```bash
 # Stage changes, then:
 gt modify
@@ -67,9 +71,9 @@ gt modify
 **Before running `gt submit`, local validation checks must pass.**
 Do not submit and wait for CI to catch failures.
 
-Run the repository's standard pre-submit commands. Prefer commands documented
-in `README.md`, `CONTRIBUTING.md`, or project task runners (`package.json`,
-`Makefile`, `justfile`, etc.).
+Run the repository's standard pre-submit commands. Prefer commands
+documented in `README.md`, `CONTRIBUTING.md`, or project task runners
+(`package.json`, `Makefile`, `justfile`, etc.).
 
 ```bash
 # Example only — use project-specific equivalents
@@ -86,7 +90,8 @@ A PR is not ready for review until it has:
 
 1. **All required local validation checks passing**
 2. **A description** — follow the repository PR template if one exists
-3. **Published (not draft)** — use `--publish` so reviewers are notified
+3. **Published (not draft)** — use `--publish` so reviewers are
+   notified
 4. **A reviewer assigned** — use `--reviewer <username>`
 
 ```bash
@@ -97,9 +102,10 @@ gt submit --stack --no-interactive --publish --reviewer <reviewer-username>
 gt submit --no-interactive --publish --reviewer <reviewer-username>
 ```
 
-**Note:** GitHub does not allow requesting a review from the PR author. If the
-agent is running as the same user who owns the repo, omit `--reviewer` and add
-reviewers manually from the GitHub UI after submission.
+**Note:** GitHub does not allow requesting a review from the PR author.
+If the agent is running as the same user who owns the repo, omit
+`--reviewer` and add reviewers manually from the GitHub UI after
+submission.
 
 **`--no-interactive` forces draft mode.** The flag to override this is
 `--publish`. There is no `--no-draft` flag — it does not exist. Always
@@ -140,22 +146,26 @@ EOF
 ```
 
 ### Syncing with trunk
+
 ```bash
 gt sync
-# Pulls latest trunk, rebases all stacks, prompts to clean merged branches
+# Pulls latest trunk, rebases all stacks, prompts to clean merged
+# branches
 ```
 
 ## When Git Is Still Acceptable
 
 Only use raw `git` for operations that have **no `gt` equivalent**:
+
 - `git status` — checking working tree state
 - `git diff` — viewing changes
 - `git add` — staging files
 - `git stash` — stashing changes
-- `git log` — viewing commit history (though prefer `gt log` for stack view)
+- `git log` — viewing commit history (though prefer `gt log`)
 - `git clone` — cloning repositories
 - `git init` — initializing repositories
-- `gt init` should be run after `git init` or `git clone` to set up Graphite
+- `gt init` should be run after `git init` or `git clone` to set up
+  Graphite
 
 ## Non-Interactive Mode
 
@@ -174,28 +184,28 @@ gt sync --no-interactive
 - About to run `git push` — use `gt submit` instead
 - About to run `gh pr create` — use `gt submit` instead
 - About to run `git rebase origin/main` — use `gt sync` instead
-- Creating a PR without stacking — always use `gt submit` for stack-aware PRs
-- Submitting without `--publish` — `--no-interactive` forces draft mode
+- Creating a PR without stacking — always use `gt submit`
+- Submitting without `--publish` — `--no-interactive` forces draft
 - Submitting without `--reviewer` — PRs with no reviewer sit unreviewed
 - Skipping PR description — an empty PR body is never ready for review
 
 ## Common Mistakes
 
-| Mistake                                      | Fix                                                           |
-| -------------------------------------------- | ------------------------------------------------------------- |
-| Using `gh pr create` for PRs                 | Use `gt submit` — it creates PRs automatically               |
-| Using `git push` to push branches            | Use `gt submit` — it pushes and creates/updates PRs          |
-| Using `git checkout -b` for new branches     | Use `gt create` — it creates the branch as part of a stack   |
-| Manual rebasing with `git rebase`            | Use `gt sync` or `gt restack`                                |
-| Forgetting `--no-interactive` in automation  | Always pass `--no-interactive` when running non-interactively |
-| Omitting `--publish` on submit               | `--no-interactive` forces draft; always add `--publish`      |
+| Mistake                          | Fix                                    |
+| -------------------------------- | -------------------------------------- |
+| Using `gh pr create`             | Use `gt submit` — creates PRs too      |
+| Using `git push`                 | Use `gt submit` — pushes and creates   |
+| Using `git checkout -b`          | Use `gt create` — stack-aware          |
+| Manual `git rebase`              | Use `gt sync` or `gt restack`          |
+| Missing `--no-interactive`       | Always pass when non-interactive       |
+| Missing `--publish` on submit    | `--no-interactive` forces draft        |
 
 ## Rationalization Table
 
-| Excuse                           | Reality                                                            |
-| -------------------------------- | ------------------------------------------------------------------ |
-| "git is simpler for this"        | `gt` wraps git. Same simplicity, stack-aware. Use it.             |
-| "I just need a quick branch"     | `gt create` is one command. Faster than `git checkout -b` + `git commit`. |
-| "This PR doesn't need stacking"  | Every PR goes through Graphite. `gt submit` handles single PRs too. |
-| "gh pr create gives more control" | `gt submit` accepts title/body options. Use `gt submit --help` for details. |
-| "I'll switch to gt later"        | No. Start with gt. Mixing workflows causes stack tracking issues. |
+| Excuse                            | Reality                                  |
+| --------------------------------- | ---------------------------------------- |
+| "git is simpler for this"         | `gt` wraps git — same simplicity.        |
+| "I just need a quick branch"      | `gt create` is one command.              |
+| "This PR doesn't need stacking"   | `gt submit` handles single PRs too.      |
+| "gh pr create gives more control" | Use `gt submit --help` for options.      |
+| "I'll switch to gt later"         | No. Mixing causes stack tracking issues. |

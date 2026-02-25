@@ -22,18 +22,23 @@ window. Every task must be self-contained.
 
 **Use Gemini when:**
 
-- Analyzing or understanding a large codebase (many files, deep dependency trees)
+- Analyzing or understanding a large codebase (many files, deep
+  dependency trees)
 - Summarizing large PRs, long documents, or entire repositories
-- Mapping cross-file dependencies ("how does X affect Y across the codebase?")
+- Mapping cross-file dependencies ("how does X affect Y across the
+  codebase?")
 - Assessing migration impact across a project
-- Research that requires reading and synthesizing many files simultaneously
+- Research that requires reading and synthesizing many files
+  simultaneously
 
 **Don't use Gemini when:**
 
 - The task needs code generation or execution (use Codex)
-- It's a small, focused question about 1-2 files (overkill -- read them directly)
+- It's a small, focused question about 1-2 files (overkill -- read
+  them directly)
 - The task needs access to the current conversation context
-- You need to modify files (Gemini is best for read/analysis, not writes)
+- You need to modify files (Gemini is best for read/analysis, not
+  writes)
 
 ## Execution Modes
 
@@ -72,15 +77,15 @@ Use unique filenames when dispatching multiple tasks.
 
 ## Common Flags
 
-| Flag                    | Purpose                         | Example                           |
-| ----------------------- | ------------------------------- | --------------------------------- |
-| `-p "prompt"`           | Non-interactive (headless) mode | Always use for dispatched tasks   |
-| `-m MODEL`              | Choose model                    | `-m gemini-2.5-pro`               |
-| `-y`                    | Auto-approve all actions (YOLO) | Use for trusted analysis tasks    |
-| `--approval-mode MODE`  | Set approval policy             | `plan`, `auto_edit`, `yolo`       |
-| `-o FORMAT`             | Output format                   | `-o json`, `-o text`              |
-| `--include-directories` | Add extra directories to workspace | `--include-directories ../other-repo` |
-| `-s`                    | Run in sandbox                  | For untrusted analysis            |
+| Flag                    | Purpose                                          |
+| ----------------------- | ------------------------------------------------ |
+| `-p "prompt"`           | Non-interactive (headless) mode. Always use.     |
+| `-m MODEL`              | Choose model: `-m gemini-2.5-pro`                |
+| `-y`                    | Auto-approve all actions (YOLO)                  |
+| `--approval-mode MODE`  | Set approval policy: `plan`, `auto_edit`, `yolo` |
+| `-o FORMAT`             | Output format: `-o json`, `-o text`              |
+| `--include-directories` | Add extra directories to workspace               |
+| `-s`                    | Run in sandbox for untrusted analysis            |
 
 ## Prompt Structure
 
@@ -105,7 +110,8 @@ dependency map, migration impact, summary, etc.]
 
 ## Passing Files
 
-Gemini's strength is reading many files at once. Pass paths directly as positional arguments after the prompt:
+Gemini's strength is reading many files at once. Pass paths directly
+as positional arguments after the prompt:
 
 ```bash
 # Specific files
@@ -118,7 +124,8 @@ gemini -p "Map dependencies in this module" src/core/
 gemini -p "Assess migration impact" src/ package.json tsconfig.json
 ```
 
-Prefer passing **more files** rather than fewer -- Gemini handles breadth well.
+Prefer passing **more files** rather than fewer -- Gemini handles
+breadth well.
 
 ## Parallel Dispatch
 
@@ -138,7 +145,8 @@ gemini -p "Summarize all changes in this PR" \
   $(git diff main...HEAD --name-only) > /tmp/gemini-summary.md 2>&1
 ```
 
-Make all Bash calls with `run_in_background: true` in a single message for true parallelism.
+Make all Bash calls with `run_in_background: true` in a single message
+for true parallelism.
 
 ## Common Mistakes
 
@@ -149,9 +157,11 @@ better context.
 **Using Gemini for code generation:** Gemini excels at comprehension,
 not execution. For writing code, use Codex or Claude subagents.
 
-**Forgetting `-p` flag:** Without `-p`, Gemini launches interactive mode and hangs waiting for input.
+**Forgetting `-p` flag:** Without `-p`, Gemini launches interactive
+mode and hangs waiting for input.
 
-**Not capturing output:** In background mode, always redirect stdout to a file or the output is lost.
+**Not capturing output:** In background mode, always redirect stdout
+to a file or the output is lost.
 
 **Asking narrow questions:** Gemini's value is synthesis across many
 files. For "what does this function do?" just read the file directly.

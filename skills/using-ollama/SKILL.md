@@ -46,11 +46,13 @@ Ollama must be running and reachable. Verify with:
 ollama list
 ```
 
-If targeting a local instance and Ollama is not running, start it with `ollama serve` or launch the Ollama application.
+If targeting a local instance and Ollama is not running, start it with
+`ollama serve` or launch the Ollama application.
 
 ## Configuration
 
-By default, Ollama connects to `http://localhost:11434`. To target a remote instance, set `OLLAMA_HOST`:
+By default, Ollama connects to `http://localhost:11434`. To target a
+remote instance, set `OLLAMA_HOST`:
 
 ```bash
 # Remote server
@@ -68,7 +70,7 @@ ollama list
 Prefix individual commands instead of exporting globally:
 
 ```bash
-OLLAMA_HOST=http://gpu-server.local:11434 ollama run llama3.3 "Your prompt"
+OLLAMA_HOST=http://gpu-server.local:11434 ollama run llama3.3 "prompt"
 ```
 
 ### Remote API Calls
@@ -85,15 +87,16 @@ curl -s http://gpu-server.local:11434/api/generate -d '{
 
 ### Local vs Remote Tradeoffs
 
-| Factor       | Local                         | Remote                             |
-| ------------ | ----------------------------- | ---------------------------------- |
-| Latency      | Lowest (no network)           | Network round-trip per request     |
-| Privacy      | Data stays on-device          | Data traverses the network         |
-| Model size   | Limited by local RAM/VRAM     | Access to larger models on GPU servers |
-| Availability | Works offline                 | Requires network connectivity      |
-| Concurrency  | Constrained by local hardware | Shared server can handle more parallel requests |
+| Factor       | Local                 | Remote                          |
+| ------------ | --------------------- | ------------------------------- |
+| Latency      | Lowest (no network)   | Network round-trip per request  |
+| Privacy      | Data stays on-device  | Data traverses the network      |
+| Model size   | Limited by RAM/VRAM   | Larger models on GPU servers    |
+| Availability | Works offline         | Requires network access         |
+| Concurrency  | Limited by local HW   | Shared server, more parallelism |
 
-**Tip:** For parallel dispatch across both local and remote, mix `OLLAMA_HOST` values to distribute load:
+**Tip:** For parallel dispatch across both local and remote, mix
+`OLLAMA_HOST` values to distribute load:
 
 ```bash
 # Local instance - lightweight task
@@ -121,7 +124,8 @@ echo "Your task prompt here" | ollama run <model>
 Pass file contents directly to the model:
 
 ```bash
-cat src/auth/handler.ts | ollama run <model> "Explain this code and identify potential bugs"
+cat src/auth/handler.ts | ollama run <model> \
+  "Explain this code and identify potential bugs"
 ```
 
 ### Wait-and-Integrate
@@ -129,7 +133,8 @@ cat src/auth/handler.ts | ollama run <model> "Explain this code and identify pot
 Run in background via Bash tool. Capture output with redirection:
 
 ```bash
-echo "Your analysis prompt" | ollama run <model> > /tmp/ollama-output-TASKNAME.md 2>&1
+echo "Your analysis prompt" | ollama run <model> \
+  > /tmp/ollama-output-TASKNAME.md 2>&1
 ```
 
 Use unique filenames when dispatching multiple tasks.
@@ -159,24 +164,25 @@ Or use a structured prompt with file contents:
 
 ## Common Models
 
-| Model              | Strengths                        | Use For                           |
-| ------------------ | -------------------------------- | --------------------------------- |
-| `llama3.3`         | General purpose, good reasoning  | Analysis, code review, summarization |
-| `codellama`        | Code-focused                     | Code generation, debugging, refactoring |
-| `deepseek-coder-v2` | Strong code generation          | Implementation tasks, code completion |
-| `mistral`          | Fast, efficient                  | Quick drafts, simple analysis     |
-| `qwen2.5-coder`    | Code generation and understanding | Code tasks, explanations         |
-| `gemma2`           | Efficient, well-rounded          | General tasks on constrained hardware |
+| Model               | Best for                                  |
+| ------------------- | ----------------------------------------- |
+| `llama3.3`          | Analysis, code review, summarization      |
+| `codellama`         | Code generation, debugging, refactoring   |
+| `deepseek-coder-v2` | Implementation tasks, code completion     |
+| `mistral`           | Quick drafts, fast inference              |
+| `qwen2.5-coder`     | Code tasks and explanations               |
+| `gemma2`            | General tasks on constrained hardware     |
 
-Check available models with `ollama list`. Pull new models with `ollama pull <model>`.
+Check available models with `ollama list`. Pull new models with
+`ollama pull <model>`.
 
 ## Common Flags
 
-| Flag           | Purpose                    | Example              |
-| -------------- | -------------------------- | -------------------- |
-| `--nowordwrap` | Disable word wrapping      | Cleaner output for piping |
-| `--format json` | JSON output               | Structured responses for parsing |
-| `--verbose`    | Show timing stats          | Performance analysis |
+| Flag            | Purpose                                      |
+| --------------- | -------------------------------------------- |
+| `--nowordwrap`  | Disable word wrap for cleaner piped output   |
+| `--format json` | JSON output for structured responses         |
+| `--verbose`     | Show timing stats for performance analysis   |
 
 Model parameters can be set inline:
 
@@ -207,7 +213,8 @@ Ollama has NO context from Claude Code. Include everything:
 
 ## Parallel Dispatch
 
-For multiple independent tasks, dispatch concurrently using background execution:
+For multiple independent tasks, dispatch concurrently using background
+execution:
 
 ```bash
 # Task 1 - code analysis
@@ -221,12 +228,13 @@ cat README.md CHANGELOG.md | ollama run llama3.3 \
   > /tmp/ollama-summary.md 2>&1
 
 # Task 3 - code generation
-echo "Write unit tests for the following function: $(cat src/utils/parser.ts)" \
+echo "Write unit tests for: $(cat src/utils/parser.ts)" \
   | ollama run codellama \
   > /tmp/ollama-tests.md 2>&1
 ```
 
-Make all Bash calls with `run_in_background: true` in a single message for true parallelism.
+Make all Bash calls with `run_in_background: true` in a single message
+for true parallelism.
 
 After all complete, read each output file and integrate results.
 

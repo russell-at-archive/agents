@@ -12,9 +12,11 @@ description: Use when starting feature work that needs isolation from the
 Git worktrees create isolated workspaces sharing the same repository,
 allowing work on multiple branches simultaneously without switching.
 
-**Core principle:** Systematic directory selection + safety verification = reliable isolation.
+**Core principle:** Systematic directory selection + safety verification
+= reliable isolation.
 
-**Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
+**Announce at start:** "I'm using the using-git-worktrees skill to set
+up an isolated workspace."
 
 ## Directory Selection Process
 
@@ -42,7 +44,7 @@ grep -i "worktree.*director" CLAUDE.md 2>/dev/null
 
 If no directory exists and no CLAUDE.md preference:
 
-```
+```text
 No worktree directory found. Where should I create worktrees?
 
 1. .worktrees/ (project-local, hidden)
@@ -65,6 +67,7 @@ git check-ignore -q .worktrees 2>/dev/null || git check-ignore -q worktrees 2>/d
 **If NOT ignored:**
 
 Fix this immediately:
+
 1. Add appropriate line to .gitignore
 2. Commit the change
 3. Proceed with worktree creation
@@ -173,7 +176,7 @@ go test ./...
 
 ### 6. Report Location
 
-```
+```text
 Worktree ready at <full-path>
 Tests passing (<N> tests, 0 failures)
 Ready to implement <feature-name>
@@ -319,7 +322,7 @@ gh issue close <N> --repo <owner>/<repo> --comment "Closed by merged PR stack."
 
 ## Example Workflow
 
-```
+```text
 You: I'm using the using-git-worktrees skill to set up an isolated workspace.
 
 [Check .worktrees/ - exists]
@@ -336,6 +339,7 @@ Ready to implement auth feature
 ## Red Flags
 
 **Never:**
+
 - Create worktree without verifying it's ignored (project-local)
 - Skip validation-command discovery before implementation
 - Skip baseline test verification
@@ -344,6 +348,7 @@ Ready to implement auth feature
 - Skip CLAUDE.md check
 
 **Always:**
+
 - Follow directory priority: existing > CLAUDE.md > ask
 - Verify directory is ignored for project-local
 - Auto-detect and run project setup
@@ -353,10 +358,14 @@ Ready to implement auth feature
 ## Integration
 
 **Called by:**
-- **brainstorming** (Phase 4) - REQUIRED when design is approved and implementation follows
+
+- **brainstorming** (Phase 4) - REQUIRED when design is approved and
+  implementation follows
 - **subagent-driven-development** - REQUIRED before executing any tasks
 - **executing-plans** - REQUIRED before executing any tasks
 - Any skill needing isolated workspace
 
 **Pairs with:**
-- **finishing-a-development-branch** - REQUIRED for cleanup after work complete
+
+- **finishing-a-development-branch** - REQUIRED for cleanup after work
+  complete

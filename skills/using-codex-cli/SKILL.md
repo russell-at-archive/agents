@@ -20,12 +20,14 @@ in the prompt.
 ## When to Use
 
 **Use Codex when:**
+
 - You need parallel, sandboxed execution of independent tasks
 - A task benefits from OpenAI models (reasoning, code generation)
 - You want to offload long-running work and continue in Claude Code
 - The task needs isolated filesystem write access
 
 **Don't use Codex when:**
+
 - The task needs access to the current conversation context
 - It's a quick lookup or file read (overkill)
 - Tasks need interactive user approval mid-execution
@@ -43,7 +45,8 @@ codex exec --full-auto -C /path/to/project "Your task prompt here"
 
 ### Wait-and-Integrate
 
-Run in background via Bash tool. Read output file later to integrate results.
+Run in background via Bash tool. Read output file later to integrate
+results.
 
 ```bash
 codex exec --full-auto -C /path/to/project \
@@ -55,15 +58,15 @@ Use unique filenames for `-o` when dispatching multiple tasks.
 
 ## Common Flags
 
-| Flag          | Purpose                              | Example                        |
-| ------------- | ------------------------------------ | ------------------------------ |
-| `--full-auto` | Non-interactive, sandboxed execution | Always use for dispatched tasks |
-| `-C DIR`      | Set working directory                | `-C /path/to/worktree`         |
-| `-o FILE`     | Write final message to file          | `-o /tmp/codex-result.md`      |
-| `-m MODEL`    | Choose model                         | `-m o3`, `-m o4-mini`          |
-| `-s SANDBOX`  | Sandbox policy                       | `-s read-only`, `-s workspace-write` |
-| `-i IMAGE`    | Attach image(s)                      | `-i screenshot.png`            |
-| `--json`      | JSONL output for parsing             | Structured event stream        |
+| Flag          | Purpose                                              |
+| ------------- | ---------------------------------------------------- |
+| `--full-auto` | Non-interactive, sandboxed execution. Always use.    |
+| `-C DIR`      | Set working directory: `-C /path/to/worktree`        |
+| `-o FILE`     | Write output to file: `-o /tmp/codex-result.md`      |
+| `-m MODEL`    | Choose model: `-m o3`, `-m o4-mini`                  |
+| `-s SANDBOX`  | Sandbox policy: `-s read-only`, `-s workspace-write` |
+| `-i IMAGE`    | Attach image(s): `-i screenshot.png`                 |
+| `--json`      | JSONL output for parsing                             |
 
 ## Prompt Structure
 
@@ -88,7 +91,8 @@ Codex has NO context from Claude Code. Include everything:
 
 ## Parallel Dispatch
 
-For multiple independent tasks, dispatch concurrently using background execution:
+For multiple independent tasks, dispatch concurrently using background
+execution:
 
 ```bash
 # Task 1 - background
@@ -104,7 +108,8 @@ codex exec --full-auto -C /path/to/project \
   -o /tmp/codex-task3.md "Write unit tests for src/utils/parser.ts"
 ```
 
-Make all three Bash calls with `run_in_background: true` in a single message for true parallelism.
+Make all three Bash calls with `run_in_background: true` in a single
+message for true parallelism.
 
 After all complete, read each output file and integrate results.
 
@@ -114,9 +119,11 @@ After all complete, read each output file and integrate results.
 conversation. Always include relevant context, file paths, and
 architecture notes.
 
-**Forgetting --full-auto:** Without this flag, Codex runs interactively and hangs waiting for input.
+**Forgetting --full-auto:** Without this flag, Codex runs interactively
+and hangs waiting for input.
 
-**Same output file for multiple tasks:** Each concurrent task needs a unique `-o` path or results overwrite each other.
+**Same output file for multiple tasks:** Each concurrent task needs a
+unique `-o` path or results overwrite each other.
 
 **Over-scoping tasks:** Like dispatching-parallel-agents, keep each
 Codex task focused on one problem domain. Split large tasks.
