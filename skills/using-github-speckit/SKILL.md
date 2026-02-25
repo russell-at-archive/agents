@@ -11,94 +11,38 @@ description: Use when asked to create a project plan, feature plan, or
 
 ## Overview
 
-Follow GitHub Spec Kit as the default workflow for project and feature planning.
+Use when asked to create a project plan, feature plan, or
+Detailed guidance: `references/overview.md`.
 
-Use this command order unless the user explicitly requests a different flow:
+## When to Use
 
-1. `/constitution` (one-time project guardrails, if missing)
-2. `/specify` (initial feature or project specification)
-3. `/clarify` (optional but recommended to resolve ambiguity)
-4. `/plan` (technical design and implementation approach)
-5. `/tasks` (execution checklist)
-6. `/implement` (optional, only when user asks to execute)
+- when the trigger conditions in frontmatter match the request
 
-## Operating Rules
+## When Not to Use
 
-- Treat `/specify`, `/plan`, and `/tasks` as the minimum planning pipeline.
-- Run `/clarify` before `/plan` when requirements are ambiguous.
-- Do not skip `/plan` if the user asks for architecture or technical approach.
-- Do not run `/implement` unless the user asks to start implementation.
-- Keep each artifact tightly scoped to one feature or project slice.
+- when another skill is a clearer, narrower match
 
-## Standard Interaction Pattern
+## Prerequisites
 
-When asked to create a spec or plan, do this in order:
+- required tools, auth, and repository context are available
 
-1. Confirm scope in one sentence.
-2. Draft or refine input for `/specify`.
-3. Identify open questions and run `/clarify` if needed.
-4. Produce a concrete `/plan` output with architecture and milestones.
-5. Produce `/tasks` with small, testable, dependency-aware steps.
-6. Ask whether to proceed to `/implement`.
+## Workflow
 
-## Prompt Starters
+1. Load `references/overview.md` for core procedure and constraints.
+2. Load `references/examples.md` for concrete command or prompt forms.
+3. Load `references/troubleshooting.md` for recovery and stop conditions.
 
-Use these starter prompts and adapt to the user context.
+## Hard Rules
 
-### `/specify` starter
+- do not execute destructive or irreversible actions without approval
+- follow repository-specific constraints before making changes
 
-```text
-/specify Build <feature name> for <product/project>.
-Goal: <user outcome>.
-Constraints: <time, platform, compliance, performance>.
-Success criteria: <measurable outcomes>.
-```
+## Failure Handling
 
-### `/clarify` starter
-
-```text
-/clarify Focus on unresolved requirements, edge cases, and non-functional
-constraints for <feature name>. Propose defaults where requirements are missing.
-```
-
-### `/plan` starter
-
-```text
-/plan Create a technical implementation plan for <feature name>.
-Include architecture, data model changes, API/UI changes, risks,
-rollout strategy, and validation approach.
-```
-
-### `/tasks` starter
-
-```text
-/tasks Break the approved plan for <feature name> into ordered,
-independently verifiable tasks with dependencies and acceptance criteria.
-```
-
-## Output Quality Bar
-
-Ensure every planning package includes:
-
-- Problem statement and in-scope versus out-of-scope boundaries
-- Key assumptions and explicit open questions
-- Architecture or design decisions with tradeoffs
-- Delivery phases and task dependencies
-- Test and validation strategy
-- Rollback or risk mitigation notes
+- on ambiguity or missing prerequisites, stop and ask for clarification
+- on tool/auth failures, report exact error and next required action
 
 ## Red Flags
 
-Stop and correct the workflow if any of these appear:
-
-- Jumping from idea directly to `/tasks` without `/plan`
-- Writing implementation code when only a spec or plan was requested
-- Missing success criteria or acceptance criteria
-- Multi-feature scope packed into one spec without clear boundaries
-
-## References
-
-Use the official Spec Kit sources for command behavior and updates:
-
-- <https://github.com/github/spec-kit>
-- <https://github.com/github/spec-kit/blob/main/README.md>
+- scope drift beyond this skill's trigger boundaries
+- incomplete validation before reporting success

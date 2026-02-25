@@ -9,122 +9,38 @@ description: Use when instructed to run GitLab CLI (`glab`) commands for merge
 
 ## Overview
 
-Use GitLab CLI (`glab`) for GitLab operations from the terminal.
+Use when instructed to run GitLab CLI (`glab`) commands for merge
+Detailed guidance: `references/overview.md`.
 
-`glab` is the default tool for merge requests, issues, pipelines,
-releases, and API calls.
+## When to Use
 
-## Setup and Context
+- when the trigger conditions in frontmatter match the request
 
-Before running write operations, confirm auth and target project context.
+## When Not to Use
 
-```bash
-glab auth status
-glab repo view
-```
+- when another skill is a clearer, narrower match
 
-If working outside the current repository, pass `--repo <group>/<project>`
-when supported by the subcommand.
+## Prerequisites
 
-## Non-Interactive Defaults
+- required tools, auth, and repository context are available
 
-Prefer non-interactive commands in automation and agent workflows.
+## Workflow
 
-- Always pass explicit flags instead of relying on prompts.
-- Prefer machine-readable output with `--output json` and `jq`.
-- Use `--yes` or equivalent confirmation flags only when needed.
+1. Load `references/overview.md` for core procedure and constraints.
+2. Load `references/examples.md` for concrete command or prompt forms.
+3. Load `references/troubleshooting.md` for recovery and stop conditions.
 
-## Common Commands
+## Hard Rules
 
-### Merge Requests
+- do not execute destructive or irreversible actions without approval
+- follow repository-specific constraints before making changes
 
-```bash
-# View MR details
-glab mr view <number>
+## Failure Handling
 
-# List open MRs
-glab mr list --state opened
-
-# Add a comment
-glab mr note <number> --message "<comment>"
-
-# Merge when policy allows
-glab mr merge <number> --yes
-```
-
-### Issues
-
-```bash
-# List open issues
-glab issue list --state opened
-
-# Create issue
-glab issue create --title "<title>" --description "<body>"
-
-# Add issue comment
-glab issue note <number> --message "<comment>"
-
-# Close issue
-glab issue close <number>
-```
-
-### Pipelines and CI
-
-```bash
-# List recent pipelines
-glab pipeline list
-
-# View pipeline details
-glab pipeline view <pipeline-id>
-
-# Retry failed pipeline
-glab pipeline retry <pipeline-id>
-```
-
-### Releases
-
-```bash
-# List releases
-glab release list
-
-# Create release
-glab release create <tag> --name "<title>" --notes "<notes>"
-```
-
-### API Access
-
-```bash
-# Query GitLab API directly
-glab api projects/<project-id>/merge_requests
-```
-
-## Output and Parsing
-
-Prefer JSON output for stable automation.
-
-```bash
-glab mr list --output json | jq '.[].iid'
-```
-
-Avoid parsing plain text output when JSON is available.
-
-## Safety Rules
-
-- Do not run destructive commands without clear user intent.
-- Confirm target project before mutating issues, MRs, or releases.
-- For bulk edits, test one object first, then scale.
+- on ambiguity or missing prerequisites, stop and ask for clarification
+- on tool/auth failures, report exact error and next required action
 
 ## Red Flags
 
-Stop and correct if any of these appear:
-
-- Running interactive `glab` prompts in automation context
-- Mutating resources without explicit project targeting
-- Parsing human text output when JSON output is available
-
-## Common Mistakes
-
-- **Missing auth check**: Run `glab auth status` before write operations.
-- **Wrong project**: Set project context or pass explicit repo/project flags.
-- **Prompt-driven commands**: Replace prompts with explicit flags.
-- **Fragile parsing**: Use JSON output and `jq` instead of text scraping.
+- scope drift beyond this skill's trigger boundaries
+- incomplete validation before reporting success

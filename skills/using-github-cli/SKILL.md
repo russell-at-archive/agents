@@ -9,130 +9,38 @@ description: Use when instructed to run GitHub CLI (`gh`) commands for pull
 
 ## Overview
 
-Use GitHub CLI (`gh`) for GitHub operations that are not better handled by
-Graphite (`gt`).
+Use when instructed to run GitHub CLI (`gh`) commands for pull
+Detailed guidance: `references/overview.md`.
 
-`gh` is the default tool for issues, workflow status, releases,
-comments, and API calls.
+## When to Use
 
-## Tool Boundary
+- when the trigger conditions in frontmatter match the request
 
-- If a `gt` equivalent exists for branch and stack workflows, use `gt`.
-- Use `gh` for operations without a `gt` equivalent.
-- Do not use raw browser-only workflows when a clear `gh` command exists.
+## When Not to Use
 
-## Setup and Context
+- when another skill is a clearer, narrower match
 
-Before running write operations, confirm auth and target repository context.
+## Prerequisites
 
-```bash
-gh auth status
-gh repo view
-```
+- required tools, auth, and repository context are available
 
-If working outside the current repository, pass `--repo <owner>/<repo>`.
+## Workflow
 
-## Non-Interactive Defaults
+1. Load `references/overview.md` for core procedure and constraints.
+2. Load `references/examples.md` for concrete command or prompt forms.
+3. Load `references/troubleshooting.md` for recovery and stop conditions.
 
-Prefer non-interactive commands in automation and agent workflows.
+## Hard Rules
 
-- Always pass explicit flags instead of relying on prompts.
-- Prefer machine-readable output with `--json` and `--jq`.
-- Use `--confirm` only when command semantics require it.
+- do not execute destructive or irreversible actions without approval
+- follow repository-specific constraints before making changes
 
-## Common Commands
+## Failure Handling
 
-### Pull Requests
-
-```bash
-# View PR details
-gh pr view <number> --json number,title,state,author,mergeStateStatus
-
-# List open PRs
-gh pr list --state open --limit 50
-
-# Add a review comment
-gh pr comment <number> --body "<comment>"
-
-# Merge when policy allows
-gh pr merge <number> --squash --delete-branch
-```
-
-### Issues
-
-```bash
-# List open issues
-gh issue list --state open --limit 50
-
-# Create issue
-gh issue create --title "<title>" --body "<body>"
-
-# Comment on issue
-gh issue comment <number> --body "<comment>"
-
-# Close issue
-gh issue close <number> --comment "<resolution note>"
-```
-
-### Workflows and CI
-
-```bash
-# List recent workflow runs
-gh run list --limit 20
-
-# View a specific run
-gh run view <run-id> --log
-
-# Re-run failed jobs
-gh run rerun <run-id> --failed
-```
-
-### Releases
-
-```bash
-# List releases
-gh release list --limit 20
-
-# Create release
-gh release create <tag> --title "<title>" --notes "<notes>"
-```
-
-### API Access
-
-```bash
-# Query GitHub API directly
-gh api repos/<owner>/<repo>/pulls --jq '.[].number'
-```
-
-## Output and Parsing
-
-Prefer `--json` output for stable automation.
-
-```bash
-gh pr view <number> --json title,state,reviewDecision --jq '.state'
-```
-
-Avoid parsing plain text output when a JSON field is available.
-
-## Safety Rules
-
-- Do not run destructive commands without clear user intent.
-- Confirm target repo before mutating issues, PRs, or releases.
-- For bulk edits, test on one object first, then scale.
+- on ambiguity or missing prerequisites, stop and ask for clarification
+- on tool/auth failures, report exact error and next required action
 
 ## Red Flags
 
-Stop and correct if any of these appear:
-
-- Running interactive `gh` prompts in automation context
-- Using `gh` where `gt` already provides the required branch/stack action
-- Mutating resources without explicit repo targeting in multi-repo contexts
-- Parsing human text output when `--json` is available
-
-## Common Mistakes
-
-- **Missing auth check**: Run `gh auth status` before write operations.
-- **Wrong repository**: Use `--repo <owner>/<repo>` when not in target repo.
-- **Prompt-driven commands**: Replace prompts with explicit flags.
-- **Fragile parsing**: Use `--json` and `--jq` instead of text scraping.
-- **Overusing `gh` for stack actions**: Use `gt` for stack-native operations.
+- scope drift beyond this skill's trigger boundaries
+- incomplete validation before reporting success

@@ -9,124 +9,38 @@ description: Use when you need to dispatch tasks to the Codex CLI tool for
 
 ## Overview
 
-Dispatch tasks to OpenAI's Codex CLI (`codex exec`) from Claude Code.
-Use Codex for parallel execution, offloading long tasks, or leveraging
-OpenAI models (o3, o4-mini) for specific work.
-
-**Core principle:** Codex runs independently with no shared context.
-Every task must be self-contained with all necessary information
-in the prompt.
+Use when you need to dispatch tasks to the Codex CLI tool for
+Detailed guidance: `references/overview.md`.
 
 ## When to Use
 
-**Use Codex when:**
+- when the trigger conditions in frontmatter match the request
 
-- You need parallel, sandboxed execution of independent tasks
-- A task benefits from OpenAI models (reasoning, code generation)
-- You want to offload long-running work and continue in Claude Code
-- The task needs isolated filesystem write access
+## When Not to Use
 
-**Don't use Codex when:**
+- when another skill is a clearer, narrower match
 
-- The task needs access to the current conversation context
-- It's a quick lookup or file read (overkill)
-- Tasks need interactive user approval mid-execution
-- You need Claude-specific capabilities (MCP tools, conversation history)
+## Prerequisites
 
-## Execution Modes
+- required tools, auth, and repository context are available
 
-### Fire-and-Forget
+## Workflow
 
-Dispatch and move on. Output streams to terminal. User checks results.
+1. Load `references/overview.md` for core procedure and constraints.
+2. Load `references/examples.md` for concrete command or prompt forms.
+3. Load `references/troubleshooting.md` for recovery and stop conditions.
 
-```bash
-codex exec --full-auto -C /path/to/project "Your task prompt here"
-```
+## Hard Rules
 
-### Wait-and-Integrate
+- do not execute destructive or irreversible actions without approval
+- follow repository-specific constraints before making changes
 
-Run in background via Bash tool. Read output file later to integrate
-results.
+## Failure Handling
 
-```bash
-codex exec --full-auto -C /path/to/project \
-  -o /tmp/codex-output-TASKNAME.md \
-  "Your task prompt here"
-```
+- on ambiguity or missing prerequisites, stop and ask for clarification
+- on tool/auth failures, report exact error and next required action
 
-Use unique filenames for `-o` when dispatching multiple tasks.
+## Red Flags
 
-## Common Flags
-
-| Flag          | Purpose                                              |
-| ------------- | ---------------------------------------------------- |
-| `--full-auto` | Non-interactive, sandboxed execution. Always use.    |
-| `-C DIR`      | Set working directory: `-C /path/to/worktree`        |
-| `-o FILE`     | Write output to file: `-o /tmp/codex-result.md`      |
-| `-m MODEL`    | Choose model: `-m o3`, `-m o4-mini`                  |
-| `-s SANDBOX`  | Sandbox policy: `-s read-only`, `-s workspace-write` |
-| `-i IMAGE`    | Attach image(s): `-i screenshot.png`                 |
-| `--json`      | JSONL output for parsing                             |
-
-## Prompt Structure
-
-Codex has NO context from Claude Code. Include everything:
-
-```markdown
-# Task: [Clear one-line description]
-
-## Context
-[What project this is, relevant architecture, file locations]
-
-## Goal
-[Exactly what to accomplish]
-
-## Constraints
-- Only modify files in [specific scope]
-- Do not change [what to leave alone]
-
-## Expected Output
-[What the result should look like - summary, code changes, analysis]
-```
-
-## Parallel Dispatch
-
-For multiple independent tasks, dispatch concurrently using background
-execution:
-
-```bash
-# Task 1 - background
-codex exec --full-auto -C /path/to/project \
-  -o /tmp/codex-task1.md "Fix failing tests in src/auth/"
-
-# Task 2 - background
-codex exec --full-auto -C /path/to/project \
-  -o /tmp/codex-task2.md "Add input validation to src/api/handlers.go"
-
-# Task 3 - background
-codex exec --full-auto -C /path/to/project \
-  -o /tmp/codex-task3.md "Write unit tests for src/utils/parser.ts"
-```
-
-Make all three Bash calls with `run_in_background: true` in a single
-message for true parallelism.
-
-After all complete, read each output file and integrate results.
-
-## Common Mistakes
-
-**No context in prompt:** Codex can read files but doesn't know your
-conversation. Always include relevant context, file paths, and
-architecture notes.
-
-**Forgetting --full-auto:** Without this flag, Codex runs interactively
-and hangs waiting for input.
-
-**Same output file for multiple tasks:** Each concurrent task needs a
-unique `-o` path or results overwrite each other.
-
-**Over-scoping tasks:** Like dispatching-parallel-agents, keep each
-Codex task focused on one problem domain. Split large tasks.
-
-**Not checking results:** In wait-and-integrate mode, always read the
-output file and verify the work before assuming success.
+- scope drift beyond this skill's trigger boundaries
+- incomplete validation before reporting success
