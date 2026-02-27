@@ -72,7 +72,10 @@ project_doc_fallback_filenames = ["AGENTS.md", "CLAUDE.md"]
 ### Skills / Custom Commands
 
 - Claude Code:
-  Native `.claude/skills/`; portable `.agents/skills/`; format `SKILL.md`.
+  Native `~/.claude/skills/` (user) and `.claude/skills/` (project);
+  portable `.agents/skills/` (project-relative only); format `SKILL.md`.
+  Does **not** auto-discover `~/.agents/skills/` — requires a symlink
+  per project (see below).
 - Codex CLI:
   Native `~/.agents/skills/`; portable `.agents/skills/`; format `SKILL.md`.
 - Gemini CLI:
