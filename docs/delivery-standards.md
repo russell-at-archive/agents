@@ -57,7 +57,7 @@ uncoordinated implementation. A PR without a linked task is untraceable.
 | PRD        | `writing-prds`                 |
 | ADR        | `writing-adrs`                 |
 | Tech Plan  | `using-github-speckit`         |
-| Task List  | `decomposing-work`             |
+| Task List  | `writing-task-specs`             |
 | Commit     | `writing-conventional-commits` |
 | PR Stack   | `using-graphite-cli`           |
 
@@ -353,7 +353,7 @@ Use `Refs` when the PR contributes to but does not fully resolve an issue.
 
 ### Related Skills
 
-- `skills/decomposing-work/SKILL.md`
+- `skills/writing-task-specs/SKILL.md`
 - `skills/planning-speckit-worktrees-graphite/SKILL.md`
 - `skills/using-git-worktrees/SKILL.md`
 - `skills/using-github-speckit/SKILL.md`

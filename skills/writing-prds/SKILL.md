@@ -28,8 +28,9 @@ Detailed guidance: `references/overview.md`.
 ## Workflow
 
 1. Load `references/overview.md` for core procedure and constraints.
-2. Load `references/examples.md` for concrete command or prompt forms.
-3. Load `references/troubleshooting.md` for recovery and stop conditions.
+2. Load `references/template.md` for the required document structure.
+3. Load `references/examples.md` for concrete examples.
+4. Load `references/troubleshooting.md` for recovery and stop conditions.
 
 ## Hard Rules
 

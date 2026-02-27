@@ -7,10 +7,6 @@ Currently just a collection of skills.
 
 Current skills available in this environment:
 
-- [decomposing-work](./skills/decomposing-work/SKILL.md): Use when breaking a
-  feature plan into implementation tasks. Produces a task list where each task
-  maps to exactly one branch and one PR. Invoke after a tech plan is approved
-  and before any implementation begins.
 - [planning-speckit-worktrees-graphite](./skills/planning-speckit-worktrees-graphite/SKILL.md):
   Use when planning and delivering features that must follow GitHub Spec Kit
   planning, git worktrees for isolation, and Graphite stacked pull requests.
@@ -62,9 +58,18 @@ Current skills available in this environment:
 - [writing-markdown](./skills/writing-markdown/SKILL.md): Use when writing or
   editing any markdown document, README, or .md file to ensure strict
   compliance with all markdownlint rules.
+- [writing-pr-descriptions](./skills/writing-pr-descriptions/SKILL.md): Use
+  when writing or updating a pull request description for any code change.
+  Produces complete PR descriptions with summary, approach rationale, test
+  plan, reviewer instructions, and definition of done. Invoke before opening
+  or updating any PR.
 - [writing-prds](./skills/writing-prds/SKILL.md): Use when creating or updating
   a Product Requirements Document, when a feature or initiative needs a formal
   specification, or when asked to write a PRD.
 - [writing-skills](./skills/writing-skills/SKILL.md): Creates a new agent
   skill directory with a compliant SKILL.md and supporting reference files.
   Use when asked to build, write, add, or create a skill.
+- [writing-task-specs](./skills/writing-task-specs/SKILL.md): Use when breaking
+  a feature plan into implementation tasks. Produces a task list where each
+  task maps to exactly one branch and one PR. Invoke after a tech plan is
+  approved and before any implementation begins.

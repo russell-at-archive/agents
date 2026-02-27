@@ -152,5 +152,5 @@ Before writing the commit message, verify:
 
 - Specification: <https://www.conventionalcommits.org/en/v1.0.0/>
 - Related: `docs/delivery-standards.md`
-- Related: `skills/decomposing-work/SKILL.md`
+- Related: `skills/writing-task-specs/SKILL.md`
 
