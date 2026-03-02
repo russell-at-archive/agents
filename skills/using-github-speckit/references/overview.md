@@ -1,57 +1,78 @@
 # Overview
 
-## Overview
+## Purpose
 
+Use GitHub Spec Kit as the default workflow for planning software work
+before implementation.
 
-Follow GitHub Spec Kit as the default workflow for project and feature planning.
+## Command Sequence
 
-Use this command order unless the user explicitly requests a different flow:
+Follow this order unless the user explicitly requests a different flow:
 
-1. `/constitution` (one-time project guardrails, if missing)
-2. `/specify` (initial feature or project specification)
-3. `/clarify` (optional but recommended to resolve ambiguity)
-4. `/plan` (technical design and implementation approach)
-5. `/tasks` (execution checklist)
-6. `/implement` (optional, only when user asks to execute)
+1. `/constitution` when guardrails are missing
+2. `/specify`
+3. `/clarify` when requirements are unclear
+4. `/plan`
+5. `/tasks`
+6. `/implement` only when explicitly requested
 
-## Operating Rules
+Treat `/specify`, `/plan`, and `/tasks` as mandatory for planning.
 
+## Stage Goals
 
-- Treat `/specify`, `/plan`, and `/tasks` as the minimum planning pipeline.
-- Run `/clarify` before `/plan` when requirements are ambiguous.
-- Do not skip `/plan` if the user asks for architecture or technical approach.
-- Do not run `/implement` unless the user asks to start implementation.
-- Keep each artifact tightly scoped to one feature or project slice.
+### `/constitution`
 
-## Standard Interaction Pattern
+Set project-wide constraints and decision principles.
+Run once per project, then reuse.
 
+### `/specify`
 
-When asked to create a spec or plan, do this in order:
+Define user outcomes, constraints, scope, and measurable success.
+Make acceptance intent visible before design.
 
-1. Confirm scope in one sentence.
-2. Draft or refine input for `/specify`.
-3. Identify open questions and run `/clarify` if needed.
-4. Produce a concrete `/plan` output with architecture and milestones.
-5. Produce `/tasks` with small, testable, dependency-aware steps.
-6. Ask whether to proceed to `/implement`.
+### `/clarify`
 
-## Output Quality Bar
+Resolve ambiguity and edge cases.
+Record defaults for unresolved areas.
 
+### `/plan`
 
-Ensure every planning package includes:
+Produce technical design with architecture, interfaces, data impacts,
+tradeoffs, risks, rollout plan, and validation approach.
 
-- Problem statement and in-scope versus out-of-scope boundaries
-- Key assumptions and explicit open questions
-- Architecture or design decisions with tradeoffs
-- Delivery phases and task dependencies
-- Test and validation strategy
-- Rollback or risk mitigation notes
+### `/tasks`
 
-## References
+Decompose the approved plan into ordered, dependency-aware,
+independently verifiable tasks.
+Each task needs acceptance criteria.
 
+### `/implement`
 
-Use the official Spec Kit sources for command behavior and updates:
+Only execute after the user asks to proceed.
+Do not auto-transition from planning to coding.
+
+## Interaction Pattern
+
+1. Restate scope in one sentence.
+2. Draft `/specify` content.
+3. List open questions.
+4. Run `/clarify` if unresolved ambiguity remains.
+5. Produce `/plan` with explicit decisions.
+6. Produce `/tasks` with ordering and acceptance criteria.
+7. Ask whether to proceed to `/implement`.
+
+## Quality Gates
+
+Before final output, verify all are true:
+
+- Scope is one feature or one project slice.
+- Success criteria are measurable.
+- In-scope and out-of-scope boundaries are explicit.
+- Plan includes decisions and tradeoffs, not just a checklist.
+- Tasks are small, testable, and dependency-aware.
+- Risks, mitigations, and validation are present.
+
+## Primary References
 
 - <https://github.com/github/spec-kit>
 - <https://github.com/github/spec-kit/blob/main/README.md>
-
