@@ -1,4 +1,0 @@
-interface:
-  display_name: "ADR Writer"
-  short_description: "Write clear architectural decision records"
-  default_prompt: "Use $writing-adrs to draft an ADR with context, options, decision outcome, and consequences."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "PRD Writer"
-  short_description: "Write complete, review-ready product requirements documents"
-  default_prompt: "Use $writing-prds to draft a PRD with problem statement, goals, user stories, functional requirements, acceptance criteria, and risks."

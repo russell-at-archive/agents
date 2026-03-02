@@ -44,9 +44,10 @@ Current skills available in this environment:
   dispatch tasks to a local or remote Ollama instance for inference, code
   generation, analysis, or summarization. Invoke before running any ollama
   command.
-- [writing-adrs](./skills/writing-adrs/SKILL.md): Use when creating or updating
-  Architectural Decision Records, when a significant technical or
-  architectural choice needs documenting, or when asked to write an ADR.
+- [writing-architecture-decision-records](./skills/writing-architecture-decision-records/SKILL.md):
+  Use when creating or updating Architectural Decision Records, when a
+  significant technical or architectural choice needs documenting, or when
+  asked to write an ADR.
 - [writing-conventional-commits](./skills/writing-conventional-commits/SKILL.md):
   Use when writing any git commit message. Enforces Conventional Commits format
   for readable history, automated changelogs, and semantic versioning. Invoke
@@ -63,9 +64,10 @@ Current skills available in this environment:
   Produces complete PR descriptions with summary, approach rationale, test
   plan, reviewer instructions, and definition of done. Invoke before opening
   or updating any PR.
-- [writing-prds](./skills/writing-prds/SKILL.md): Use when creating or updating
-  a Product Requirements Document, when a feature or initiative needs a formal
-  specification, or when asked to write a PRD.
+- [writing-product-requirement-documents](./skills/writing-product-requirement-documents/SKILL.md):
+  Use when creating a high-precision, AI-ready Product Requirements Document
+  (PRD). Focuses on outcome-based goals, literal specificity for coding
+  agents, and maintaining a living document.
 - [writing-skills](./skills/writing-skills/SKILL.md): Creates a new agent
   skill directory with a compliant SKILL.md and supporting reference files.
   Use when asked to build, write, add, or create a skill.
