@@ -2,24 +2,35 @@
 
 ## Overview
 
-
 Use GitLab CLI (`glab`) for GitLab operations from the terminal.
 
 `glab` is the default tool for merge requests, issues, pipelines,
 releases, and API calls.
 
-## Setup and Context
+Use non-interactive commands with explicit scope and parseable output.
 
+## Preflight Checks
 
-Before running write operations, confirm auth and target project context.
+Run these before write operations:
 
 ```bash
 glab auth status
-glab repo view
+glab repo view || glab repo list
 ```
 
-If working outside the current repository, pass `--repo <group>/<project>`
-when supported by the subcommand.
+If working outside the current repository, pass:
+
+```bash
+-R <group>/<project>
+```
+
+or:
+
+```bash
+--repo <group>/<project>
+```
+
+depending on the command.
 
 ## Non-Interactive Defaults
 
@@ -27,78 +38,54 @@ when supported by the subcommand.
 Prefer non-interactive commands in automation and agent workflows.
 
 - Always pass explicit flags instead of relying on prompts.
-- Prefer machine-readable output with `--output json` and `jq`.
+- Prefer machine-readable output with `--output json`.
 - Use `--yes` or equivalent confirmation flags only when needed.
+- Confirm repo and object IDs before running mutations.
 
-## Common Commands
+## Command Families
 
-
-### Merge Requests
-
-```bash
-# View MR details
-glab mr view <number>
-
-# List open MRs
-glab mr list --state opened
-
-# Add a comment
-glab mr note <number> --message "<comment>"
-
-# Merge when policy allows
-glab mr merge <number> --yes
-```
-
-### Issues
+Load command-specific help before less common operations:
 
 ```bash
-# List open issues
-glab issue list --state opened
-
-# Create issue
-glab issue create --title "<title>" --description "<body>"
-
-# Add issue comment
-glab issue note <number> --message "<comment>"
-
-# Close issue
-glab issue close <number>
+glab <group> <subcommand> --help
 ```
 
-### Pipelines and CI
+### Merge Requests (`glab mr`)
 
-```bash
-# List recent pipelines
-glab pipeline list
+- inspect: `glab mr view <iid>`
+- list: `glab mr list --state opened --output json`
+- create: `glab mr create ...`
+- merge: `glab mr merge <iid> --yes`
+- comment: `glab mr note <iid> -m "<message>"`
 
-# View pipeline details
-glab pipeline view <pipeline-id>
+### Issues (`glab issue`)
 
-# Retry failed pipeline
-glab pipeline retry <pipeline-id>
-```
+- list: `glab issue list --state opened --output json`
+- create: `glab issue create ...`
+- comment: `glab issue note <iid> -m "<message>"`
+- close: `glab issue close <iid>`
 
-### Releases
+### CI (`glab ci`)
 
-```bash
-# List releases
-glab release list
+- list pipelines/jobs view: `glab ci list`
+- inspect pipeline/job: `glab ci view <id>`
+- use `--output json` where supported for automation
 
-# Create release
-glab release create <tag> --name "<title>" --notes "<notes>"
-```
+### Releases (`glab release`)
 
-### API Access
+- list: `glab release list`
+- create: `glab release create <tag> --name "<title>" --notes "<notes>"`
 
-```bash
-# Query GitLab API directly
-glab api projects/<project-id>/merge_requests
-```
+### API (`glab api`)
 
-## Output and Parsing
+- direct API query:
+  `glab api projects/:id/merge_requests --paginate`
+- use `-F/--field` for typed parameters
+- use `-X` for explicit HTTP method when mutating
 
+## JSON-First Output Strategy
 
-Prefer JSON output for stable automation.
+Prefer JSON output for stable automation. Avoid parsing table output.
 
 ```bash
 glab mr list --output json | jq '.[].iid'
@@ -106,10 +93,10 @@ glab mr list --output json | jq '.[].iid'
 
 Avoid parsing plain text output when JSON is available.
 
-## Safety Rules
+## Mutation Safety Rules
 
 
 - Do not run destructive commands without clear user intent.
 - Confirm target project before mutating issues, MRs, or releases.
+- Check IDs before action: MR IID, issue IID, pipeline/job ID, release tag.
 - For bulk edits, test one object first, then scale.
-
