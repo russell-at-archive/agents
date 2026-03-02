@@ -1,24 +1,82 @@
-# Troubleshooting
+# Writing Task Specs: Troubleshooting
 
-## Common Mistakes
+## Missing Plan Quality
 
+### Symptom
 
-| Mistake                         | Fix                                            |
-| ------------------------------- | ---------------------------------------------- |
-| Skipping INVEST on any task     | Apply all 6 checks before finalizing           |
-| Vague acceptance criteria       | Rewrite using Given/When/Then with specifics   |
-| Missing stack parent            | Every task needs an explicit parent branch     |
-| Task that requires another task to verify | Merge the two or reorder the stack   |
-| No validation commands          | Tasks without runnable verification are incomplete |
-| Task IDs not sequential         | Renumber before handing off                    |
+Source plan lacks concrete interfaces, constraints, or rollout assumptions.
 
-## Red Flags — Stop and Correct
+### Action
 
+- Pause decomposition.
+- Request missing inputs as a short checklist.
+- Avoid inventing architecture details.
 
-- A task title contains "and" (likely two concerns)
-- A task has no acceptance criteria
-- A task depends on one that is not yet in the list
-- Stack parent does not exist in the plan
-- Estimation says ">500 lines" (split it)
-- A task cannot be explained in 2-4 sentences
+## Scope Bleed
 
+### Symptom
+
+Task includes unrelated outcomes or broad refactor plus behavior change.
+
+### Action
+
+- Split by logical concern and rollback path.
+- Move refactors into dedicated prep or follow-up tasks.
+- Re-check each task for independent verification.
+
+## Hidden Dependencies
+
+### Symptom
+
+A task requires contracts or artifacts not yet delivered.
+
+### Action
+
+- Add explicit `Depends on` links.
+- Reorder stack to place producers before consumers.
+- If dependency is external, document it as a blocker.
+
+## Weak Acceptance Criteria
+
+### Symptom
+
+Criteria are non-measurable or implementation-focused.
+
+### Action
+
+- Rewrite into Given/When/Then with observable outputs.
+- Include at least one edge or failure mode.
+- Add thresholds for performance/security-sensitive behavior.
+
+## Over-Sized Task
+
+### Symptom
+
+Estimated size or blast radius suggests multi-PR execution.
+
+### Action
+
+- Split along subsystem or contract boundaries.
+- Preserve shippable value in each resulting task.
+- Keep each task reviewable without opening sibling PRs.
+
+## Validation Gaps
+
+### Symptom
+
+Commands are missing, flaky, or too broad to prove task completion.
+
+### Action
+
+- Add targeted tests tied to acceptance criteria.
+- Keep lint/type checks required for touched modules.
+- Remove commands that are known unrelated failures.
+
+## Stop Conditions
+
+Stop and request clarification when:
+
+- dependency graph is cyclic or ambiguous
+- acceptance criteria cannot be made measurable
+- task boundaries conflict with required rollout sequencing
+- security-critical behavior lacks explicit verification

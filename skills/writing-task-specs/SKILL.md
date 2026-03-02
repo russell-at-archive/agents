@@ -1,48 +1,66 @@
 ---
 name: writing-task-specs
-description: Use when breaking a feature plan or technical design into
-  implementation tasks. Invoke after a tech plan is approved and before
-  any implementation begins. Produces a task list where each task maps
-  to exactly one branch and one PR.
+description: Breaks an approved feature plan or technical design into implementation-ready task specifications with clear scope, dependencies, acceptance criteria, and validation steps. Use when asked to decompose a plan, create implementation tasks, or prepare one-task-per-branch PR execution.
 ---
 
 # Writing Task Specifications
 
 ## Overview
 
-Use when breaking a feature plan or technical design into
-Detailed guidance: `references/overview.md`.
+Produces implementation-ready task specs that maximize delivery throughput and
+minimize integration risk. Core model: one task, one branch, one PR, one
+verifiable outcome. Full procedure:
+[references/overview.md](references/overview.md).
 
 ## When to Use
 
-- when the trigger conditions in frontmatter match the request
+- Asked to break a plan into engineering tasks
+- A technical design is approved and implementation planning is next
+- Delivery needs dependency-aware branch and PR sequencing
+- Task scope, acceptance criteria, or verification requirements are unclear
 
 ## When Not to Use
 
-- when another skill is a clearer, narrower match
+- The work is a trivial one-step change suitable for a single PR
+- No approved plan or scope boundary exists yet
+- The request is for a PR description, not task decomposition
 
 ## Prerequisites
 
-- required tools, auth, and repository context are available
+- Approved source plan (spec, design, or PRD)
+- Known constraints (stacking model, CI gates, repo standards)
+- At least baseline module ownership and architectural boundaries
 
 ## Workflow
 
-1. Load `references/overview.md` for core procedure and constraints.
-2. Load `references/template.md` for the required task spec structure.
-3. Load `references/examples.md` for concrete examples.
-4. Load `references/troubleshooting.md` for recovery and stop conditions.
+1. Read [references/overview.md](references/overview.md) for decomposition,
+   dependency ordering, sizing limits, and quality checks.
+2. Draft tasks with [references/template.md](references/template.md), ensuring
+   each task is independently implementable and reviewable.
+3. Calibrate detail and style with
+   [references/examples.md](references/examples.md).
+4. Apply [references/troubleshooting.md](references/troubleshooting.md) to fix
+   scope bleed, hidden dependencies, and weak acceptance criteria.
 
 ## Hard Rules
 
-- do not execute destructive or irreversible actions without approval
-- follow repository-specific constraints before making changes
+- Every task maps to exactly one branch and one PR
+- Every task includes explicit dependencies and stack parent
+- Every task has measurable Given/When/Then acceptance criteria
+- Validation commands must be runnable as written
+- Do not mix unrelated concerns in the same task
 
 ## Failure Handling
 
-- on ambiguity or missing prerequisites, stop and ask for clarification
-- on tool/auth failures, report exact error and next required action
+- If prerequisites are missing, request exact missing artifacts first
+- If decomposition creates circular or ambiguous dependencies, stop and
+  re-slice tasks before continuing
+- If any task cannot be verified independently, split or merge tasks until it
+  can be verified
 
 ## Red Flags
 
-- scope drift beyond this skill's trigger boundaries
-- incomplete validation before reporting success
+- Task title contains multiple outcomes joined by "and"
+- Acceptance criteria use non-measurable language ("works", "better")
+- A task depends on implementation details not yet delivered
+- Estimated scope suggests multi-PR execution

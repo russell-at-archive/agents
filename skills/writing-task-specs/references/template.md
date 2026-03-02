@@ -1,83 +1,66 @@
-# TASK-{NNN}: {Imperative title — e.g. "Add rate limiting to auth endpoint"}
+# TASK-{NNN}: {Imperative title}
 
-> **Parent spec:** #{PRD issue number} — {Feature Name}
-> **Branch:** `{type}/{TASK-NNN}-{short-slug}`
-> **Stack parent:** `{parent branch or main}`
-> **Depends on:** TASK-{NNN} *(or "none")*
+> **Parent plan:** {spec/issue/PRD identifier}
+> **Branch:** `{type}/TASK-{NNN}-{short-slug}`
+> **Stack parent:** `{main|trunk|parent-branch}`
+> **Depends on:** `{none|TASK-001,TASK-002}`
+> **Risk level:** `{low|medium|high}`
+> **Estimated scope:** `{~NNN lines, N files}`
 
----
+## Objective
 
-## Description
+{2-4 sentences describing what will be delivered and why this task exists in
+this position of the stack.}
 
-{2–4 sentences. What needs to be built and why. Tie this
-to the parent spec. Avoid implementation details — describe
-the outcome, not the approach.
+## In Scope
 
-Example: "Users currently have no way to recover a forgotten
-password. This task adds the password reset request flow:
-the endpoint that accepts an email, validates it, and sends
-a reset link. Part of FR-3 in the authentication PRD."}
+- {explicit change 1}
+- {explicit change 2}
+
+## Out of Scope
+
+- {adjacent change not allowed in this task}
+- {another boundary to prevent scope bleed}
 
 ## Acceptance Criteria
 
-Each criterion must be independently verifiable. Write in
-Given/When/Then format.
+- [ ] Given {context}, when {action}, then {observable outcome}.
+- [ ] Given {context}, when {action}, then {observable outcome}.
+- [ ] Given {edge/failure context}, when {action}, then {safe behavior}.
 
-- [ ] Given {precondition},
-      when {action},
-      then {observable outcome}.
-- [ ] Given {error condition},
-      when {action},
-      then {expected behavior — error message, status code,
-      fallback}.
-- [ ] Given {edge case},
-      when {action},
-      then {outcome}.
+## Implementation Notes
 
-## Files to Change
+- {critical constraint, invariant, or migration/ordering note}
+- {contract assumptions this task must preserve}
 
-*List files the Coder agent is expected to create or
-modify. This prevents unintended scope expansion.*
+## Files Expected to Change
 
 **Create:**
 
-- `{path/to/new/file}` — {brief purpose}
+- `{path}` - {purpose}
 
 **Modify:**
 
-- `{path/to/existing/file}` — {what changes and why}
+- `{path}` - {purpose}
 
 **Do not touch:**
 
-- `{path/to/file}` — {reason, e.g. "owned by TASK-042",
-  "out of scope for this task"}
-
-## Testing Requirements
-
-{Describe what tests must be written or updated. Be
-specific about test type and coverage expectation.}
-
-- [ ] Unit test: {what behavior to cover}
-- [ ] Integration test: {what scenario to cover}
-- [ ] Edge case: {what to verify}
+- `{path}` - {reason}
 
 ## Validation Commands
 
 ```bash
-# Run after implementation to verify the task is complete.
-# All commands must pass before opening a PR.
-
-{command to run tests for affected module}
-{command to run linter}
-{command to run type checker if applicable}
-{command to verify specific behavior if testable via CLI}
+# Run after implementation
+{targeted test command}
+{lint command}
+{typecheck command if applicable}
+{smoke/integration command if applicable}
 ```
 
 ## Definition of Done
 
-- [ ] All acceptance criteria pass
-- [ ] All validation commands pass
-- [ ] No new lint or type errors introduced
-- [ ] Tests written and passing
-- [ ] PR opened and linked to this issue (`Closes #{NNN}`)
-- [ ] PR description complete (summary, approach, test plan)
+- [ ] Acceptance criteria verified
+- [ ] Validation commands pass
+- [ ] No new lint/type/test regressions
+- [ ] Branch opened against listed stack parent
+- [ ] PR links to TASK-{NNN} and states verification steps

@@ -1,239 +1,182 @@
-# Overview
+# Writing Task Specs: Expert Procedure
 
-## Overview
+## Contents
 
+- Objective and operating principles
+- Inputs and readiness checks
+- Decomposition workflow
+- Dependency and stack design
+- Acceptance criteria standard
+- Validation and definition of done
+- Sizing model
+- Final quality gate
 
-A task list is the bridge between a technical plan and executable
-implementation. Each task must be independently completable, independently
-verifiable, and sized to fit in a single focused PR.
+## Objective and Operating Principles
 
-**Core principle:** One task → one branch → one PR. If a task requires
-more than one PR to verify, it is too large. If two tasks cannot be
-reviewed independently, they should be one task.
+Task specs convert approved plans into executable delivery units.
 
-## When to Use
+Primary outcomes:
 
+1. Parallelizable execution without hidden coupling.
+2. Fast review with minimal cross-PR context switching.
+3. High confidence rollout via explicit validation and acceptance gates.
 
-- After a technical plan (`/plan`) is approved
-- When a feature has more than one logical change
-- Before creating any branch or writing any code
-- When asked to "break down" or "decompose" a plan into tasks
+Operating principles:
 
-## When Not to Use
+- One task -> one branch -> one PR.
+- One logical concern per task.
+- Independent verifiability is mandatory.
+- Dependency order must mirror stack order.
 
+## Inputs and Readiness Checks
 
-- For trivial single-commit fixes (just commit directly)
-- Before a tech plan exists (decomposing from idea is premature)
-- When the user has already provided a task list
+Before decomposition, confirm the source plan includes:
 
-## Prerequisites
+- Scope boundary (in scope, out of scope)
+- Functional requirements or outcomes
+- Non-functional constraints (performance, security, reliability)
+- Interfaces touched (API, DB schema, jobs, UI, infra)
+- Delivery constraints (release window, migrations, rollout model)
 
-
-A technical plan must exist before decomposing. Confirm:
-
-1. The plan covers architecture, data changes, API/UI changes, and risks.
-2. Dependencies on other teams or systems are documented.
-3. The scope boundary (in/out of scope) is explicit.
-
-If no plan exists, invoke `using-github-speckit` first.
+If these are incomplete, produce a short "missing inputs" list and pause.
 
 ## Decomposition Workflow
 
+### Step 1: Identify delivery slices
 
-### Step 1: Identify delivery units
+Partition work by dependency and reviewer value:
 
-Read the technical plan and identify all discrete changes. Group
-related changes by:
+- Foundational infrastructure/scaffolding
+- Schema and contract changes
+- Business logic
+- Consumer layers (UI/API clients)
+- Observability and operational hardening
+- Tests and cleanup where independent
 
-- infrastructure or scaffolding changes first
-- data model changes before API changes
-- API changes before UI changes
-- feature work before cleanup/polish
-- test additions last (or alongside their feature)
+Avoid slicing by team ownership alone if it creates cross-task coupling.
 
-Never group unrelated concerns into one task because they are
-"small enough."
+### Step 2: Draft candidate tasks
 
-### Step 2: Apply INVEST to each task
+For each slice, draft:
 
-Every task must satisfy INVEST before it is added to the list:
+- Imperative title
+- Why this slice exists
+- Expected artifacts (files/systems touched)
+- Primary risk category
 
-| Letter | Check                                                        |
-| ------ | ------------------------------------------------------------ |
-| **I**  | Can this task start without waiting for an in-progress task? |
-| **N**  | Can the scope be adjusted without abandoning the goal?       |
-| **V**  | Does it deliver something a reviewer can verify on its own?  |
-| **E**  | Is the scope clear enough to begin immediately?              |
-| **S**  | Can it fit in one PR under 400 net lines?                    |
-| **T**  | Does it have written acceptance criteria?                    |
+Then test each candidate for independent implementability.
 
-If a task fails any check, revise it before proceeding.
+### Step 3: Apply task quality filters
 
-### Step 3: Write acceptance criteria
+Each task must pass all checks:
 
-Every task needs at least two acceptance criteria in Given/When/Then
-format. Write them before writing any code.
+- Independent: can build and validate without unfinished sibling tasks.
+- Valuable: produces a meaningful increment, not a placeholder.
+- Estimable: clear enough to estimate scope and effort.
+- Small: target under ~400 net changed lines and under ~10 files.
+- Testable: objective pass/fail criteria exist.
 
-```
-Given <precondition or context>
-When  <action or event>
-Then  <observable, measurable outcome>
-```
+If a candidate fails, split, merge, or reorder.
 
-Vague criteria are not acceptable:
+### Step 4: Encode dependencies and stack parent
 
-| Vague                          | Acceptable                                         |
-| ------------------------------ | -------------------------------------------------- |
-| "works correctly"              | "Given valid input, when saved, then returns 201"  |
-| "is fast"                      | "p95 response time under 200ms under 100 rps load" |
-| "handles errors"               | "Given invalid token, when called, then returns 401 with error body" |
+For each task define:
 
-### Step 4: Assign branch names and stack order
+- `Depends on`: task IDs, or `none`
+- `Stack parent`: branch base for the PR
 
-Every task gets a branch name and a stack parent before implementation
-starts. The stack order must match the dependency order from step 1.
+Rules:
 
-Branch naming: `<type>/<task-id>-<short-slug>`
+- No circular dependencies.
+- Prefer shortest valid stack depth.
+- Put contract producers before consumers.
+- Separate mechanical refactors from behavioral changes.
 
-Stack order example:
+### Step 5: Write acceptance criteria
 
-```
-trunk
- └── feat/TASK-001-add-users-table
-      └── feat/TASK-002-user-registration-api
-           └── feat/TASK-003-registration-form-ui
-                └── test/TASK-004-registration-e2e
-```
+Use Given/When/Then with measurable outcomes only.
 
-### Step 5: Produce the task list
+Good criterion shape:
 
-Output the task list in the template format below. Each task is a
-standalone work item with enough context to be implemented without
-re-reading the full plan.
+- Given explicit precondition
+- When a concrete action occurs
+- Then an observable output/state change is produced
 
-## TASK-NNN: <imperative title>
+Avoid vague verbs: "works", "improves", "handles", "supports".
 
+### Step 6: Attach validation commands
 
-**Branch:** <type>/<task-id>-<short-slug>
-**Stack parent:** <parent-branch or trunk>
-**Depends on:** TASK-NNN, ...  (or "none")
-**Estimated scope:** ~NNN lines changed, N files
+Commands must be copy-paste runnable and scoped to task changes.
+Include:
 
-### What and Why
+- Targeted tests
+- Lint/type checks relevant to touched code
+- Optional smoke/integration checks when risk demands it
 
-<2-4 sentences on what this task changes and why it is needed.>
+Do not include commands that are known to fail in the current repo state.
 
-### Acceptance Criteria
+## Dependency and Stack Design
 
-- [ ] Given <context>, when <action>, then <outcome>.
-- [ ] Given <context>, when <action>, then <outcome>.
+Recommended ordering pattern:
 
-### Validation Commands
+1. Data model / storage primitives
+2. Domain logic
+3. API or service integration
+4. UI/consumer integration
+5. Cross-cutting hardening and telemetry
 
-\`\`\`bash
-# Run after completing the task
-<validation commands>
-\`\`\`
+For stacked PR delivery:
 
-### Definition of Done
+- Keep each PR reviewable without opening all descendants.
+- Ensure parent PRs expose stable contracts used by children.
+- Avoid long-lived speculative branches with unclear merge path.
 
-- [ ] All acceptance criteria verified
-- [ ] Validation commands pass with no errors
-- [ ] No lint, type, or test regressions
-- [ ] Branch pushed and PR submitted in stack
-- [ ] PR body contains summary, task link, and test plan
-```
+## Acceptance Criteria Standard
 
-## Sizing Guidelines
+Minimum bar per task:
 
+- At least 2 criteria
+- Covers happy path and at least one failure/edge path
+- Includes user/system-observable outputs
 
-| Signal                                    | Action                        |
-| ----------------------------------------- | ----------------------------- |
-| Task touches more than 3 modules          | Split into smaller tasks      |
-| Task mixes feature and refactor           | Create separate refactor task |
-| Task cannot be described in one sentence  | Scope is too large            |
-| Two tasks always need to be reviewed together | Merge into one task       |
-| Task has no verifiable output             | Refine acceptance criteria    |
-| Single mechanical change across many files | One task is fine              |
+Performance/security-sensitive tasks should add explicit thresholds, such as:
 
-## Stack Ordering Rules
+- latency target
+- error budget bound
+- auth/permission behavior
 
+## Validation and Definition of Done
 
-- Infrastructure before features (create table before writing to it)
-- Data model before API (schema before handlers)
-- API before UI (contract before consumer)
-- Happy path before error paths (when they are naturally separable)
-- Core logic before tests (when tests cannot run on a partial impl)
-- Never stack an unrelated change on top of another for convenience
+Each task must include a definition-of-done checklist with:
 
-## TASK-001: add users table migration
+- Acceptance criteria verified
+- Validation commands passed
+- No new lint/type/test regressions
+- Branch and PR opened against correct stack parent
+- PR links back to task ID
 
+## Sizing Model
 
-**Branch:** feat/TASK-001-users-table
-**Stack parent:** trunk
-**Depends on:** none
+Split tasks when any signal appears:
 
-### What and Why
-Creates the `users` table with id, email, password_hash, and
-created_at columns. Required before any user registration or
-authentication logic can be implemented.
+- Multiple subsystems changed with different rollback paths
+- Reviewer needs to understand unrelated context to approve
+- Net change likely exceeds 400 lines without being mechanical
+- Task cannot be described in one imperative sentence
 
-### Acceptance Criteria
-- [ ] Given the migration runs, then `users` table exists with correct schema.
-- [ ] Given the migration is rolled back, then the table is removed cleanly.
+Merge tasks when signals appear:
 
-### Validation Commands
-\`\`\`bash
-npm run db:migrate
-npm run db:rollback
-npm run db:migrate
-\`\`\`
-```
+- Two tasks cannot be validated independently
+- One task only creates placeholders with no shippable value
+- Artificial split increases coupling and review overhead
 
-```markdown
+## Final Quality Gate
 
-## TASK-002: implement password hashing utility
+Before handoff, verify:
 
-
-**Branch:** feat/TASK-002-password-hash
-**Stack parent:** feat/TASK-001-users-table
-**Depends on:** TASK-001
-
-### What and Why
-Adds bcrypt-based hash and verify functions for password management.
-Isolated as a utility so it can be unit-tested independently before
-being used in the registration handler.
-
-### Acceptance Criteria
-- [ ] Given plaintext, when hashed, then returns bcrypt hash string.
-- [ ] Given correct plaintext and hash, when verified, then returns true.
-- [ ] Given wrong plaintext and hash, when verified, then returns false.
-
-### Validation Commands
-\`\`\`bash
-npm test -- --testPathPattern=password-hash
-\`\`\`
-```
-
-## Quality Checklist
-
-
-Before handing off the task list, verify:
-
-- [ ] Every task has a unique sequential ID
-- [ ] Every task has a branch name and stack parent
-- [ ] Every task passes INVEST
-- [ ] Every task has at least 2 acceptance criteria in Given/When/Then
-- [ ] Dependency order matches the stack order
-- [ ] No task mixes more than one logical concern
-- [ ] Validation commands are runnable as-written
-- [ ] Total task count accounts for the full plan scope
-
-## References
-
-
-- Full delivery reference: `docs/delivery-standards.md`
-- For planning artifacts: `skills/using-github-speckit/SKILL.md`
-- For stacked PRs: `skills/using-graphite-cli/SKILL.md`
-- For commit messages: `skills/writing-conventional-commits/SKILL.md`
-
+- All tasks have unique IDs
+- Dependency graph is acyclic
+- Stack parent is defined for every task
+- All acceptance criteria are measurable
+- Validation commands are runnable
+- Total task set covers full approved scope without spillover
