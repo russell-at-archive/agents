@@ -2,52 +2,63 @@
 
 ## Context
 
-This document captures missing capabilities identified during review of the
-current skills collection and maps them to proposed additions.
+This document captures missing capabilities identified during a holistic review of the current skill collection and maps them to proposed additions required to operationalize the repository's core methodologies (Intent Engineering, CDD, DDD, TDD, and Delivery Standards).
 
-Source process: `docs/collaboration-process.md`.
+Source processes:
+- `docs/collaboration-process.md`
+- `docs/delivery-standards.md`
+- `docs/methodologies/`
 
 ## Existing Strengths
 
 Current skills strongly cover:
 
-- Planning artifacts (`writing-prds`, `writing-task-specs`, `writing-adrs`)
-- Repository operations (`using-graphite-cli`, `using-github-cli`)
-- Formatting and writing quality (`writing-markdown`, `writing-grammar`)
-- Tool delegation (`using-codex-cli`, `using-gemini-cli`, `using-ollama`)
+- **Planning Artifacts**: `writing-product-requirement-documents`, `writing-task-specs`, `writing-architecture-decision-records`.
+- **Repository Operations**: `using-graphite-cli`, `using-github-cli`, `using-git-worktrees`.
+- **Workflow Orchestration**: `using-github-speckit`, `planning-speckit-worktrees-graphite`.
+- **Quality & Writing**: `writing-markdown`, `writing-grammar`, `writing-git-commits`.
+- **Model Delegation**: `using-codex-cli`, `using-gemini-cli`, `using-ollama`.
 
 ## Gaps Identified
 
-1. No structured intake and discovery skill for early framing.
-2. No reusable quality-gate execution workflow before merge.
-3. No release-readiness skill with rollback and validation checks.
-4. No retrospective skill to operationalize the learning loop.
-5. No dedicated test-strategy skill tied to slice-level planning.
-6. No orchestration skill for multi-skill trigger conflict resolution.
+1.  **Intent Capture & Discovery**: No formalized skill for early intake, ambiguity clarification, and constraint extraction as defined in `intent-engineering.md`.
+2.  **Domain & Contract Modeling**: No skills for Domain-Driven Design (DDD) boundary identification or API contract negotiation (CDD) prior to implementation.
+3.  **Behavioral Specification**: No skill for translating functional requirements into executable BDD scenarios (Given/When/Then).
+4.  **Implementation Discipline**: No skill to enforce the Red-Green-Refactor loop of TDD or the empirical verification required for bug reproduction.
+5.  **Quality Enforcement**: No structured skill for post-implementation quality gates (lint/type/test) or peer PR review against architectural constraints.
+6.  **Operational Feedback**: No formalized skills for release readiness (rollback/validation) or post-delivery retrospectives to close the learning loop.
 
 ## Proposed Additions
 
-1. `running-intake-discovery`
-2. `running-quality-gates`
-3. `running-release-readiness`
-4. `running-retrospectives`
-5. `designing-test-strategies`
-6. `orchestrating-skill-selection`
+### Phase 1: Intake & Design
+- `running-intake-discovery`: Clarify goals, extract constraints, and build the "Intent Contract."
+- `modeling-domains`: Identify bounded contexts, entities, and aggregates (DDD).
+- `designing-api-contracts`: Negotiate and document OpenAPI/GraphQL contracts (CDD).
+- `writing-bdd-scenarios`: Convert specs into executable behavioral tests (BDD).
+
+### Phase 2: Implementation & Validation
+- `applying-test-driven-development`: Enforce strict Red-Green-Refactor cycles.
+- `reproducing-bugs`: Ensure empirical failure via a test case before any fix is applied.
+- `running-quality-gates`: Systematic verification of "Definition of Done" before PR submission.
+- `reviewing-pull-requests`: Evaluate PRs against delivery standards and architectural constraints.
+
+### Phase 3: Delivery & Learning
+- `running-release-readiness`: Verify rollout, monitoring, and rollback plans.
+- `running-retrospectives`: Analyze delivery speed and failures to update checklists/templates.
 
 ## Expected Outcomes
 
-- Faster alignment at kickoff with clearer constraints and assumptions.
-- Consistent pre-merge evidence quality.
-- Safer releases with explicit rollback readiness.
-- Continuous process improvement driven by short retros.
-- Better test coverage decisions before implementation begins.
-- Less ambiguity when overlapping skills are triggered together.
+- **High Intent Fidelity**: Reduced rework by confirming "What and Why" before "How."
+- **Contract Stability**: Parallel development enabled by stable, pre-negotiated interfaces.
+- **Zero-Regression Implementation**: TDD-first approach ensures behavioral correctness.
+- **Review Velocity**: Small, high-quality PRs that satisfy pre-defined quality gates.
+- **Continuous Evolution**: A system that matures through structured retrospective feedback.
 
-## Linked PRDs
+## Implementation Roadmap (Linked PRDs)
 
 - `docs/prds/prd-running-intake-discovery.md`
+- `docs/prds/prd-modeling-domains.md`
+- `docs/prds/prd-designing-api-contracts.md`
+- `docs/prds/prd-applying-test-driven-development.md`
 - `docs/prds/prd-running-quality-gates.md`
-- `docs/prds/prd-running-release-readiness.md`
 - `docs/prds/prd-running-retrospectives.md`
-- `docs/prds/prd-designing-test-strategies.md`
-- `docs/prds/prd-orchestrating-skill-selection.md`
