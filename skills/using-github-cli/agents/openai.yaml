@@ -1,4 +1,4 @@
 interface:
   display_name: "GitHub CLI Operations"
-  short_description: "Run GitHub CLI operations non-interactively"
-  default_prompt: "Use $using-github-cli to run the required gh commands with explicit flags and JSON output."
+  short_description: "Run gh commands safely and non-interactively"
+  default_prompt: "Use $using-github-cli to execute explicit, JSON-first gh commands with clear repo targeting and verification."

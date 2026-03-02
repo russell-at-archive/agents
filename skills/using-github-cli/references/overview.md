@@ -1,122 +1,154 @@
 # Overview
 
-## Overview
+## Purpose
 
+Use GitHub CLI (`gh`) for GitHub-native operations that do not have a better
+Graphite (`gt`) equivalent.
 
-Use GitHub CLI (`gh`) for GitHub operations that are not better handled by
-Graphite (`gt`).
+Use `gh` first for:
 
-`gh` is the default tool for issues, workflow status, releases,
-comments, and API calls.
+- issue lifecycle work
+- Actions workflow and run operations
+- release lifecycle work
+- direct GitHub API calls (`gh api`)
+- cross-repo metadata queries
 
-## Tool Boundary
+If the operation is stack or branch-flow management, use `gt` first.
 
+## Context Setup
 
-- If a `gt` equivalent exists for branch and stack workflows, use `gt`.
-- Use `gh` for operations without a `gt` equivalent.
-- Do not use raw browser-only workflows when a clear `gh` command exists.
-
-## Setup and Context
-
-
-Before running write operations, confirm auth and target repository context.
+Validate tool, auth, host, and repository before write operations.
 
 ```bash
+gh --version
 gh auth status
-gh repo view
+gh repo set-default --view
 ```
 
-If working outside the current repository, pass `--repo <owner>/<repo>`.
+Context controls:
 
-## Non-Interactive Defaults
+- `--repo [HOST/]OWNER/REPO` targets a specific repository.
+- `GH_REPO` sets default repo context.
+- `GH_HOST` targets GitHub Enterprise hosts.
+- `GH_PROMPT_DISABLED=1` disables interactive prompts.
 
+## Non-Interactive Standard
 
-Prefer non-interactive commands in automation and agent workflows.
+For deterministic execution:
 
-- Always pass explicit flags instead of relying on prompts.
-- Prefer machine-readable output with `--json` and `--jq`.
-- Use `--confirm` only when command semantics require it.
+- pass explicit flags instead of prompt-driven flows
+- pass `--title`, `--body`, `--label`, and similar fields directly
+- prefer `--json` and parse with `--jq` where available
+- use `--template` only when output must be formatted for humans
 
-## Common Commands
+Formatting pattern:
 
+```bash
+gh pr list --state open \
+  --json number,title,author,updatedAt \
+  --jq '.[] | {number, title, author: .author.login, updatedAt}'
+```
+
+## Command Selection
 
 ### Pull Requests
 
+Common read operations:
+
 ```bash
-# View PR details
-gh pr view <number> --json number,title,state,author,mergeStateStatus
-
-# List open PRs
 gh pr list --state open --limit 50
+gh pr view <number> --json number,title,state,reviewDecision,mergeStateStatus
+gh pr checks <number> --required --watch
+```
 
-# Add a review comment
-gh pr comment <number> --body "<comment>"
+Common write operations:
 
-# Merge when policy allows
+```bash
+gh pr create --title "<title>" --body "<body>" --base <base>
+gh pr review <number> --approve --body "<note>"
 gh pr merge <number> --squash --delete-branch
 ```
+
+Notes:
+
+- `gh pr checks` has additional exit code `8` for pending checks.
+- On merge-queue protected branches, `gh pr merge` may enqueue instead of
+  directly merging.
 
 ### Issues
 
 ```bash
-# List open issues
-gh issue list --state open --limit 50
-
-# Create issue
-gh issue create --title "<title>" --body "<body>"
-
-# Comment on issue
+gh issue list --state open --limit 100
+gh issue create --title "<title>" --body "<body>" --label bug
 gh issue comment <number> --body "<comment>"
-
-# Close issue
-gh issue close <number> --comment "<resolution note>"
+gh issue close <number> --comment "<resolution>"
 ```
 
-### Workflows and CI
+### Actions
 
 ```bash
-# List recent workflow runs
 gh run list --limit 20
-
-# View a specific run
 gh run view <run-id> --log
-
-# Re-run failed jobs
 gh run rerun <run-id> --failed
+gh workflow run <workflow.yml> -f key=value -f key2=value2
+```
+
+For JSON workflow inputs:
+
+```bash
+echo '{"name":"value"}' | gh workflow run <workflow.yml> --json
 ```
 
 ### Releases
 
 ```bash
-# List releases
 gh release list --limit 20
-
-# Create release
-gh release create <tag> --title "<title>" --notes "<notes>"
+gh release create <tag> --generate-notes
+gh release create <tag> --notes-file <file> --verify-tag
 ```
 
-### API Access
+Safety notes:
+
+- use `--verify-tag` when automatic tag creation is not desired
+- use `--fail-on-no-commits` to avoid duplicate empty releases
+
+### API
+
+Use `gh api` for endpoints not covered by high-level commands.
 
 ```bash
-# Query GitHub API directly
-gh api repos/<owner>/<repo>/pulls --jq '.[].number'
+gh api repos/{owner}/{repo}/pulls --jq '.[].number'
+gh api graphql -f query='<graphql>'
+gh api repos/{owner}/{repo}/issues --paginate --slurp
 ```
 
-## Output and Parsing
+Important `gh api` patterns:
 
+- `-f` for string fields
+- `-F` for typed fields and `@file` payload injection
+- `--method GET` when fields must become query params
+- `--paginate` with `--slurp` for complete result sets
 
-Prefer `--json` output for stable automation.
+## Safety
 
-```bash
-gh pr view <number> --json title,state,reviewDecision --jq '.state'
-```
+Before every mutating command:
 
-Avoid parsing plain text output when a JSON field is available.
+1. confirm target host and repository
+2. confirm object identity (issue number, PR number, tag)
+3. confirm mutation intent from the user
 
-## Safety Rules
+Never run these without explicit user intent:
 
+- `gh pr merge`
+- `gh pr close`
+- `gh issue delete`
+- `gh release delete`
 
-- Do not run destructive commands without clear user intent.
-- Confirm target repo before mutating issues, PRs, or releases.
-- For bulk edits, test on one object first, then scale.
+## Reporting Standard
 
+Return concise, auditable output:
+
+- commands executed
+- changed resources (PR/issue/run/release identifiers)
+- verification command and result
+- unresolved blockers and next action
