@@ -1,134 +1,115 @@
 # Grammar Checklist
 
-Apply each rule to every sentence. Do not skip rules because they seem unlikely to apply.
+Apply each rule to every sentence. Do not skip rules.
 
----
+## Rule 1: Sentence Completeness
 
-## Rule 1: List Consistency
+Each sentence must contain a clear subject and predicate.
+Flag fragments and run-ons.
 
-Every comma-separated list of three or more items must have "and" or "or" immediately before the final item.
+Fail: "Because the system was unavailable."
+Pass: "The deployment failed because the system was unavailable."
 
-**Fail:** "apples, oranges, bananas"
-**Pass:** "apples, oranges, and bananas"
+## Rule 2: Subject-Verb Agreement
 
-Also applies to parenthetical lists: "(create, list, switch, remove)" → "(create, list, switch, and remove)"
+Verbs must agree with grammatical subjects, not nearby nouns.
 
----
+Fail: "A set of checks are required."
+Pass: "A set of checks is required."
 
-## Rule 2: Parallel Structure
+## Rule 3: Pronoun Reference and Agreement
 
-All items in a list must use the same grammatical form — all nouns, all verb phrases, or all clauses. Mixed forms are a violation.
+Pronouns must match number/person and have clear antecedents.
 
-**Fail:** "The system shall log errors, notify users, and a report is generated."
-**Pass:** "The system shall log errors, notify users, and generate a report."
+Fail: "The API and CLI were updated, and it was documented."
+Pass: "The API and CLI were updated, and both were documented."
 
----
+## Rule 4: Verb Tense and Aspect Consistency
 
-## Rule 3: Subject-Verb Agreement
+Keep tense consistent within the same timeframe unless a shift is
+intentional and signaled.
 
-The verb must agree in number with its grammatical subject. Intervening phrases between subject and verb do not change the subject.
+Fail: "The job starts, validated inputs, and completes."
+Pass: "The job starts, validates inputs, and completes."
 
-**Fail:** "A list of errors are returned."
-**Pass:** "A list of errors is returned."
+## Rule 5: Parallel Structure
 
----
+Coordinate items must share grammatical form.
 
-## Rule 4: Sentence Completeness
+Fail: "The service logs errors, notifying operators, and alert emails."
+Pass: "The service logs errors, notifies operators, and sends alert
+emails."
 
-Every sentence must have a subject and a predicate. Flag fragments and comma splices.
+## Rule 6: Modifier Placement
 
-**Fail (fragment):** "Each defined in a configuration file."
-**Fail (comma splice):** "The file is read, the results are returned."
-**Pass:** "The file is read and the results are returned."
+Modifiers must attach to the intended target.
 
----
+Fail: "After reviewing the logs, the outage was diagnosed."
+Pass: "After reviewing the logs, the team diagnosed the outage."
 
-## Rule 5: Article Usage
+## Rule 7: Comma and Clause Boundaries
 
-Use "a" before consonant sounds and "an" before vowel sounds. The rule applies to the spoken sound, not the spelling.
+Use commas for introductory elements and coordinating independent
+clauses. Avoid comma splices.
 
-**Fail:** "a ADR", "an unique identifier", "a hour"
-**Pass:** "an ADR", "a unique identifier", "an hour"
+Fail: "The test failed, we retried it."
+Pass: "The test failed, so we retried it."
 
----
+## Rule 8: Semicolons and Colons
 
-## Rule 6: Dangling and Misplaced Modifiers
+Use semicolons only between related independent clauses.
+Use colons to introduce explanations, lists, or amplifications.
 
-Introductory phrases must modify the grammatical subject of the main clause. If the phrase refers to something other than the subject, it is dangling.
+Fail: "The release was delayed; because QA blocked it."
+Pass: "The release was delayed because QA blocked it."
 
-**Fail:** "After reviewing the spec, the errors were found." (the errors did not review the spec)
-**Pass:** "After reviewing the spec, the team found the errors."
+## Rule 9: Articles and Determiners
 
----
+Use `a/an/the` and other determiners correctly by sound and specificity.
 
-## Rule 7: Pronoun-Antecedent Agreement
+Fail: "a hour", "an unique case", "engineer fixed issue"
+Pass: "an hour", "a unique case", "the engineer fixed the issue"
 
-Pronouns must agree in number and person with the noun they refer to. The antecedent must be unambiguous — if the pronoun could refer to more than one noun, rewrite. Also flag vague uses of "this," "it," or "which" where the referent is not immediately clear.
+## Rule 10: Possessives, Contractions, and Apostrophes
 
-**Fail:** "The package reads the manifest and validates it before they are installed."
-**Pass:** "The package reads the manifest and validates it before installation."
+Distinguish possessives from contractions and avoid apostrophe plurals.
 
-**Fail (vague):** "The spec was accepted and the ADR was written. This caused the work to begin."
-**Pass:** "The spec was accepted and the ADR was written. Both approvals caused the work to begin."
+Fail: "its deployed", "the policy's were updated"
+Pass: "it's deployed", "the policies were updated"
 
----
+## Rule 11: Word Form and Confusables
 
-## Rule 8: Tense Consistency
+Verify commonly confused words and forms in context.
 
-Tense must be consistent within a section. Do not shift between present and past without a clear reason.
+Check: `affect/effect`, `its/it's`, `your/you're`,
+`their/there/they're`, `then/than`, `fewer/less`, `who/whom`,
+`lie/lay`, `that/which`.
 
-**Fail:** "The workflow runs the spec phase, then it checked for ADRs."
-**Pass:** "The workflow runs the spec phase, then checks for ADRs."
+## Rule 12: Relative Clauses and Restrictive Meaning
 
----
+Ensure restrictive clauses are not punctuated as nonrestrictive clauses.
+Use `that` for restrictive clauses in US usage unless local style says
+otherwise.
 
-## Rule 9: Possessive Apostrophes
+Fail: "Requests, that fail validation, are rejected."
+Pass: "Requests that fail validation are rejected."
 
-Use apostrophe-s for possessives. Do not use apostrophes for plurals. Do not confuse possessive forms with contractions — "its" is possessive; "it's" is a contraction. Apply the same logic to "your/you're" and "their/they're."
+## Rule 13: Negation and Logical Clarity
 
-**Fail:** "the spec's are reviewed", "the workflows result", "its working", "your ready"
-**Pass:** "the specs are reviewed", "the workflow's result", "it's working", "you're ready"
+Prevent ambiguous negation, especially in requirements.
 
----
+Fail: "Do not allow users without admin rights only."
+Pass: "Allow only users with admin rights."
 
-## Rule 10: Commonly Confused Words
+## Rule 14: List Grammar and Conjunctions
 
-Check every instance of the following for correct usage:
+List items should be parallel and explicitly connected. Use a conjunction
+before the final item in a list of three or more.
 
-| Word | Common confusion |
-|------|-----------------|
-| affect / effect | affect is usually a verb; effect is usually a noun |
-| its / it's | its = possessive; it's = it is |
-| your / you're | your = possessive; you're = you are |
-| their / there / they're | ownership / location / contraction |
-| then / than | then = time or sequence; than = comparison |
-| ensure / insure | ensure = make certain; insure = take out insurance |
-| that / which | that = restrictive clause; which = non-restrictive clause |
-| fewer / less | fewer for countable nouns; less for uncountable |
-| between / among | between = two distinct things; among = three or more or an abstract group |
-| compose / comprise | the parts compose the whole; the whole comprises the parts |
-| complement / compliment | complement = enhance or complete; compliment = praise |
-| principle / principal | principle = rule or belief; principal = chief, or the head of a school |
-| lay / lie | lay = to place something (takes an object); lie = to recline (no object) |
-| i.e. / e.g. | i.e. = that is (specifies); e.g. = for example (illustrates) |
-| could of / would of / should of | always wrong; use could have, would have, should have |
+Fail: "create, validate, deploy"
+Pass: "create, validate, and deploy"
 
----
+## Rule 15: Dialect and House-Style Consistency
 
-## Rule 11: Pronoun Case
-
-Use subject pronouns (I, he, she, they, who) when the pronoun is the subject of a verb. Use object pronouns (me, him, her, them, whom) when the pronoun is the object of a verb or preposition.
-
-**Fail:** "The spec was reviewed by she and I.", "Who did you send it to?"
-**Pass:** "The spec was reviewed by her and me.", "Whom did you send it to?"
-
-Test: remove the other person and read the sentence aloud. "Reviewed by I" is clearly wrong; "reviewed by me" is correct.
-
----
-
-## Rule 12: Semicolon Usage
-
-A semicolon joins two independent clauses without a coordinating conjunction. Do not use a semicolon directly before a coordinating conjunction (and, but, or, so, yet). Do not use a semicolon where a comma is correct.
-
-**Fail:** "The spec was accepted; and work began.", "The file is read; the results filtered, and returned."
-**Pass:** "The spec was accepted; work began.", "The spec was accepted, and work began."
+Keep spelling and punctuation consistent with target dialect and project
+style (`US`: color, license; `UK`: colour, licence).

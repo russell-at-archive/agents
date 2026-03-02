@@ -1,49 +1,62 @@
 ---
 name: writing-grammar
-description: Apply a structured grammar checklist to a document line by
-  line. Use when any document requires a thorough, consistent grammar
-  review before publication or handoff.
-tier: lightweight
-allowed-tools:
-  - Read
+description: Applies a rigorous, line-by-line English grammar review to a
+  document and produces precise corrections. Use when a user asks for
+  grammar review, proofreading, copyediting, or publication-quality grammar
+  cleanup.
 ---
 
 # Grammar Review Skill
 
 ## Overview
 
-Apply a structured grammar checklist to a document line by
-Detailed guidance: `references/overview.md`.
+Runs a deterministic grammar review workflow with explicit findings,
+severity tags, and corrected rewrites.
+Full procedure: [references/overview.md](references/overview.md)
 
 ## When to Use
 
-- when the trigger conditions in frontmatter match the request
+- The user asks to review grammar, proofread, or improve correctness
+- A document needs pre-publication grammar quality checks
+- Consistency and auditability matter more than writing speed
 
 ## When Not to Use
 
-- when another skill is a clearer, narrower match
+- The user only wants stylistic tone changes, not grammar correction
+- The task is pure markdown linting without language-quality review
+- The user requests domain-fact verification rather than language edits
 
 ## Prerequisites
 
-- required tools, auth, and repository context are available
+- The target text is available and complete enough to review
+- The intended dialect is known (`US` or `UK`) or safely assumed
+- Scope is defined: review-only report vs direct rewrite
 
 ## Workflow
 
-1. Load `references/overview.md` for core procedure and constraints.
-2. Load `references/examples.md` for concrete command or prompt forms.
-3. Load `references/troubleshooting.md` for recovery and stop conditions.
+1. Load [references/overview.md](references/overview.md).
+2. Load [references/checklist.md](references/checklist.md).
+3. Execute the review protocol and severity model exactly.
+4. Use [references/examples.md](references/examples.md) for output shape.
+5. Use [references/troubleshooting.md](references/troubleshooting.md) for
+   edge cases.
 
 ## Hard Rules
 
-- do not execute destructive or irreversible actions without approval
-- follow repository-specific constraints before making changes
+- Review every sentence; never sample.
+- Quote offending text exactly before suggesting corrections.
+- Preserve technical meaning, identifiers, and commands.
+- Separate objective grammar errors from optional style improvements.
+- If rewriting, keep structure unless user asks for restructuring.
 
 ## Failure Handling
 
-- on ambiguity or missing prerequisites, stop and ask for clarification
-- on tool/auth failures, report exact error and next required action
+- If intent is unclear, ask whether the user wants `review` or `rewrite`.
+- If dialect is ambiguous and it affects corrections, state assumption.
+- If text quality blocks reliable interpretation, flag uncertainty.
 
 ## Red Flags
 
-- scope drift beyond this skill's trigger boundaries
-- incomplete validation before reporting success
+- "No issues found" without documenting full checklist application
+- Silent rewrites that omit what changed and why
+- Over-correcting domain terminology that is intentionally specific
