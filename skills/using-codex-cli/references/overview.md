@@ -1,118 +1,66 @@
 # Overview
 
-## Overview
+Codex CLI runs outside your current conversation context. Pass complete task
+state in every prompt.
 
+## Command Selection
 
-Dispatch tasks to OpenAI's Codex CLI (`codex exec`) from Claude Code.
-Use Codex for parallel execution, offloading long tasks, or leveraging
-OpenAI models (o3, o4-mini) for specific work.
+- `codex exec`: non-interactive task execution
+- `codex review`: non-interactive code review workflow
+- `codex exec resume`: continue a non-interactive session
+- `codex resume`: continue an interactive session
 
-**Core principle:** Codex runs independently with no shared context.
-Every task must be self-contained with all necessary information
-in the prompt.
+## Safety and Scope Defaults
 
-## When to Use
+- Prefer `--full-auto` for unattended execution.
+- Use `-C <dir>` to force the correct repo/worktree root.
+- Add `--add-dir <path>` only when extra writable scope is required.
+- Use `-s read-only` for analysis-only operations.
+- Avoid `--dangerously-bypass-approvals-and-sandbox` unless explicitly
+  requested in an externally sandboxed environment.
 
+## Output Modes
 
-**Use Codex when:**
-
-- You need parallel, sandboxed execution of independent tasks
-- A task benefits from OpenAI models (reasoning, code generation)
-- You want to offload long-running work and continue in Claude Code
-- The task needs isolated filesystem write access
-
-**Don't use Codex when:**
-
-- The task needs access to the current conversation context
-- It's a quick lookup or file read (overkill)
-- Tasks need interactive user approval mid-execution
-- You need Claude-specific capabilities (MCP tools, conversation history)
-
-## Execution Modes
-
-
-### Fire-and-Forget
-
-Dispatch and move on. Output streams to terminal. User checks results.
+- Human-readable summary file:
 
 ```bash
-codex exec --full-auto -C /path/to/project "Your task prompt here"
+codex exec --full-auto -C /repo -o /tmp/codex-task.md "task prompt"
 ```
 
-### Wait-and-Integrate
-
-Run in background via Bash tool. Read output file later to integrate
-results.
+- Machine-readable event stream:
 
 ```bash
-codex exec --full-auto -C /path/to/project \
-  -o /tmp/codex-output-TASKNAME.md \
-  "Your task prompt here"
+codex exec --full-auto -C /repo --json "task prompt"
 ```
 
-Use unique filenames for `-o` when dispatching multiple tasks.
-
-## Common Flags
-
-
-| Flag          | Purpose                                              |
-| ------------- | ---------------------------------------------------- |
-| `--full-auto` | Non-interactive, sandboxed execution. Always use.    |
-| `-C DIR`      | Set working directory: `-C /path/to/worktree`        |
-| `-o FILE`     | Write output to file: `-o /tmp/codex-result.md`      |
-| `-m MODEL`    | Choose model: `-m o3`, `-m o4-mini`                  |
-| `-s SANDBOX`  | Sandbox policy: `-s read-only`, `-s workspace-write` |
-| `-i IMAGE`    | Attach image(s): `-i screenshot.png`                 |
-| `--json`      | JSONL output for parsing                             |
-
-## Prompt Structure
-
-
-Codex has NO context from Claude Code. Include everything:
-
-```markdown
-# Task: [Clear one-line description]
-
-## Context
-
-[What project this is, relevant architecture, file locations]
-
-## Goal
-
-[Exactly what to accomplish]
-
-## Constraints
-
-- Only modify files in [specific scope]
-- Do not change [what to leave alone]
-
-## Expected Output
-
-[What the result should look like - summary, code changes, analysis]
-```
-
-## Parallel Dispatch
-
-
-For multiple independent tasks, dispatch concurrently using background
-execution:
+- Minimal persistent footprint for one-shot jobs:
 
 ```bash
-# Task 1 - background
-codex exec --full-auto -C /path/to/project \
-  -o /tmp/codex-task1.md "Fix failing tests in src/auth/"
-
-# Task 2 - background
-codex exec --full-auto -C /path/to/project \
-  -o /tmp/codex-task2.md "Add input validation to src/api/handlers.go"
-
-# Task 3 - background
-codex exec --full-auto -C /path/to/project \
-  -o /tmp/codex-task3.md "Write unit tests for src/utils/parser.ts"
+codex exec --full-auto -C /repo --ephemeral "task prompt"
 ```
 
-Make all three Bash calls with `run_in_background: true` in a single
-message for true parallelism.
+## High-Value Flags
 
-After all complete, read each output file and integrate results.
+| Flag | Purpose |
+| ---- | ------- |
+| `--full-auto` | Alias for sandboxed low-friction execution |
+| `-C <DIR>` | Set working root |
+| `-o <FILE>` | Write last assistant message to file |
+| `--json` | Emit JSONL events |
+| `--ephemeral` | Run without session persistence |
+| `--skip-git-repo-check` | Allow execution outside a git repo |
+| `-m <MODEL>` | Choose model |
+| `-i <FILE>` | Attach image(s) |
+| `--search` | Enable web search tool for that run |
 
+## Prompt Requirements
+
+Always include:
+
+- task objective
+- repository and path context
+- file boundaries and constraints
+- expected output shape
+- validation commands
+
+Treat prompt completeness as mandatory, not optional.

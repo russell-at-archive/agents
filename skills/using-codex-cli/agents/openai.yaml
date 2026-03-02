@@ -1,4 +1,4 @@
 interface:
-  display_name: "Codex CLI Dispatcher"
-  short_description: "Dispatch tasks with Codex CLI"
-  default_prompt: "Use $using-codex-cli to dispatch this task with codex exec in full-auto mode."
+  display_name: "Codex CLI Operator"
+  short_description: "Run Codex exec, review, and resume safely"
+  default_prompt: "Use $using-codex-cli before any codex command. Pick the right subcommand, set safe flags, and use explicit output handling."
