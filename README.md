@@ -32,6 +32,11 @@ Current skills available in this environment:
   Spec Kit, including prompts like "create a plan", "create a spec", "write a
   project spec", or "plan this feature". Enforce the Spec Kit command
   sequence and produce complete, review-ready planning artifacts.
+- [using-helm](./skills/using-helm/SKILL.md): Provides expert guidance for
+  working with Helm, the Kubernetes package manager for templating, packaging,
+  installing, and operating Kubernetes applications as charts and releases.
+  Use when the user asks about Helm charts, `Chart.yaml`, `values.yaml`,
+  templates, release commands, dependencies, OCI registries, or troubleshooting.
 - [using-gitlab-cli](./skills/using-gitlab-cli/SKILL.md): Use when instructed
   to run GitLab CLI (`glab`) commands for merge request operations, issue
   management, pipeline runs, releases, repository settings, or GitLab API
