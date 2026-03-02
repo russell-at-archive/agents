@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claude CLI Operator"
+  short_description: "Run and control Claude CLI safely"
+  default_prompt: "Use $using-claude-cli to execute this task with Claude CLI."

@@ -19,6 +19,10 @@ Current skills available in this environment:
   dispatch tasks to the Codex CLI tool for parallel execution, offloading
   long-running work, or leveraging OpenAI models. Invoke before running any
   codex command.
+- [using-claude-cli](./skills/using-claude-cli/SKILL.md): Use when instructed
+  to run Claude CLI (`claude`) commands for interactive coding sessions,
+  non-interactive execution, resume flows, agent selection, permission
+  controls, or MCP configuration. Invoke before running any claude command.
 - [using-gemini-cli](./skills/using-gemini-cli/SKILL.md): Use when you need to
   dispatch tasks to the Gemini CLI for large-context analysis, codebase
   comprehension, summarization, or dependency mapping. Invoke before running
