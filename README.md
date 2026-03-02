@@ -11,6 +11,10 @@ Current skills available in this environment:
   Use when planning and delivering features that must follow GitHub Spec Kit
   planning, git worktrees for isolation, and Graphite stacked pull requests.
   Combines using-github-speckit, using-git-worktrees, and using-graphite-cli.
+- [structuring-git-commits](./skills/structuring-git-commits/SKILL.md):
+  Structures repository changes into small, reviewable, and safe git commits.
+  Use when asked to split work into atomic commits, decide commit boundaries,
+  stage hunks, or order commits before pushing or opening a pull request.
 - [using-codex-cli](./skills/using-codex-cli/SKILL.md): Use when you need to
   dispatch tasks to the Codex CLI tool for parallel execution, offloading
   long-running work, or leveraging OpenAI models. Invoke before running any
