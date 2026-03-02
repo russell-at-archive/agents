@@ -45,6 +45,11 @@ Current skills available in this environment:
   instructed to perform any git operation; branching, committing, pushing,
   syncing, creating pull requests, or managing stacks. Must be invoked before
   using git or gh commands.
+- [using-kubectl](./skills/using-kubectl/SKILL.md): Provides expert guidance
+  for using kubectl to inspect, troubleshoot, and operate Kubernetes clusters
+  safely. Use when requests involve kubectl commands such as get, describe,
+  logs, exec, apply, diff, delete, rollout, port-forward, top, auth can-i, or
+  context and namespace management.
 - [using-ollama](./skills/using-ollama/SKILL.md): Use when you need to
   dispatch tasks to a local or remote Ollama instance for inference, code
   generation, analysis, or summarization. Invoke before running any ollama
