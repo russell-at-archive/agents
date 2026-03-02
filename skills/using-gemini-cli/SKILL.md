@@ -9,38 +9,52 @@ description: Use when you need to dispatch tasks to the Gemini CLI for
 
 ## Overview
 
-Use when you need to dispatch tasks to the Gemini CLI for
+Use this skill before any `gemini` command when you need high-context,
+cross-file analysis from Gemini CLI.
 Detailed guidance: `references/overview.md`.
 
 ## When to Use
 
-- when the trigger conditions in frontmatter match the request
+- analyzing architecture across many files
+- mapping dependencies or migration impact across modules
+- summarizing large repositories, diffs, or documentation sets
 
 ## When Not to Use
 
-- when another skill is a clearer, narrower match
+- writing or applying code changes directly
+- one-file or narrow questions you can answer with direct file reads
+- tasks that require shared conversation state with this agent
 
 ## Prerequisites
 
-- required tools, auth, and repository context are available
+- `gemini` is installed and authenticated
+- target files or directories are known
+- output destination is defined for non-trivial analysis runs
 
 ## Workflow
 
-1. Load `references/overview.md` for core procedure and constraints.
-2. Load `references/examples.md` for concrete command or prompt forms.
-3. Load `references/troubleshooting.md` for recovery and stop conditions.
+1. Run the preflight checks in `references/overview.md`.
+2. Pick a safe execution mode and approval policy.
+3. Build a self-contained prompt with explicit file scope.
+4. Execute Gemini and capture output for integration.
+5. Validate findings against source files before reporting.
+6. Use `references/examples.md` and `references/troubleshooting.md` as needed.
 
 ## Hard Rules
 
+- always run Gemini in non-interactive mode with `-p`
+- keep prompts self-contained; Gemini has no access to this chat context
+- default to read-only analysis modes unless user requests edits
 - do not execute destructive or irreversible actions without approval
-- follow repository-specific constraints before making changes
 
 ## Failure Handling
 
-- on ambiguity or missing prerequisites, stop and ask for clarification
-- on tool/auth failures, report exact error and next required action
+- if preflight fails, stop and report exact failure and remediation
+- if output is incomplete, rerun with broader file scope and tighter prompt
+- if results conflict with local files, trust local files and cite mismatch
 
 ## Red Flags
 
-- scope drift beyond this skill's trigger boundaries
-- incomplete validation before reporting success
+- asking Gemini to perform implementation that should stay in Codex
+- missing file paths or vague prompts that invite hallucinated structure
+- reporting Gemini output without verifying key claims against real files

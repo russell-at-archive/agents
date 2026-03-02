@@ -2,153 +2,117 @@
 
 ## Overview
 
-
-Dispatch tasks to Google's Gemini CLI (`gemini`) from Claude Code.
-Gemini's strength is its massive context window (1M+ tokens), making
-it ideal for large-scale comprehension tasks that require reading many
-files simultaneously.
+Dispatch tasks to Google's Gemini CLI (`gemini`).
+Gemini is strongest on broad, cross-file comprehension where a large
+context window materially improves result quality.
 
 **Core principle:** Gemini runs independently with no shared context.
-Pass file paths directly - Gemini reads them with its large context
-window. Every task must be self-contained.
+Every prompt must include full task intent, constraints, and file scope.
 
 ## When to Use
 
+Use Gemini when:
 
-**Use Gemini when:**
+- analyzing architecture across many modules
+- mapping dependency impact of proposed changes
+- summarizing large repositories or document sets
+- producing migration/readiness assessments from many files
 
-- Analyzing or understanding a large codebase (many files, deep
-  dependency trees)
-- Summarizing large PRs, long documents, or entire repositories
-- Mapping cross-file dependencies ("how does X affect Y across the
-  codebase?")
-- Assessing migration impact across a project
-- Research that requires reading and synthesizing many files
-  simultaneously
+Do not use Gemini when:
 
-**Don't use Gemini when:**
+- you need direct file edits in this workspace
+- the question is narrow and answerable from 1-2 files
+- you need in-session context from this current conversation
 
-- The task needs code generation or execution (use Codex)
-- It's a small, focused question about 1-2 files (overkill -- read
-  them directly)
-- The task needs access to the current conversation context
-- You need to modify files (Gemini is best for read/analysis, not
-  writes)
+## Preflight
+
+Before any substantial run, confirm:
+
+1. CLI is installed: `gemini --version`
+2. Auth works: `gemini -p "Respond with: OK"`
+3. File scope is explicit (files/directories selected)
+4. Output destination is set for long-running tasks
+5. Approval mode is intentionally chosen
 
 ## Execution Modes
 
-
 ### Fire-and-Forget
 
-Dispatch and move on. Output streams to terminal.
+Run once and read output in terminal.
 
 ```bash
-gemini -p "Your analysis prompt here" file1.ts file2.ts src/module/
-```
-
-### Non-Interactive with Approval Modes
-
-Control what Gemini can do autonomously:
-
-```bash
-# Read-only analysis (safest for comprehension tasks)
-gemini --approval-mode plan -p "Analyze architecture of this project"
-
-# Auto-approve edits (if Gemini needs to write analysis files)
-gemini --approval-mode auto_edit -p "Your prompt" file1.ts
-
-# Full auto-approve (use sparingly)
-gemini -y -p "Your prompt" file1.ts
+gemini -p "Analyze auth architecture and trust boundaries" src/auth/ src/middleware/
 ```
 
 ### Wait-and-Integrate
 
-Run in background via Bash tool. Capture output with redirection:
+Capture output to a file for later integration.
 
 ```bash
-gemini -p "Your analysis prompt" src/ > /tmp/gemini-output-TASKNAME.md 2>&1
+gemini -p "Map module dependencies and cyclic imports" src/ \
+  > /tmp/gemini-dependency-map.md 2>&1
 ```
 
-Use unique filenames when dispatching multiple tasks.
+Use unique output file names for parallel dispatch.
+
+### Approval-Controlled Execution
+
+Prefer explicit approval mode:
+
+```bash
+# safest default for analysis
+gemini --approval-mode plan -p "Summarize domain boundaries" src/
+
+# allow edits only when explicitly requested
+gemini --approval-mode auto_edit -p "Generate analysis notes file" src/
+```
 
 ## Common Flags
 
+| Flag                   | Purpose                                          |
+| ---------------------- | ------------------------------------------------ |
+| `-p "prompt"`         | Headless mode. Always use for automation.        |
+| `-m MODEL`             | Select model, e.g. `-m gemini-2.5-pro`.         |
+| `-o FORMAT`            | Output format, e.g. `-o text` or `-o json`.      |
+| `--approval-mode MODE` | Approval policy: `plan`, `auto_edit`, `yolo`.    |
+| `-y`                   | Auto-approve all actions. Use only if requested. |
+| `-s`                   | Sandbox mode for untrusted analysis tasks.       |
 
-| Flag                    | Purpose                                          |
-| ----------------------- | ------------------------------------------------ |
-| `-p "prompt"`           | Non-interactive (headless) mode. Always use.     |
-| `-m MODEL`              | Choose model: `-m gemini-2.5-pro`                |
-| `-y`                    | Auto-approve all actions (YOLO)                  |
-| `--approval-mode MODE`  | Set approval policy: `plan`, `auto_edit`, `yolo` |
-| `-o FORMAT`             | Output format: `-o json`, `-o text`              |
-| `--include-directories` | Add extra directories to workspace               |
-| `-s`                    | Run in sandbox for untrusted analysis            |
+## Prompt Template
 
-## Prompt Structure
-
-
-Gemini has NO context from Claude Code. Include everything:
+Use this structure for reliable output:
 
 ```markdown
-# Task: [Clear one-line description]
+# Task
+[one-line objective]
 
 ## Context
+[project/module purpose and relevant constraints]
 
-[What project this is, relevant architecture]
+## Files to Analyze
+[path list; include directories for broad context]
 
-## Goal
+## Questions to Answer
+1. [...]
+2. [...]
 
-[Exactly what to analyze or comprehend]
-
-## Files
-
-[List file paths or directories to examine]
-
-## Expected Output
-
-[What the analysis should cover -- architecture overview,
-dependency map, migration impact, summary, etc.]
+## Output Requirements
+[format, sections, and decision criteria]
 ```
 
-## Passing Files
+## File Scoping Guidance
 
+- Prefer passing complete module directories over isolated files.
+- Include config and entrypoint files (`package.json`, build config,
+  main router/DI files) when asking architecture questions.
+- If output is too generic, rerun with stricter questions and explicit
+  path lists.
 
-Gemini's strength is reading many files at once. Pass paths directly
-as positional arguments after the prompt:
+## Validation and Integration
 
-```bash
-# Specific files
-gemini -p "Analyze the auth flow" src/auth/*.ts src/middleware/auth.ts
+Treat Gemini output as advisory analysis. Before reporting:
 
-# Entire directories
-gemini -p "Map dependencies in this module" src/core/
-
-# Mix of files and directories
-gemini -p "Assess migration impact" src/ package.json tsconfig.json
-```
-
-Prefer passing **more files** rather than fewer -- Gemini handles
-breadth well.
-
-## Parallel Dispatch
-
-
-For multiple independent analysis tasks, dispatch concurrently:
-
-```bash
-# Task 1 - codebase analysis
-gemini -p "Analyze architecture of the auth system" \
-  src/auth/ > /tmp/gemini-auth-analysis.md 2>&1
-
-# Task 2 - dependency mapping
-gemini -p "Map all imports and dependencies for src/core/engine.ts" \
-  src/ > /tmp/gemini-deps.md 2>&1
-
-# Task 3 - summarization
-gemini -p "Summarize all changes in this PR" \
-  $(git diff main...HEAD --name-only) > /tmp/gemini-summary.md 2>&1
-```
-
-Make all Bash calls with `run_in_background: true` in a single message
-for true parallelism.
-
+1. verify critical claims against local files
+2. confirm referenced symbols and paths exist
+3. separate verified facts from hypotheses
+4. rerun with tighter prompts if ambiguity remains
