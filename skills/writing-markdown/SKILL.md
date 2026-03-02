@@ -4,44 +4,56 @@ description: Use when writing or editing any markdown document, README, or .md
   file to ensure strict compliance with all markdownlint rules.
 ---
 
-# Writing Lint-Compliant Markdown
+# Writing Markdown That Passes Lint
 
 ## Overview
 
-Use when writing or editing any markdown document, README, or .md
-Detailed guidance: `references/overview.md`.
+Produces markdown documents that pass markdownlint with zero errors.
+Load the full protocol from [references/overview.md](references/overview.md).
 
 ## When to Use
 
-- when the trigger conditions in frontmatter match the request
+- The user asks to write, rewrite, or clean up any markdown file
+- The task includes README, docs, ADRs, PRDs, PR text, or task specs
+- The output must pass markdownlint checks
 
 ## When Not to Use
 
-- when another skill is a clearer, narrower match
+- The task is grammar-only and does not require markdown lint compliance
+- The task is non-markdown content
+- Another narrower skill owns the format and already enforces markdownlint
 
 ## Prerequisites
 
-- required tools, auth, and repository context are available
+- Target markdown files are known
+- `markdownlint-cli2` is available; use `markdownlint` only as fallback
+- Repository markdownlint config is respected when present
 
 ## Workflow
 
-1. Load `references/overview.md` for core procedure and constraints.
-2. Load `references/examples.md` for concrete command or prompt forms.
-3. Load `references/troubleshooting.md` for recovery and stop conditions.
+1. Read [references/overview.md](references/overview.md) before editing.
+2. Apply structural and style fixes needed for lint compliance.
+3. Run markdownlint on changed markdown files.
+4. Repeat fix and lint until results are zero errors.
+5. Use [references/examples.md](references/examples.md) for patterns.
+6. Use
+   [references/troubleshooting.md](references/troubleshooting.md) on failure.
 
 ## Hard Rules
 
-- do not execute destructive or irreversible actions without approval
-- follow repository-specific constraints before making changes
-- preserve tables when resolving lint errors by fixing alignment and
-  column widths; convert to lists only if explicitly requested
+- Do not report completion until markdownlint returns zero errors.
+- Keep semantic meaning unchanged unless the user requested rewrites.
+- Preserve tables when possible; do not convert to lists without need.
+- Follow repository-specific markdownlint configuration when present.
 
 ## Failure Handling
 
-- on ambiguity or missing prerequisites, stop and ask for clarification
-- on tool/auth failures, report exact error and next required action
+- If lint tooling is missing, report exact command failure and next action.
+- If the lint config conflicts with user constraints, call out the conflict.
+- If source text is ambiguous, ask a direct clarifying question.
 
 ## Red Flags
 
-- scope drift beyond this skill's trigger boundaries
-- incomplete validation before reporting success
+- Claiming success without a lint run
+- Leaving known lint errors unresolved
+- Reformatting that changes meaning or code behavior
