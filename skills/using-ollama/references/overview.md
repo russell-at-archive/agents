@@ -1,262 +1,113 @@
 # Overview
 
-## Overview
+## Purpose
 
+Use Ollama to run local or remote models for delegated analysis,
+generation, summarization, or transformation tasks.
 
-Dispatch tasks to a local or remote Ollama instance (`ollama run`)
-from Claude Code. Ollama runs open-source models with flexible
-deployment - locally for privacy and zero-latency inference, or
-against a remote server for access to larger models and shared
-GPU resources.
+Core constraint: Ollama has no access to hidden agent context.
+Every prompt must be self-contained.
 
-**Core principle:** Ollama runs independently with no shared context.
-Every task must be self-contained with all necessary information in
-the prompt. Ollama models vary widely in capability - choose the
-right model for the task.
+## Readiness Checks
 
-## When to Use
-
-
-**Use Ollama when:**
-
-- You need fast, local inference without network round-trips
-- Privacy is a concern and data must stay on-device (local mode)
-- You want to offload drafting, summarization, or boilerplate generation
-- The task benefits from a different model's perspective or strengths
-- You're working offline or want to avoid API rate limits (local mode)
-- You need access to larger models running on a remote GPU server
-
-**Don't use Ollama when:**
-
-- The task needs access to the current conversation context
-- It's a quick lookup or file read (overkill)
-- The task requires capabilities beyond the locally available models
-- You need tool use, MCP access, or conversation history
-
-## Prerequisites
-
-
-Ollama must be running and reachable. Verify with:
+Run these checks before dispatching work:
 
 ```bash
 ollama list
 ```
 
-If targeting a local instance and Ollama is not running, start it with
-`ollama serve` or launch the Ollama application.
-
-## Configuration
-
-
-By default, Ollama connects to `http://localhost:11434`. To target a
-remote instance, set `OLLAMA_HOST`:
+If server is down locally, start it:
 
 ```bash
-# Remote server
+ollama serve
+```
+
+If targeting remote, set host and verify:
+
+```bash
 export OLLAMA_HOST=http://gpu-server.local:11434
-
-# Remote with custom port
-export OLLAMA_HOST=http://192.168.1.100:8080
-
-# Verify connectivity
 ollama list
 ```
 
-### Per-Command Remote Targeting
+## Command Flow
 
-Prefix individual commands instead of exporting globally:
+1. Confirm task is suitable for delegation.
+2. Select model for speed versus quality tradeoff.
+3. Build prompt with context, goal, constraints, and output contract.
+4. Execute non-interactively with `ollama run`.
+5. Save output to a unique path when running async or in parallel.
+6. Review and validate before integration.
 
-```bash
-OLLAMA_HOST=http://gpu-server.local:11434 ollama run llama3.3 "prompt"
-```
+## Model Selection Heuristics
 
-### Remote API Calls
+- `mistral` or `gemma2`: fast drafting and lightweight summaries
+- `qwen2.5-coder` or `codellama`: coding tasks and refactors
+- `llama3.3`: deeper analysis and review
+- larger hosted variants: heavy reasoning when remote GPU is available
 
-Swap `localhost` for the remote host in API calls:
+Always confirm availability with `ollama list`.
 
-```bash
-curl -s http://gpu-server.local:11434/api/generate -d '{
-  "model": "llama3.3",
-  "prompt": "Your prompt here",
-  "stream": false
-}' | jq -r '.response'
-```
+## Execution Patterns
 
-### Local vs Remote Tradeoffs
-
-| Factor       | Local                 | Remote                          |
-| ------------ | --------------------- | ------------------------------- |
-| Latency      | Lowest (no network)   | Network round-trip per request  |
-| Privacy      | Data stays on-device  | Data traverses the network      |
-| Model size   | Limited by RAM/VRAM   | Larger models on GPU servers    |
-| Availability | Works offline         | Requires network access         |
-| Concurrency  | Limited by local HW   | Shared server, more parallelism |
-
-**Tip:** For parallel dispatch across both local and remote, mix
-`OLLAMA_HOST` values to distribute load:
+### Single prompt
 
 ```bash
-# Local instance - lightweight task
-echo "Summarize this" | ollama run mistral \
-  > /tmp/ollama-local-task.md 2>&1
-
-# Remote instance - heavy task needing a large model
-export OLLAMA_HOST=http://gpu-server.local:11434 \
-  echo "Analyze this codebase" | ollama run llama3.3:70b \
-  > /tmp/ollama-remote-task.md 2>&1
+echo "Summarize this design doc" | ollama run mistral
 ```
 
-## Execution Modes
-
-
-### Fire-and-Forget
-
-Pipe a prompt and move on. Output streams to terminal.
+### File plus instruction
 
 ```bash
-echo "Your task prompt here" | ollama run <model>
+cat src/auth/handler.ts | ollama run qwen2.5-coder \
+  "Explain behavior and list likely defects"
 ```
 
-### Non-Interactive with File Input
-
-Pass file contents directly to the model:
+### Remote one-off
 
 ```bash
-cat src/auth/handler.ts | ollama run <model> \
-  "Explain this code and identify potential bugs"
+OLLAMA_HOST=http://gpu-server.local:11434 \
+  ollama run llama3.3 "Analyze rollout risks for this change"
 ```
 
-### Wait-and-Integrate
-
-Run in background via Bash tool. Capture output with redirection:
+### Captured output
 
 ```bash
-echo "Your analysis prompt" | ollama run <model> \
-  > /tmp/ollama-output-TASKNAME.md 2>&1
+echo "Review this module" | ollama run llama3.3 \
+  > /tmp/ollama-review-auth.md 2>&1
 ```
 
-Use unique filenames when dispatching multiple tasks.
+## Prompt Contract
 
-### Multi-File Input
-
-Concatenate files for broader context:
-
-```bash
-cat src/auth/*.ts | ollama run <model> \
-  "Analyze the authentication flow and summarize the architecture"
-```
-
-Or use a structured prompt with file contents:
-
-```bash
-{
-  echo "# Task: Analyze these files for security issues"
-  echo ""
-  echo "## File: src/auth/handler.ts"
-  cat src/auth/handler.ts
-  echo ""
-  echo "## File: src/auth/middleware.ts"
-  cat src/auth/middleware.ts
-} | ollama run <model>
-```
-
-## Common Models
-
-
-| Model               | Best for                                  |
-| ------------------- | ----------------------------------------- |
-| `llama3.3`          | Analysis, code review, summarization      |
-| `codellama`         | Code generation, debugging, refactoring   |
-| `deepseek-coder-v2` | Implementation tasks, code completion     |
-| `mistral`           | Quick drafts, fast inference              |
-| `qwen2.5-coder`     | Code tasks and explanations               |
-| `gemma2`            | General tasks on constrained hardware     |
-
-Check available models with `ollama list`. Pull new models with
-`ollama pull <model>`.
-
-## Common Flags
-
-
-| Flag            | Purpose                                      |
-| --------------- | -------------------------------------------- |
-| `--nowordwrap`  | Disable word wrap for cleaner piped output   |
-| `--format json` | JSON output for structured responses         |
-| `--verbose`     | Show timing stats for performance analysis   |
-
-Model parameters can be set inline:
-
-```bash
-echo "prompt" | ollama run <model> --temperature 0.2 --num-ctx 8192
-```
-
-## Prompt Structure
-
-
-Ollama has NO context from Claude Code. Include everything:
+Use this structure:
 
 ```markdown
-# Task: [Clear one-line description]
+# Task
+
+[One-line objective]
 
 ## Context
 
-[What project this is, relevant architecture, file locations]
+[Project, files, architecture, constraints]
 
 ## Goal
 
-[Exactly what to accomplish]
+[What done looks like]
 
-## Constraints
+## Guardrails
 
-- [Scope limitations]
-- [What to leave alone]
+- [Out of scope]
+- [Safety or policy limits]
 
 ## Expected Output
 
-[What the result should look like -- summary, code changes, analysis]
+[Exact shape: bullets, patch notes, test list, etc.]
 ```
 
-## Parallel Dispatch
+## Validation Checklist
 
+Before using model output:
 
-For multiple independent tasks, dispatch concurrently using background
-execution:
-
-```bash
-# Task 1 - code analysis
-cat src/auth/*.ts | ollama run llama3.3 \
-  "Review this auth code for security issues" \
-  > /tmp/ollama-auth-review.md 2>&1
-
-# Task 2 - summarization
-cat README.md CHANGELOG.md | ollama run llama3.3 \
-  "Summarize the project and recent changes" \
-  > /tmp/ollama-summary.md 2>&1
-
-# Task 3 - code generation
-echo "Write unit tests for: $(cat src/utils/parser.ts)" \
-  | ollama run codellama \
-  > /tmp/ollama-tests.md 2>&1
-```
-
-Make all Bash calls with `run_in_background: true` in a single message
-for true parallelism.
-
-After all complete, read each output file and integrate results.
-
-## Using the API Directly
-
-
-For more control, use Ollama's REST API:
-
-```bash
-curl -s http://localhost:11434/api/generate -d '{
-  "model": "<model>",
-  "prompt": "Your prompt here",
-  "stream": false
-}' | jq -r '.response'
-```
-
-The API is useful when you need JSON responses, want to set specific
-parameters, or need to check model availability programmatically.
-
+- Check factual consistency against local files.
+- Confirm constraints were respected.
+- Verify code suggestions compile or are syntactically valid.
+- Re-run with narrower prompts when quality is weak.

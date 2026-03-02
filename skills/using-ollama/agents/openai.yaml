@@ -1,4 +1,6 @@
 interface:
   display_name: "Ollama Task Dispatcher"
-  short_description: "Dispatch local or remote Ollama tasks"
-  default_prompt: "Use $using-ollama to run this prompt on the right Ollama model with complete context."
+  short_description: "Run validated local or remote Ollama workflows"
+  default_prompt: >-
+    Use $using-ollama to select the right model, package complete context,
+    run non-interactive Ollama commands, and validate results.
