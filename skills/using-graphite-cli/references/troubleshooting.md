@@ -1,26 +1,53 @@
 # Troubleshooting
 
-## Red Flags — STOP and Fix
+## Fast Diagnosis Checklist
 
+1. Confirm CLI and auth:
+   `gt --version`, `gt auth`, `gt config`.
+2. Confirm repo is Graphite-initialized:
+   `gt trunk`, `gt log`.
+3. Inspect working tree:
+   `git status`.
+4. Inspect stack topology:
+   `gt log --stack`.
 
-- About to run `git checkout -b` — use `gt create` instead
-- About to run `git push` — use `gt submit` instead
-- About to run `gh pr create` — use `gt submit` instead
-- About to run `git rebase origin/main` — use `gt sync` instead
-- Creating a PR without stacking — always use `gt submit`
-- Submitting without `--publish` — `--no-interactive` forces draft
-- Submitting without `--reviewer` — PRs with no reviewer sit unreviewed
-- Skipping PR description — an empty PR body is never ready for review
+## Common Failures
 
-## Common Mistakes
+| Symptom                 | Likely cause      | Action              |
+| ----------------------- | ----------------- | ------------------- |
+| Wrong PR parent         | ancestry drift    | `gt restack`        |
+| Submit out-of-date refs | stale trunk/refs  | `gt sync`           |
+| Rebase conflict         | patch collision   | resolve + continue  |
+| Draft/no reviewer       | submit flags used | rerun with flags    |
+| Branch missing in log   | untracked branch  | `gt track <branch>` |
+| Local metadata drift    | rename/delete mix | run sync + restack  |
 
+## Red Flags - Stop Before Proceeding
 
-| Mistake                          | Fix                                    |
-| -------------------------------- | -------------------------------------- |
-| Using `gh pr create`             | Use `gt submit` — creates PRs too      |
-| Using `git push`                 | Use `gt submit` — pushes and creates   |
-| Using `git checkout -b`          | Use `gt create` — stack-aware          |
-| Manual `git rebase`              | Use `gt sync` or `gt restack`          |
-| Missing `--no-interactive`       | Always pass when non-interactive       |
-| Missing `--publish` on submit    | `--no-interactive` forces draft        |
+- About to run `git rebase`, `git push`, or `gh pr create` for stack work.
+- About to use `--force` on `gt submit` without explicit user approval.
+- Attempting to resolve an old halted operation without checking `gt continue`
+  or `gt abort`.
+- Stack graph looks incorrect but submitting anyway.
 
+## Conflict Recovery Template
+
+When `gt restack`, `gt sync`, or `gt submit --restack` hits conflicts:
+
+1. Run `git status` to see conflicted files.
+2. Resolve conflict markers in files.
+3. Stage resolved files with `git add <file>`.
+4. Continue with `gt continue`.
+5. If recovery is wrong, stop with `gt abort`.
+
+Do not launch new Graphite mutations until this flow is complete.
+
+## Escalation Criteria
+
+Escalate to the user when:
+
+- trunk branch selection is unclear
+- force push is required on a shared branch
+- stack rewrite would invalidate existing review comments
+- Graphite reports metadata drift that cannot be fixed by `gt sync` +
+  `gt restack`
