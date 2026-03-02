@@ -58,7 +58,7 @@ uncoordinated implementation. A PR without a linked task is untraceable.
 | ADR        | `writing-adrs`                 |
 | Tech Plan  | `using-github-speckit`         |
 | Task List  | `writing-task-specs`             |
-| Commit     | `writing-conventional-commits` |
+| Commit     | `writing-git-commits` |
 | PR Stack   | `using-graphite-cli`           |
 
 ---
@@ -134,7 +134,7 @@ Each task must satisfy INVEST:
 ## Commit Standards
 
 All commits must follow the **Conventional Commits** specification.
-See `skills/writing-conventional-commits/SKILL.md` for the full reference.
+See `skills/writing-git-commits/SKILL.md` for the full reference.
 
 ### Quick Reference
 
@@ -359,7 +359,7 @@ Use `Refs` when the PR contributes to but does not fully resolve an issue.
 - `skills/using-github-speckit/SKILL.md`
 - `skills/using-graphite-cli/SKILL.md`
 - `skills/writing-adrs/SKILL.md`
-- `skills/writing-conventional-commits/SKILL.md`
+- `skills/writing-git-commits/SKILL.md`
 - `skills/writing-prds/SKILL.md`
 
 ---

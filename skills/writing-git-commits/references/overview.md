@@ -1,4 +1,4 @@
-# Overview
+# Writing Git Commits: Overview
 
 ## Overview
 
@@ -9,9 +9,9 @@ specification. This produces a readable history, enables automated
 changelog generation, and communicates the nature of every change
 at a glance.
 
-**Core principle:** One logical change per commit. The type tells
-reviewers what kind of change it is; the description tells them what
-changed; the body tells them why.
+**Core principle:** One logical change per commit. This skill formats
+messages for an already selected commit boundary; use commit-structuring
+workflow first when boundaries are unclear.
 
 ## Commit Format
 
@@ -140,6 +140,7 @@ Before writing the commit message, verify:
 
 - [ ] The change is a single logical concern
 - [ ] Unrelated changes are staged in separate commits
+- [ ] Commit boundaries are already decided
 - [ ] Type accurately reflects the nature of the change
 - [ ] Scope (if used) names the correct component
 - [ ] Description is imperative, lowercase, ≤72 characters
@@ -153,4 +154,3 @@ Before writing the commit message, verify:
 - Specification: <https://www.conventionalcommits.org/en/v1.0.0/>
 - Related: `docs/delivery-standards.md`
 - Related: `skills/writing-task-specs/SKILL.md`
-

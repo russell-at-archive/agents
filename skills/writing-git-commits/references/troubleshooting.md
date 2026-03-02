@@ -1,4 +1,4 @@
-# Troubleshooting
+# Writing Git Commits: Troubleshooting
 
 ## Common Mistakes
 
@@ -22,4 +22,3 @@
 - Using past tense in the description
 - Body is a list of files changed
 - Staged changes include unrelated files
-

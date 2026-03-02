@@ -62,10 +62,10 @@ Current skills available in this environment:
   Use when creating or updating Architectural Decision Records, when a
   significant technical or architectural choice needs documenting, or when
   asked to write an ADR.
-- [writing-conventional-commits](./skills/writing-conventional-commits/SKILL.md):
-  Use when writing any git commit message. Enforces Conventional Commits format
-  for readable history, automated changelogs, and semantic versioning. Invoke
-  before every commit.
+- [writing-git-commits](./skills/writing-git-commits/SKILL.md): Writes and
+  validates git commit messages using Conventional Commits. Use when drafting
+  or revising commit messages, selecting type/scope, or adding commit body and
+  footer metadata after commit boundaries are already decided.
 - [writing-grammar](./skills/writing-grammar/SKILL.md): Apply a structured
   grammar checklist to a document line by line. Use when any document
   requires a thorough, consistent grammar review before publication or

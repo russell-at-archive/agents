@@ -1,4 +1,4 @@
-# Examples
+# Writing Git Commits: Examples
 
 ## Examples
 
@@ -48,4 +48,3 @@ Reverts commit a3b4c5d. The Redis cluster implementation caused
 connection pool exhaustion under sustained load. Reverting until
 a load test confirms the fix.
 ```
-
