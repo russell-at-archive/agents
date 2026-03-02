@@ -69,11 +69,10 @@ Current skills available in this environment:
 - [writing-markdown](./skills/writing-markdown/SKILL.md): Use when writing or
   editing any markdown document, README, or .md file to ensure strict
   compliance with all markdownlint rules.
-- [writing-pr-descriptions](./skills/writing-pr-descriptions/SKILL.md): Use
-  when writing or updating a pull request description for any code change.
-  Produces complete PR descriptions with summary, approach rationale, test
-  plan, reviewer instructions, and definition of done. Invoke before opening
-  or updating any PR.
+- [writing-pull-requests](./skills/writing-pull-requests/SKILL.md): Writes
+  and updates high-quality pull request descriptions that speed review and
+  improve auditability. Use when asked to draft, improve, or review a PR
+  body, PR summary, reviewer guide, test plan, or merge request description.
 - [writing-product-requirement-documents](./skills/writing-product-requirement-documents/SKILL.md):
   Use when creating a high-precision, AI-ready Product Requirements Document
   (PRD). Focuses on outcome-based goals, literal specificity for coding
