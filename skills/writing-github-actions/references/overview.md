@@ -853,7 +853,7 @@ jobs:
 
 ```yaml
 # INSECURE: tag can be moved to point to malicious code
-- uses: actions/checkout@v4
+- uses: actions/checkout@v6
 
 # SECURE: commit SHA is immutable
 - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
