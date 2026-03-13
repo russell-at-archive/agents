@@ -1,6 +1,6 @@
 # Claude CLI Help
 
-- Generated: `2026-03-10T10:26:35Z`
+- Generated: `2026-03-13T14:57:14Z`
 - Command: `claude --help`
 
 ```text
@@ -64,6 +64,7 @@ Options:
 Commands:
   agents [options]                                  List configured agents
   auth                                              Manage authentication
+  auto-mode                                         Inspect auto mode classifier configuration
   doctor                                            Check the health of your Claude Code auto-updater
   install [options] [target]                        Install Claude Code native build. Use [target] to specify version (stable, latest, or specific version)
   mcp                                               Configure and manage MCP servers

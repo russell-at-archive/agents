@@ -1,6 +1,6 @@
 # Pi CLI Help
 
-- Generated: `2026-03-10T10:26:35Z`
+- Generated: `2026-03-13T14:57:14Z`
 - Command: `pi --help`
 
 ```text

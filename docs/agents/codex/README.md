@@ -3,6 +3,10 @@
 Official docs: <https://developers.openai.com/codex/>
 GitHub: <https://github.com/openai/codex>
 
+Related docs:
+
+- [Default system prompt summary](system-prompt.md)
+
 ---
 
 ## Authentication

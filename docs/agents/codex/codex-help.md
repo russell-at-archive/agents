@@ -1,6 +1,6 @@
 # Codex CLI Help
 
-- Generated: `2026-03-10T10:26:35Z`
+- Generated: `2026-03-13T14:57:14Z`
 - Command: `codex --help`
 
 ```text
@@ -36,8 +36,8 @@ Arguments:
 
 Options:
   -c, --config <key=value>
-          Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw
-          string is used as a literal.
+          Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested
+          values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.
           
           Examples: - `-c model="o3"` - `-c 'sandbox_permissions=["disk-full-read-access"]'` - `-c shell_environment_policy.inherit=all`
 
@@ -54,7 +54,8 @@ Options:
           Model the agent should use
 
       --oss
-          Convenience flag to select the local open source model provider. Equivalent to -c model_provider=oss; verifies a local LM Studio or Ollama server is running
+          Convenience flag to select the local open source model provider. Equivalent to -c model_provider=oss; verifies a local LM Studio or Ollama server
+          is running
 
       --local-provider <OSS_PROVIDER>
           Specify which local provider to use (lmstudio or ollama). If not specified with --oss, will use config default or show selection
@@ -71,9 +72,10 @@ Options:
           Configure when the model requires human approval before executing a command
 
           Possible values:
-          - untrusted:  Only run "trusted" commands (e.g. ls, cat, sed) without asking for user approval. Will escalate to the user if the model proposes a command that is not in the "trusted" set
-          - on-failure: DEPRECATED: Run all commands without asking for user approval. Only asks for approval if a command fails to execute, in which case it will escalate to the user to ask for un-sandboxed execution. Prefer `on-request`
-            for interactive runs or `never` for non-interactive runs
+          - untrusted:  Only run "trusted" commands (e.g. ls, cat, sed) without asking for user approval. Will escalate to the user if the model proposes a
+            command that is not in the "trusted" set
+          - on-failure: DEPRECATED: Run all commands without asking for user approval. Only asks for approval if a command fails to execute, in which case
+            it will escalate to the user to ask for un-sandboxed execution. Prefer `on-request` for interactive runs or `never` for non-interactive runs
           - on-request: The model decides when to ask the user for approval
           - never:      Never ask for user approval Execution failures are immediately returned to the model
 
@@ -81,7 +83,8 @@ Options:
           Convenience alias for low-friction sandboxed automatic execution (-a on-request, --sandbox workspace-write)
 
       --dangerously-bypass-approvals-and-sandbox
-          Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed
+          Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are
+          externally sandboxed
 
   -C, --cd <DIR>
           Tell the agent to use the specified directory as its working root
@@ -95,7 +98,8 @@ Options:
       --no-alt-screen
           Disable alternate screen mode
           
-          Runs the TUI in inline mode, preserving terminal scrollback history. This is useful in terminal multiplexers like Zellij that follow the xterm spec strictly and disable scrollback in alternate screen buffers.
+          Runs the TUI in inline mode, preserving terminal scrollback history. This is useful in terminal multiplexers like Zellij that follow the xterm
+          spec strictly and disable scrollback in alternate screen buffers.
 
   -h, --help
           Print help (see a summary with '-h')

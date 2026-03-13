@@ -1,6 +1,6 @@
 # Gemini CLI Help
 
-- Generated: `2026-03-10T10:26:35Z`
+- Generated: `2026-03-13T14:57:14Z`
 - Command: `gemini --help`
 
 ```text
@@ -27,7 +27,8 @@ Options:
   -y, --yolo                      Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?  [boolean] [default: false]
       --approval-mode             Set the approval mode: default (prompt for approval), auto_edit (auto-approve edit tools), yolo (auto-approve all tools), plan (read-only mode)  [string] [choices: "default", "auto_edit", "yolo", "plan"]
       --policy                    Additional policy files or directories to load (comma-separated or multiple --policy)  [array]
-      --experimental-acp          Starts the agent in ACP mode  [boolean]
+      --acp                       Starts the agent in ACP mode  [boolean]
+      --experimental-acp          Starts the agent in ACP mode (deprecated, use --acp instead)  [boolean]
       --allowed-mcp-server-names  Allowed MCP server names  [array]
       --allowed-tools             [DEPRECATED: Use Policy Engine instead See https://geminicli.com/docs/core/policy-engine] Tools that are allowed to run without confirmation  [array]
   -e, --extensions                A list of extensions to use. If not provided, all extensions are used.  [array]
