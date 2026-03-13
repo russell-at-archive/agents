@@ -33,9 +33,10 @@ For the full procedure, config setup, and fixing strategy, read
 
 ## Workflow
 
-1. Check for a markdownlint config in the project root. If none exists,
-   place the default config per
-   [references/overview.md](references/overview.md).
+1. Check for a markdownlint config in the project root. If none exists in
+   the local project, create the default config template from
+   [references/overview.md](references/overview.md). If a config already
+   exists, use it as-is.
 2. Run lint on existing files before editing to capture a baseline.
 3. Write or edit using [references/rules.md](references/rules.md) for rule
    guidance and [references/patterns.md](references/patterns.md) for
