@@ -130,6 +130,12 @@ Current skills available in this environment:
   without forking. Use when the user asks about kustomization.yaml, kustomize
   build, overlays, bases, patches, configMapGenerator, secretGenerator, images
   transformer, components, helmCharts, replacements, or kubectl apply -k.
+- [using-obsidian-cli](./skills/using-obsidian-cli/SKILL.md): Provides expert
+  guidance for using the Obsidian CLI to manage vaults, notes, search, daily
+  notes, properties, tags, and automation from the command line. Use when
+  requests involve the obsidian command, obsidian vault operations, obsidian
+  search, obsidian daily, obsidian properties, notesmd-cli, obsidian-export,
+  or automating Obsidian from a shell script or CI/CD pipeline.
 - [using-ollama](./skills/using-ollama/SKILL.md): Use when you need to
   dispatch tasks to a local or remote Ollama instance for inference, code
   generation, analysis, or summarization. Invoke before running any ollama
