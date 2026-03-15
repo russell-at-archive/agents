@@ -7,6 +7,9 @@ built-in defaults while preserving all core functional directives.
 Copy the block below into `.claude/settings.json` as the value of
 `"systemPrompt"`, or pass it via `--system-prompt "$(cat system-prompt.txt)"`.
 
+Community extracted system prompts
+`https://github.com/Piebald-AI/claude-code-system-prompts`
+
 ---
 
 ## Prompt

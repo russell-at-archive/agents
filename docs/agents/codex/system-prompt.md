@@ -12,6 +12,8 @@ This page documents the effective default behavior at a high level:
   satisfying explicit user requests.
 - Responses should stay concise, useful, and aligned with the task.
 
+https://github.com/openai/codex
+
 ## Can a User Append or Override It?
 
 Not directly.
