@@ -1,6 +1,6 @@
 # Claude CLI Help
 
-- Generated: `2026-03-13T14:57:14Z`
+- Generated: `2026-03-17T11:27:42Z`
 - Command: `claude --help`
 
 ```text
@@ -42,11 +42,12 @@ Options:
   --mcp-config <configs...>                         Load MCP servers from JSON files or strings (space-separated)
   --mcp-debug                                       [DEPRECATED. Use --debug instead] Enable MCP debug mode (shows MCP server errors)
   --model <model>                                   Model for the current session. Provide an alias for the latest model (e.g. 'sonnet' or 'opus') or a model's full name (e.g. 'claude-sonnet-4-6').
+  -n, --name <name>                                 Set a display name for this session (shown in /resume and terminal title)
   --no-chrome                                       Disable Claude in Chrome integration
   --no-session-persistence                          Disable session persistence - sessions will not be saved to disk and cannot be resumed (only works with --print)
   --output-format <format>                          Output format (only works with --print): "text" (default), "json" (single result), or "stream-json" (realtime streaming) (choices: "text", "json", "stream-json")
   --permission-mode <mode>                          Permission mode to use for the session (choices: "acceptEdits", "bypassPermissions", "default", "dontAsk", "plan", "auto")
-  --plugin-dir <paths...>                           Load plugins from directories for this session only (repeatable)
+  --plugin-dir <path>                               Load plugins from a directory for this session only (repeatable: --plugin-dir A --plugin-dir B) (default: [])
   -p, --print                                       Print response and exit (useful for pipes). Note: The workspace trust dialog is skipped when Claude is run with the -p mode. Only use this flag in directories you trust.
   --replay-user-messages                            Re-emit user messages from stdin back on stdout for acknowledgment (only works with --input-format=stream-json and --output-format=stream-json)
   -r, --resume [value]                              Resume a conversation by session ID, or open interactive picker with optional search term
@@ -64,7 +65,6 @@ Options:
 Commands:
   agents [options]                                  List configured agents
   auth                                              Manage authentication
-  auto-mode                                         Inspect auto mode classifier configuration
   doctor                                            Check the health of your Claude Code auto-updater
   install [options] [target]                        Install Claude Code native build. Use [target] to specify version (stable, latest, or specific version)
   mcp                                               Configure and manage MCP servers

@@ -1,6 +1,6 @@
 # Gemini CLI Help
 
-- Generated: `2026-03-13T14:57:14Z`
+- Generated: `2026-03-17T11:27:42Z`
 - Command: `gemini --help`
 
 ```text

@@ -1,6 +1,6 @@
 # Pi CLI Help
 
-- Generated: `2026-03-13T14:57:14Z`
+- Generated: `2026-03-17T11:27:42Z`
 - Command: `pi --help`
 
 ```text
@@ -10,12 +10,13 @@ Usage:
   pi [options] [@files...] [messages...]
 
 Commands:
-  pi install <source> [-l]    Install extension source and add to settings
-  pi remove <source> [-l]     Remove extension source from settings
-  pi update [source]          Update installed extensions (skips pinned sources)
-  pi list                     List installed extensions from settings
-  pi config                   Open TUI to enable/disable package resources
-  pi <command> --help         Show help for install/remove/update/list
+  pi install <source> [-l]     Install extension source and add to settings
+  pi remove <source> [-l]      Remove extension source from settings
+  pi uninstall <source> [-l]   Alias for remove
+  pi update [source]           Update installed extensions (skips pinned sources)
+  pi list                      List installed extensions from settings
+  pi config                    Open TUI to enable/disable package resources
+  pi <command> --help          Show help for install/remove/uninstall/update/list
 
 Options:
   --provider <name>              Provider name (default: google)
