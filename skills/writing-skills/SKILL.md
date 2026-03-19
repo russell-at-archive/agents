@@ -46,12 +46,14 @@ Full procedure: [references/overview.md](references/overview.md)
    section structure and body rules.
 4. Write `references/overview.md` — full procedure, constraints, and
    the authoring checklist.
-5. Write `references/examples.md` — concrete input/output examples.
-6. Write `references/troubleshooting.md` — common mistakes, anti-patterns,
+5. If the skill covers using a CLI tool, write
+   `references/installation.md` as a first-class reference file.
+6. Write `references/examples.md` — concrete input/output examples.
+7. Write `references/troubleshooting.md` — common mistakes, anti-patterns,
    and red flags.
-7. Run the authoring checklist from
+8. Run the authoring checklist from
    [references/overview.md](references/overview.md) before declaring done.
-8. Add the skill to `README.md` skills index in alphabetical order.
+9. Add the skill to `README.md` skills index in alphabetical order.
 
 For a complete worked example of a skill and its reference files, read
 [references/examples.md](references/examples.md).
@@ -71,6 +73,8 @@ For a complete worked example of a skill and its reference files, read
 - Only `name` and `description` in frontmatter by default. Do not add
   `license`, `allowed-tools`, or other optional fields unless there is
   an explicit reason.
+- Skills for CLI tools must include `references/installation.md`.
+- Saying "tool is installed" in prerequisites is not sufficient.
 
 ## Failure Handling
 

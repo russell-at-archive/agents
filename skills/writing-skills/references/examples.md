@@ -228,6 +228,62 @@ files consume zero tokens.
 
 ---
 
+## Example: CLI Tool Skill Must Include Installation Reference
+
+For CLI-oriented skills, prerequisites alone are not enough. The skill
+must link to `references/installation.md`, which tells the agent how the
+tool is installed.
+
+### Good
+
+```markdown
+## Prerequisites
+
+- `gh` available on `PATH`
+- Authentication valid for the target host
+
+## Workflow
+
+1. Run `gh --version` and `gh auth status`.
+2. If `gh` is missing or setup is incomplete, read
+   [references/installation.md](references/installation.md).
+```
+
+````markdown
+# references/installation.md
+
+## Installation
+
+Install GitHub CLI with one of:
+
+- macOS: `brew install gh`
+- Windows: `winget install --id GitHub.cli`
+- Linux: use the official package instructions from GitHub
+
+Then authenticate:
+
+```bash
+gh auth login
+```
+````
+
+### Bad
+
+```markdown
+## Prerequisites
+
+- `gh` is installed and accessible
+
+## Failure Handling
+
+- If `gh` is missing, tell the user to install it
+```
+
+This is insufficient because it detects absence but does not provide the
+installation path in a first-class reference file.
+
+---
+
 ## Example: README Index Entry
 
 ```markdown

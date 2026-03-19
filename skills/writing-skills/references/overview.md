@@ -7,6 +7,7 @@
 - Frontmatter rules
 - Required SKILL.md sections
 - Reference file rules
+- Installation reference rules
 - Naming conventions
 - README index entry
 - Authoring checklist
@@ -36,6 +37,7 @@ skills/<name>/
 ├── SKILL.md                # Required. Frontmatter + lean body.
 ├── references/
 │   ├── overview.md         # Full procedure and constraints
+│   ├── installation.md     # Required for CLI-tool skills
 │   ├── examples.md         # Concrete input/output examples
 │   └── troubleshooting.md  # Recovery paths, mistakes, red flags
 ├── scripts/                # Optional. Executable scripts.
@@ -44,6 +46,7 @@ skills/<name>/
 
 Create at minimum: `SKILL.md`, `references/overview.md`,
 `references/examples.md`, `references/troubleshooting.md`.
+For CLI-tool skills, also create `references/installation.md`.
 
 ---
 
@@ -101,6 +104,9 @@ Every SKILL.md must contain these sections in this order:
 - Under 5000 tokens (target)
 - Prefer imperative instructions over narrative explanation
 - Do not explain concepts the model already knows
+- For CLI-tool skills, keep install commands out of the main body unless
+  they are essential for activation. Put detailed installation guidance in
+  `references/installation.md`.
 
 ### Content routing
 
@@ -154,6 +160,30 @@ When the task involves examples, read
 See the references directory for more information.
 ```
 
+## Installation Reference Rules
+
+If a skill teaches use of a CLI tool, it must include
+`references/installation.md` as a first-class reference file.
+
+Minimum bar:
+
+- Name at least one supported installation path.
+- Prefer concrete commands such as `brew install`, `npm install -g`,
+  `pip install`, `cargo install`, or the official release channel.
+- If installation varies by platform, include the most common path and
+  point to the official alternative.
+- Distinguish install from auth/configuration. `gh auth login` is not an
+  install step.
+- `SKILL.md` should explicitly point to
+  [references/installation.md](references/installation.md) when the
+  binary is missing or first-time setup is relevant.
+
+Not sufficient:
+
+- "`gh` is installed and accessible"
+- "Verify with `tool --version`"
+- "Install if missing"
+
 ---
 
 ## Naming Conventions
@@ -201,12 +231,14 @@ Keep the description to 2–3 lines, matching the style of existing entries.
 - [ ] No duplicated policy text between `SKILL.md` and `references/*`
 - [ ] No over-explanation of things the model already knows
 - [ ] Commands use non-interactive flags where applicable
+- [ ] CLI-tool skills link directly to `references/installation.md`
 - [ ] Markdown is lint-clean (80-char wrap, fenced code blocks with
       language tags, blank lines around headings and blocks)
 
 ### Tier 3 — Reference files
 
 - [ ] `references/overview.md` exists with full procedure
+- [ ] `references/installation.md` exists for CLI-tool skills
 - [ ] `references/examples.md` exists with concrete examples
 - [ ] `references/troubleshooting.md` exists with mistakes and red flags
 - [ ] All references are one hop from `SKILL.md`
