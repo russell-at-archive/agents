@@ -130,6 +130,10 @@ Current skills available in this environment:
   without forking. Use when the user asks about kustomization.yaml, kustomize
   build, overlays, bases, patches, configMapGenerator, secretGenerator, images
   transformer, components, helmCharts, replacements, or kubectl apply -k.
+- [using-linear-cli](./skills/using-linear-cli/SKILL.md): Provides expert
+  guidance for using the Linear CLI to manage authentication, issues,
+  comments, relations, projects, milestones, documents, labels, and raw
+  GraphQL requests from the command line.
 - [using-obsidian-cli](./skills/using-obsidian-cli/SKILL.md): Provides expert
   guidance for using the Obsidian CLI to manage vaults, notes, search, daily
   notes, properties, tags, and automation from the command line. Use when
