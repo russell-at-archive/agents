@@ -1,6 +1,6 @@
 # Pi CLI Help
 
-- Generated: `2026-03-17T11:27:42Z`
+- Generated: `2026-03-19T16:19:14Z`
 - Command: `pi --help`
 
 ```text
@@ -29,6 +29,7 @@ Options:
   --continue, -c                 Continue previous session
   --resume, -r                   Select a session to resume
   --session <path>               Use specific session file
+  --fork <path>                  Fork specific session file or partial UUID into a new session
   --session-dir <dir>            Directory for session storage and lookup
   --no-session                   Don't save session (ephemeral)
   --models <patterns>            Comma-separated model patterns for Ctrl+P cycling
