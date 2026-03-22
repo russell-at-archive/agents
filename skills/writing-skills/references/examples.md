@@ -3,9 +3,9 @@
 ## Contents
 
 - Example: minimal skill (no references)
-- Example: full skill with references (recommended pattern)
+- Example: skill with only installation guidance
+- Example: skill with selective references
 - Example: domain-partitioned references
-- Example: README index entry
 
 ---
 
@@ -77,120 +77,105 @@ context to diagnose the root cause.
 
 ---
 
-## Example: Full Skill with References (recommended pattern)
+## Example: Skill with Only Installation Guidance
 
-The standard pattern for any skill with more than minimal detail.
+Use this for a CLI-tool skill that does not need any other supporting
+files.
 
 ```text
-skills/writing-commits/
+skills/using-gh-cli/
 ├── SKILL.md
 └── references/
-    ├── overview.md
-    ├── examples.md
-    └── troubleshooting.md
+    └── installation.md
 ```
 
 ### SKILL.md
 
 ```markdown
 ---
-name: writing-commits
-description: Writes git commit messages following Conventional Commits
-  format. Use when writing any commit, staging changes, or when the user
-  asks for a commit message. Enforces type prefixes, scope, and breaking
-  change notation.
+name: using-gh-cli
+description: Uses GitHub CLI for repository, pull request, and issue
+  operations. Use when the user asks for `gh` commands or for GitHub
+  tasks that should be completed through the CLI.
 ---
 
-# Writing Commits
+# Using GitHub CLI
 
 ## Overview
 
-Produces commit messages that follow the Conventional Commits
-specification for readable history and automated changelog generation.
-
-Full procedure and type reference:
-[references/overview.md](references/overview.md)
+Uses `gh` for GitHub operations while keeping setup details out of the
+main body.
 
 ## When to Use
 
-- Before any `git commit` or `gt create`
-- When the user asks for a commit message
-- When reviewing staged changes for commit readiness
+- When the user asks for `gh` commands
+- When GitHub work should be done through the CLI
 
 ## When Not to Use
 
-- For PR titles or branch names (different conventions)
-- For changelog entries (generated from commits, not authored directly)
+- When the task is not GitHub-related
+- When a project-specific wrapper should be used instead
 
 ## Prerequisites
 
-- Staged changes exist (`git status` shows staged files)
+- GitHub CLI available on `PATH`
 
 ## Workflow
 
-1. Read staged diff with `git diff --staged`.
-2. Identify the primary type of change (feat, fix, refactor, etc.).
-3. Determine scope if the change is bounded to one component.
-4. Write subject line: `<type>(<scope>): <description>` — imperative,
-   lowercase, ≤72 characters, no period.
-5. Write body if the why is not obvious from the subject.
-6. Add footer with issue references and breaking change notice if needed.
-
-For the complete type table, body guidelines, and breaking change rules,
-read [references/overview.md](references/overview.md).
-For examples of good and bad commit messages, read
-[references/examples.md](references/examples.md).
+1. Check whether `gh` is installed and authenticated.
+2. If setup is incomplete, read
+   [references/installation.md](references/installation.md).
+3. Run the narrowest non-interactive `gh` command that solves the task.
+4. Report the result and any follow-up state.
 
 ## Hard Rules
 
-- One logical change per commit — do not mix unrelated concerns.
-- Subject line must use a type prefix.
-- Breaking changes require both `!` suffix and `BREAKING CHANGE:` footer.
-- Subject line ≤72 characters.
+- Do not assume `gh` is installed.
+- Use explicit repo and host flags when needed.
 
 ## Failure Handling
 
-- If staged changes mix unrelated concerns, stop and ask the user to
-  split them before writing a message.
-- If the change type is ambiguous, ask rather than guess.
+- If setup is missing, stop after surfacing the install path.
+- If auth fails, surface the failing command and stop.
 
 ## Red Flags
 
-- Subject contains "and" — likely two concerns in one commit
-- No type prefix in subject
-- Subject in past tense or starting with uppercase
-- Body repeats the subject instead of explaining why
+- The workflow tells the agent to "install if needed" without actual
+  install instructions
 ```
 
-### references/overview.md (excerpt)
+### references/installation.md
 
-```markdown
-# Writing Commits: Full Reference
+````markdown
+# Installation
 
-## Contents
+Install GitHub CLI with one of:
 
-- Commit format
-- Type table
-- Scope guidelines
-- Body guidelines
-- Breaking changes
-- Footer guidelines
+- macOS: `brew install gh`
+- Windows: `winget install --id GitHub.cli`
+- Linux: use the official package instructions for the target distro
+
+Then authenticate with:
+
+```bash
+gh auth login
+```
+````
 
 ---
 
-## Commit Format
+## Example: Skill with Selective References
 
-\`\`\`
-<type>(<scope>): <short description>
+Use only the references that reduce `SKILL.md` size or hold genuinely
+deferred detail.
 
-[optional body]
-
-[optional footer(s)]
-\`\`\`
-...
+```text
+skills/writing-commits/
+├── SKILL.md
+└── references/
+    ├── formats.md
+    └── examples.md
 ```
-
----
 
 ## Example: Domain-Partitioned References
 
@@ -234,39 +219,6 @@ For CLI-oriented skills, prerequisites alone are not enough. The skill
 must link to `references/installation.md`, which tells the agent how the
 tool is installed.
 
-### Good
-
-```markdown
-## Prerequisites
-
-- `gh` available on `PATH`
-- Authentication valid for the target host
-
-## Workflow
-
-1. Run `gh --version` and `gh auth status`.
-2. If `gh` is missing or setup is incomplete, read
-   [references/installation.md](references/installation.md).
-```
-
-````markdown
-# references/installation.md
-
-## Installation
-
-Install GitHub CLI with one of:
-
-- macOS: `brew install gh`
-- Windows: `winget install --id GitHub.cli`
-- Linux: use the official package instructions from GitHub
-
-Then authenticate:
-
-```bash
-gh auth login
-```
-````
-
 ### Bad
 
 ```markdown
@@ -281,16 +233,3 @@ gh auth login
 
 This is insufficient because it detects absence but does not provide the
 installation path in a first-class reference file.
-
----
-
-## Example: README Index Entry
-
-```markdown
-- [creating-skills](./skills/creating-skills/SKILL.md): Creates a new
-  agent skill directory with a compliant SKILL.md and supporting reference
-  files. Use when asked to build, write, add, or create a skill.
-```
-
-Format: `- [name](path): <description matching frontmatter description,
-trimmed to 2–3 lines>.`

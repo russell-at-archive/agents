@@ -1,27 +1,28 @@
 ---
 name: writing-skills
-description: Creates a new agent skill directory with a compliant SKILL.md
-  and supporting reference files. Use when asked to build, write, add, or
-  create a skill, or when a repeatable agent workflow needs to be captured
-  as a portable skill.
+description: Creates or improves agent skills using an iterative draft,
+  evaluate, and revise workflow. Use when asked to build, write, add,
+  update, or optimize a skill, especially when the workflow should be
+  captured as a portable skill with a minimal SKILL.md body.
 ---
 
 # Creating Skills
 
 ## Overview
 
-Produces a complete, standards-compliant skill following the Agent Skills
-open standard. The skill must use progressive disclosure: a lean SKILL.md
-body under 100 lines that delegates detail to `references/` files loaded
-on demand.
+Creates or improves skills using an iterative authoring loop: define the
+skill, draft it, evaluate it on realistic prompts, and revise it. Keep
+`SKILL.md` as short as possible and move deferred detail to supporting
+files only when needed.
 
 Full procedure: [references/overview.md](references/overview.md)
 
 ## When to Use
 
 - Asked to create, build, write, or add a skill
+- Asked to revise, improve, benchmark, or optimize an existing skill
 - A repeatable agent workflow needs to be captured and made portable
-- An existing skill needs to be restructured to meet the standard
+- A skill needs eval prompts, baseline comparison, or trigger tuning
 
 ## When Not to Use
 
@@ -39,28 +40,25 @@ Full procedure: [references/overview.md](references/overview.md)
 
 1. Confirm the skill name, trigger conditions, and scope with the user
    if any are ambiguous.
-2. Create the skill directory: `skills/<name>/` and
-   `skills/<name>/references/`.
-3. Write `SKILL.md` — lean body only; delegate detail to references.
-   See [references/overview.md](references/overview.md) for the required
-   section structure and body rules.
-4. Write `references/overview.md` — full procedure, constraints, and
-   the authoring checklist.
-5. If the skill covers using a CLI tool, write
-   `references/installation.md` as a first-class reference file.
-6. Write `references/examples.md` — concrete input/output examples.
-7. Write `references/troubleshooting.md` — common mistakes, anti-patterns,
-   and red flags.
-8. Run the authoring checklist from
-   [references/overview.md](references/overview.md) before declaring done.
-9. Add the skill to `README.md` skills index in alphabetical order.
-
-For a complete worked example of a skill and its reference files, read
-[references/examples.md](references/examples.md).
+2. Create or update the skill directory. Add `references/`, `scripts/`,
+   `assets/`, and eval artifacts only if the skill needs them.
+3. Write or revise `SKILL.md` as a lean control plane. Keep only
+   activation guidance, core workflow, and hard guardrails there.
+4. If the skill uses a CLI tool, add
+   [references/installation.md](references/installation.md) with concrete
+   install paths and point to it when setup matters.
+5. Add only the supporting reference files needed to keep `SKILL.md`
+   short and the workflow clear.
+6. Create realistic eval prompts and compare the skill against a
+   baseline when evaluation is worth the cost.
+7. Revise the skill using the eval results, then repeat as needed.
+8. Run the checklist in [references/overview.md](references/overview.md)
+   before declaring done.
 
 ## Hard Rules
 
-- `SKILL.md` body must be under 100 lines.
+- `SKILL.md` must stay as short as possible. Move any non-essential
+  detail out of the body.
 - `name` field must be lowercase, hyphens only, and match the directory.
 - `description` must be written in third person and include both what
   the skill does and explicit trigger keywords.
@@ -70,9 +68,6 @@ For a complete worked example of a skill and its reference files, read
 - Reference files must be one level deep from `SKILL.md` — no nested
   chains.
 - Reference files over 100 lines must have a table of contents.
-- Only `name` and `description` in frontmatter by default. Do not add
-  `license`, `allowed-tools`, or other optional fields unless there is
-  an explicit reason.
 - Skills for CLI tools must include `references/installation.md`.
 - Saying "tool is installed" in prerequisites is not sufficient.
 
@@ -84,11 +79,13 @@ For a complete worked example of a skill and its reference files, read
   propose splitting into two skills.
 - If required information (name, trigger conditions) is missing, ask
   before writing any files.
+- If evals do not discriminate between the skill and the baseline,
+  tighten the prompts or assertions before claiming improvement.
 
 ## Red Flags
 
 - Skill name contains uppercase letters or underscores
 - Description written in first or second person
-- SKILL.md body approaching or over 100 lines — move detail to references
+- SKILL.md body is growing into a manual instead of a control plane
 - Reference files reference other reference files (nested chain)
 - Skill covers more than one unrelated concern
