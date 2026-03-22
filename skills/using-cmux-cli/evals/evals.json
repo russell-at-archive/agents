@@ -1,0 +1,69 @@
+{
+  "skill_name": "using-cmux-cli",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I'm running three Claude Code agents in parallel inside cmux and I want a bash script that creates a new workspace for each one, splits the pane into three columns, and then sends 'claude' followed by Enter to each surface. How do I do this?",
+      "expected_output": "A working bash script using cmux new-workspace, cmux new-split, cmux list-surfaces --json to get IDs, and cmux send / cmux send-key enter for each surface. Should include cmux identify --json safety check.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "uses-cmux-send-with-surface-flag",
+          "description": "The answer uses `cmux send --surface` to target specific panes rather than just `cmux send`"
+        },
+        {
+          "name": "includes-safety-check",
+          "description": "The answer includes cmux identify or cmux ping to verify context before acting"
+        },
+        {
+          "name": "uses-new-split-for-columns",
+          "description": "The answer uses `cmux new-split right` (or similar direction) to create columns"
+        },
+        {
+          "name": "sends-enter-key",
+          "description": "The answer uses cmux send-key enter (or send-key-surface) to submit the command"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I have a long-running npm build script and I want cmux to ping me (show a notification) when it finishes, whether it succeeds or fails. Can you write a shell wrapper function I can drop into my .zshrc?",
+      "expected_output": "A shell function that runs the command, captures the exit code, and calls `cmux notify` with an appropriate title and body for success vs failure. Should handle the case where cmux is not available.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "uses-cmux-notify",
+          "description": "The answer uses `cmux notify --title ... --body ...` for the notification"
+        },
+        {
+          "name": "differentiates-success-failure",
+          "description": "The answer sends different notifications for success vs failure (checks exit code)"
+        },
+        {
+          "name": "graceful-when-cmux-absent",
+          "description": "The answer checks if cmux is available before calling it (avoids hard error when not in cmux)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I use cmux's sidebar to show a live progress bar and status badge while my CI pipeline script runs? I want to show 'building' in orange while compiling, then 'done' in green when finished.",
+      "expected_output": "Explanation and example commands using cmux set-progress and cmux set-status with --icon and --color flags, plus cmux clear-progress at the end. Should show both the status badge and progress bar workflows.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "uses-set-status-with-color",
+          "description": "The answer uses `cmux set-status` with a --color flag for the orange/green badges"
+        },
+        {
+          "name": "uses-set-progress",
+          "description": "The answer uses `cmux set-progress` with a numeric value and --label"
+        },
+        {
+          "name": "clears-progress-at-end",
+          "description": "The answer includes `cmux clear-progress` after the pipeline finishes"
+        }
+      ]
+    }
+  ]
+}
