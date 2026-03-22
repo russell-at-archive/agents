@@ -1,0 +1,38 @@
+[
+  {
+    "query": "I need the exact argocd commands to inspect an app, diff it, sync only out-of-sync resources, and wait for health in CI.",
+    "should_trigger": true
+  },
+  {
+    "query": "Show me how to add a private Git repository to Argo CD with an SSH key and verify it with argocd commands.",
+    "should_trigger": true
+  },
+  {
+    "query": "How do I create an Argo CD project with allowed source repos and destinations, then preview an ApplicationSet before applying it?",
+    "should_trigger": true
+  },
+  {
+    "query": "My argocd app diff command exits with code 1 in CI. Explain what that means and whether I should use --grpc-web behind ingress.",
+    "should_trigger": true
+  },
+  {
+    "query": "How do I submit an Argo Workflow, watch it, and retry from the failed node?",
+    "should_trigger": false
+  },
+  {
+    "query": "Give me kubectl commands to describe a failing pod, tail its logs, and port-forward the service.",
+    "should_trigger": false
+  },
+  {
+    "query": "How should I structure a kustomization with a base and a staging overlay that patches image tags?",
+    "should_trigger": false
+  },
+  {
+    "query": "I need a helm upgrade command with --atomic, values files, and a rollback plan.",
+    "should_trigger": false
+  },
+  {
+    "query": "Use crossplane beta trace to debug why my XR is not becoming Ready.",
+    "should_trigger": false
+  }
+]

@@ -1,119 +1,168 @@
 # Troubleshooting
 
-## Fast Triage
+## Contents
 
-1. confirm auth: `gh auth status`
-2. confirm repo context: `gh repo set-default --view`
-3. rerun with debug logs: `GH_DEBUG=api <command>`
-4. inspect exit code and command-specific docs
+- [Fast triage](#fast-triage)
+- [Authentication failures](#authentication-failures)
+- [Missing scopes](#missing-scopes)
+- [Wrong repository context](#wrong-repository-context)
+- [Non-interactive hangs](#non-interactive-hangs)
+- [API and rate limiting](#api-and-rate-limiting)
+- [GraphQL errors](#graphql-errors)
+- [Extensions and version drift](#extensions-and-version-drift)
+- [Mutation safety failures](#mutation-safety-failures)
+- [Red flags](#red-flags)
 
-## Auth Failures
+## Fast triage
 
-Symptom:
-
-- `gh auth status` reports invalid token
-- command exits with code `4`
-
-Fix:
-
-```bash
-gh auth login -h github.com
-gh auth refresh -s repo,read:org,workflow
-```
-
-If running in CI/automation, set `GH_TOKEN` explicitly.
-
-## Wrong Repository Target
-
-Symptom:
-
-- operations affect or query unexpected repository
-
-Fix:
+Run these first:
 
 ```bash
+gh auth status
+gh --version
 gh repo set-default --view
-gh repo set-default <owner>/<repo>
+GH_DEBUG=api gh <command>
 ```
 
-Or pass `--repo <owner>/<repo>` on every command.
+## Authentication failures
 
-## Interactive Prompt In Automation
+Symptoms:
 
-Symptom:
+- `401 Unauthorized`
+- `403 Forbidden`
+- prompts to log in unexpectedly
 
-- command hangs waiting for input
+Checks and fixes:
 
-Fix:
+```bash
+gh auth status
+gh auth login
+gh auth refresh -h github.com -s repo,read:org,workflow
+```
 
-- replace prompt path with explicit flags
-- set `GH_PROMPT_DISABLED=1`
-- provide `--title`, `--body`, `--base`, `--head`, etc.
+For automation:
 
-## Merge Queue Or Policy Blocks
+- Ensure `GH_TOKEN` or `GITHUB_TOKEN` is set
+- Ensure the token scopes match the operation
+- Use enterprise-specific token variables for GitHub Enterprise Server
 
-Symptom:
+## Missing scopes
 
-- `gh pr merge` does not merge immediately
+Typical mismatch:
 
-Fix:
+- `gh workflow` or `gh run` fails because `workflow` scope is missing
+- org-level operations fail because admin scopes are absent
 
-- inspect PR policy state:
-  `gh pr view <pr> --json mergeStateStatus,reviewDecision,statusCheckRollup`
-- if checks are pending, wait or enable auto-merge with `--auto`
-- use `--admin` only with explicit authorization
+Refresh scopes explicitly:
 
-## Failing Or Stuck Checks
+```bash
+gh auth refresh -s workflow
+```
 
-Symptom:
+## Wrong repository context
 
-- required checks never complete or fail intermittently
+Symptoms:
+
+- The command targets the wrong repository
+- `fatal: not a git repository`
+- The same command works in one directory and fails in another
 
 Fix:
 
 ```bash
-gh pr checks <pr> --required --watch
-gh run list --limit 20
-gh run view <run-id> --log
-gh run rerun <run-id> --failed
+gh repo set-default owner/repo
+gh pr view 123 --repo owner/repo
 ```
 
-## API Request Errors
+Rule:
 
-Symptom:
+- In scripts and CI, prefer `--repo` or `GH_REPO` instead of relying on cwd
 
-- `gh api` returns `404`, `422`, or malformed payload errors
+## Non-interactive hangs
 
-Fix:
+Symptoms:
 
-- confirm endpoint and method
-- use `-F` for typed fields and nested payloads
-- send body with `--input` for complex JSON
-- include previews when required: `--preview <name>`
+- Command stalls waiting for input
+- CI job hangs with no clear error
 
-Diagnostic command:
+Fixes:
 
 ```bash
-gh api <endpoint> --verbose --include
+GH_PROMPT_DISABLED=1 gh pr create --title "..." --body "..." --base main --head branch
+GH_PROMPT_DISABLED=1 gh issue create --title "..." --body "..."
 ```
 
-## Rate Limiting
+Also:
 
-Symptom:
+- Provide `--title`, `--body`, `--body-file`, `--base`, and `--head` when needed
+- Use `--yes` where supported for explicit confirmation
+- Avoid `--web` unless the user asked for browser interaction
 
-- API responses indicate primary or secondary rate limits
+## API and rate limiting
 
-Fix:
+Symptoms:
 
-- reduce polling frequency
-- add caching for repeated reads: `--cache 300s`
-- avoid unnecessary pagination or wide queries
+- `403` with rate limit language
+- slow loops over large collections
+- partial result sets
 
-## Red Flags
+Fixes:
 
-Stop and correct immediately if any of these occur:
+```bash
+gh api repos/{owner}/{repo}/pulls --paginate --cache 10m
+```
 
-- mutating command without explicit repository targeting in multi-repo context
-- plain-text scraping when `--json` fields exist
-- running `gh` for branch/stack flows where `gt` should be primary
-- destructive operation attempted without explicit user approval
+Rules:
+
+- Use `--paginate` instead of manual page loops
+- Use `--cache` for repeated read-heavy requests
+- Reduce request concurrency outside `gh` if secondary rate limits appear
+
+## GraphQL errors
+
+Symptoms:
+
+- malformed query errors
+- empty fields due to incorrect schema assumptions
+
+Fixes:
+
+- Verify variable names and types
+- Include pagination fields when using `--paginate`
+- Fall back to REST if the GraphQL shape is not worth the complexity
+
+## Extensions and version drift
+
+Symptoms:
+
+- `unknown command` for an extension
+- extension crashes after a `gh` upgrade
+
+Fixes:
+
+```bash
+gh extension list
+gh extension upgrade --all
+gh extension install owner/extension-name
+```
+
+## Mutation safety failures
+
+Symptoms:
+
+- Merge rejected due to changed head SHA
+- Cancel or rerun affects the wrong workflow run
+- Close, delete, or release actions hit the wrong target
+
+Fixes:
+
+- Re-read the target resource immediately before mutating
+- Use `--match-head-commit` for PR merges
+- Resolve by concrete identifiers such as PR number, run ID, or tag name
+
+## Red flags
+
+- Scraping formatted CLI tables instead of asking `gh` for JSON
+- Running mutating commands without `--repo` in ambiguous contexts
+- Embedding tokens directly in commands, scripts, or committed files
+- Using policy-bypassing flags without explicit user approval

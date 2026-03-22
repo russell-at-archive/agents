@@ -1,70 +1,43 @@
 ---
 name: using-linear-cli
-description: Provides expert guidance for using the Linear CLI to manage authentication, issues, teams, projects, cycles, initiatives, milestones, documents, labels, and raw GraphQL requests. Use when running `linear` commands, managing Linear objects, or bootstrapping `.linear.toml`.
+description: Uses the Linear CLI (`linear` / `schpet/linear-cli`) for issue management, team and project queries, document CRUD, milestone tracking, raw GraphQL, and VCS-aware workflows. Invoke whenever the user asks to run `linear` commands, create/update/delete Linear issues or documents, list projects or milestones, authenticate to Linear, bootstrap `.linear.toml`, use `linear api` for GraphQL queries, or extract issue context from a git branch. Also trigger when the user mentions `LINEAR_API_KEY`, `schpet/linear-cli`, or integrating Linear into shell scripts or CI pipelines.
 ---
 
 # Using Linear CLI
 
-## Overview
+The `linear` CLI (`schpet/linear-cli`) is a terminal-first, agent-friendly
+interface to Linear. It is VCS-aware: commands like `linear issue view` and
+`linear issue id` auto-detect the current issue from the git branch name or jj
+commit trailers.
 
-Guides agents through the `linear` CLI (`schpet/linear-cli`) for terminal-first
-Linear workflows, emphasizing non-interactive usage, VCS-aware issue context,
-and safe mutation patterns.
+If `linear` is not installed, read [references/installation.md](references/installation.md).
 
-For the full procedure and command reference, read
-[references/overview.md](references/overview.md).
+For the complete command reference, read [references/overview.md](references/overview.md).
 
-## When to Use
+For practical examples and automation patterns, read [references/examples.md](references/examples.md).
 
-- Running any `linear` command
-- Managing Linear issues, teams, cycles, initiatives, projects, or documents
-- Bootstrapping or repairing `.linear.toml` configuration
-- Extracting rich context (attachments, comments) for agent tasks
-- Making raw GraphQL calls through `linear api` or inspecting the `schema`
+## Core principles
 
-## When Not to Use
-
-- Using Linear MCP tools or the web UI when explicitly requested
-- Editing `.linear.toml` manually without a user request
-- Git/PR management better served by `using-graphite-cli` or `using-github-cli`
-
-## Prerequisites
-
-- `linear` (v1.11.1+) installed and available on `PATH`
-- Authentication configured with `linear auth login`
-- Correct workspace selected (`linear auth list`)
-
-## Workflow
-
-1. Verify binary, auth, and workspace context. If `linear` is missing, read
-   [references/installation.md](references/installation.md).
-2. Use `linear issue id` to confirm VCS context (git branch or jj trailers).
-3. Select the appropriate command for the task (issue, project, document).
-4. For the detailed command procedure and flags, read
-   [references/overview.md](references/overview.md).
-5. Prefer non-interactive flags and file-backed markdown inputs.
-6. Verify changes with a corresponding read command.
-7. For concrete usage patterns, read
-   [references/examples.md](references/examples.md).
-8. If errors occur, read [references/troubleshooting.md](references/troubleshooting.md).
-
-## Hard Rules
-
-- Prefer explicit flags over interactive prompts (`--no-interactive`).
-- Use `--description-file`, `--body-file`, or `--content-file` for markdown.
-- Never assume current issue context without verifying `linear issue id`.
-- Treat all delete operations as confirmation-gated.
+- Prefer explicit flags over interactive prompts — use `--title`, `--team`, etc.
+- Use `--description-file`, `--body-file`, or `--content-file` for any markdown
+  content; inline strings break on newlines and special characters.
+- Always verify VCS context with `linear issue id` before relying on it.
+- Use explicit issue IDs (e.g. `ENG-123`) when context detection may be unreliable.
+- Gate all delete operations: confirm with the user before running any
+  `linear ... delete` command.
 - Use `-w <slug>` when multiple workspaces are configured.
 
-## Failure Handling
+## Quick diagnostics
 
-- If auth fails, run `linear auth whoami` or `linear auth list` to diagnose.
-- If a binary is missing, follow [references/installation.md](references/installation.md).
-- If current issue lookup fails, use an explicit issue ID (e.g., `ENG-123`).
+```bash
+linear --version          # confirm binary present
+linear auth whoami        # confirm identity and workspace
+linear auth list          # list all configured workspaces
+linear issue id           # confirm VCS context resolves
+```
 
-## Red Flags
+If auth fails: run `linear auth login` or check the `LINEAR_API_KEY` env var.
 
-- Running interactive commands in automation
-- Using ambiguous names where IDs or slugs are available
-- Updating rich markdown content using inline strings
-- Assuming repo context without verification
+If the binary is missing: read [references/installation.md](references/installation.md).
+
+If errors persist: read [references/troubleshooting.md](references/troubleshooting.md).

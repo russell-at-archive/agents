@@ -1,102 +1,95 @@
 # Overview
 
-## Overview
-
-Use GitLab CLI (`glab`) for GitLab operations from the terminal.
-
-`glab` is the default tool for merge requests, issues, pipelines,
-releases, and API calls.
-
-Use non-interactive commands with explicit scope and parseable output.
-
-## Preflight Checks
+## Preflight
 
 Run these before write operations:
 
 ```bash
+glab --version
 glab auth status
-glab repo view || glab repo list
+glab repo view
 ```
 
-If working outside the current repository, pass:
+If the command targets another project, always pass explicit scope:
 
 ```bash
--R <group>/<project>
+glab <group> <command> -R group/project
 ```
 
-or:
+## Auth And Context
 
-```bash
---repo <group>/<project>
-```
-
-depending on the command.
+- `glab` detects the GitLab instance from git remotes, config, or explicit host
+- `GITLAB_TOKEN`, `GITLAB_ACCESS_TOKEN`, and `OAUTH_TOKEN` override stored
+  credentials
+- CI auto-login can use `CI_JOB_TOKEN`, but only for commands that support job
+  tokens
+- for self-managed instances, prefer explicit `--hostname` during auth and
+  explicit `-R/--repo` during operations
 
 ## Non-Interactive Defaults
 
-
-Prefer non-interactive commands in automation and agent workflows.
-
-- Always pass explicit flags instead of relying on prompts.
-- Prefer machine-readable output with `--output json`.
-- Use `--yes` or equivalent confirmation flags only when needed.
-- Confirm repo and object IDs before running mutations.
+- prefer explicit flags over prompts
+- prefer `--output json` where supported
+- use `--stdin` for secrets and tokens
+- use `--yes` only when the target and side effects are already confirmed
+- validate every mutation with a follow-up read command
 
 ## Command Families
 
-Load command-specific help before less common operations:
+### Merge Requests
 
-```bash
-glab <group> <subcommand> --help
-```
-
-### Merge Requests (`glab mr`)
+Use `glab mr` for listing, viewing, creating, updating, commenting, checking
+out, rebasing, and merging MRs.
 
 - inspect: `glab mr view <iid>`
-- list: `glab mr list --state opened --output json`
+- list: `glab mr list --output json`
 - create: `glab mr create ...`
-- merge: `glab mr merge <iid> --yes`
-- comment: `glab mr note <iid> -m "<message>"`
+- merge safely: `glab mr merge <iid> --sha <head-sha> --yes`
 
-### Issues (`glab issue`)
+### Issues And Work Items
 
-- list: `glab issue list --state opened --output json`
-- create: `glab issue create ...`
-- comment: `glab issue note <iid> -m "<message>"`
-- close: `glab issue close <iid>`
+Use `glab issue` for classic issues and `glab work-items` when the project uses
+GitLab work items.
 
-### CI (`glab ci`)
+### CI/CD
 
-- list pipelines/jobs view: `glab ci list`
-- inspect pipeline/job: `glab ci view <id>`
-- use `--output json` where supported for automation
+Use `glab ci` for pipelines and jobs.
 
-### Releases (`glab release`)
+- list or inspect: `glab ci list`, `glab ci view <id>`
+- trigger: `glab ci run ...`
+- retry, cancel, trace, lint, or get status through the `ci` subcommands
 
-- list: `glab release list`
-- create: `glab release create <tag> --name "<title>" --notes "<notes>"`
+### Releases
 
-### API (`glab api`)
+Use `glab release` to list, create, upload assets, and update releases.
 
-- direct API query:
-  `glab api projects/:id/merge_requests --paginate`
-- use `-F/--field` for typed parameters
-- use `-X` for explicit HTTP method when mutating
+### Variables
 
-## JSON-First Output Strategy
+Use `glab variable` for project or group CI/CD variables. Treat these as secret
+or environment-impacting writes.
 
-Prefer JSON output for stable automation. Avoid parsing table output.
+### Repositories
+
+Use `glab repo` for clone, fork, view, and other repository-scoped actions.
+
+### API Escape Hatch
+
+Use `glab api` when:
+
+- the needed field is missing from a high-level subcommand
+- you need pagination or explicit HTTP methods
+- you need stable automation around typed fields
+
+Preferred patterns:
 
 ```bash
-glab mr list --output json | jq '.[].iid'
+glab api projects/:id/merge_requests --paginate
+glab api projects/:id/issues -X POST -F title='Bug' -F description='Details'
 ```
 
-Avoid parsing plain text output when JSON is available.
+## Safety Notes
 
-## Mutation Safety Rules
-
-
-- Do not run destructive commands without clear user intent.
-- Confirm target project before mutating issues, MRs, or releases.
-- Check IDs before action: MR IID, issue IID, pipeline/job ID, release tag.
-- For bulk edits, test one object first, then scale.
+- confirm whether the identifier is an IID, project ID, pipeline ID, or job ID
+- for bulk changes, test one target first
+- for merge operations, use `--sha` when correctness depends on the reviewed
+  source HEAD remaining unchanged

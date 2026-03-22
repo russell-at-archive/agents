@@ -1,51 +1,51 @@
 ---
 name: using-devcontainer-cli
-description: Provides expert guidance for using the DevContainer CLI (`devcontainer`) to build, run, and manage isolated development environments. Use when requests involve `devcontainer` commands such as `up`, `exec`, `build`, `run-user-commands`, or lifecycle hooks.
+description: Provides expert guidance for using the Dev Container CLI (`devcontainer`) to inspect configuration, build images, start environments, run commands in containers, rerun lifecycle hooks, and maintain Features or Templates. Use when requests mention `devcontainer`, Dev Containers, `devcontainer up`, `exec`, `build`, `set-up`, `read-configuration`, `run-user-commands`, `outdated`, `upgrade`, Features, or Templates.
 ---
 
 # Using DevContainer CLI
 
-Expert guide for using the `@devcontainers/cli` to automate and manage
-development environments as specified in the Development Containers
-Specification.
+Expert guide for using `@devcontainers/cli` to automate development
+environments defined by `devcontainer.json`. Install and verification
+steps live in [references/installation.md](references/installation.md).
 
 ## When to Use
 
-- Building or pre-building container images for CI/CD or local use.
-- Starting and stopping isolated development environments (`up`, `down`).
-- Executing commands inside a running dev container (`exec`).
-- Managing and troubleshooting `devcontainer.json` lifecycle hooks
-  (`postCreateCommand`, `postStartCommand`, etc.).
-- Inspecting resolved configurations and features.
+- The user wants to run or debug any `devcontainer` command.
+- A workspace must be built, started, attached, or executed inside a
+  dev container.
+- A `devcontainer.json`, lifecycle hook, Feature, or Template needs
+  inspection or troubleshooting.
+- The task involves Dev Container maintenance such as `outdated` or
+  `upgrade`.
 
-## Core Commands
+## Core Workflow
 
-| Command | Purpose |
-| :--- | :--- |
-| `devcontainer up` | Create and start a container for a workspace. |
-| `devcontainer exec` | Run a command inside an active container. |
-| `devcontainer build` | Build a container image from configuration. |
-| `devcontainer read-configuration` | Output the resolved configuration for a workspace. |
-| `devcontainer run-user-commands` | Manually trigger lifecycle scripts. |
-
-## Workflow
-
-1.  **Preparation:** Ensure Docker is running and a `devcontainer.json`
-    exists in the target workspace.
-2.  **Environment Setup:** Use `devcontainer up --workspace-folder <path>`
-    to provision the environment.
-3.  **Command Execution:** Use `devcontainer exec --workspace-folder <path> <command>`
-    for all implementation, testing, and validation tasks.
-4.  **Verification:** Confirm that environment-specific dependencies
-    and lifecycle scripts have executed correctly.
-5.  **Teardown:** Use `devcontainer down --workspace-folder <path>` to
-    cleanup resources when the task is complete.
+1. Verify prerequisites: installed CLI, running Docker-compatible
+   runtime, and a resolvable workspace path.
+2. Inspect before mutating: start with
+   `devcontainer read-configuration --workspace-folder <abs-path>` when
+   config, Features, mounts, or lifecycle behavior is unclear.
+3. Choose the right command:
+   `up` for create/start, `exec` for work inside a running container,
+   `build` for image-only workflows, `set-up` for an existing container,
+   and `run-user-commands` to rerun lifecycle hooks.
+4. Prefer explicit workspace targeting:
+   always pass `--workspace-folder <abs-path>` and add
+   `--mount-git-worktree-common-dir` when a Git worktree needs `.git`
+   metadata inside the container.
+5. Use maintenance commands deliberately:
+   `outdated` to inspect versions and `upgrade` to refresh the lockfile.
+6. Escalate debugging with `--log-level debug` or `trace` before making
+   speculative config changes.
 
 ## Resources
 
-- [references/overview.md](references/overview.md) — Detailed procedure,
-  options, and lifecycle hook logic.
-- [references/examples.md](references/examples.md) — Common command patterns
-  and complex configuration examples.
-- [references/troubleshooting.md](references/troubleshooting.md) — Error codes,
-  Docker connection issues, and hook failures.
+- [references/installation.md](references/installation.md) for install
+  and verification.
+- [references/overview.md](references/overview.md) for command selection,
+  lifecycle behavior, and safe defaults.
+- [references/examples.md](references/examples.md) for common command
+  patterns.
+- [references/troubleshooting.md](references/troubleshooting.md) for
+  Docker, lifecycle, mount, and lockfile failures.

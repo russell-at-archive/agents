@@ -1,36 +1,53 @@
 # DevContainer CLI Troubleshooting
 
-Common errors, anti-patterns, and fixes when using the `@devcontainers/cli`.
+## Common Failures
 
-## Common Error Messages
-
-| Error | Cause | Fix |
+| Symptom | Likely cause | Response |
 | :--- | :--- | :--- |
-| `Cannot connect to Docker daemon` | Docker is not running or socket is blocked. | Start Docker Desktop/OrbStack or check `DOCKER_HOST`. |
-| `Missing devcontainer.json` | The CLI cannot find a config in the `--workspace-folder`. | Ensure `.devcontainer/devcontainer.json` exists in the target. |
-| `Command not found` (inside container) | Dependency not installed in the image/hooks. | Use `onCreateCommand` or add a Dev Container Feature. |
-| `Permission denied` | Command requires root or non-default user permissions. | Use `devcontainer exec --user root`. |
+| `Cannot connect to Docker daemon` | Docker runtime is stopped, unreachable, or pointed at the wrong socket | Verify `docker version`, `docker info`, and any `DOCKER_HOST` override before touching `devcontainer.json` |
+| `Missing devcontainer.json` or unexpected config | Wrong workspace path or config path | Resolve the workspace to an absolute path and check `--config` if the file is not in the default location |
+| Hook hangs during `up` | Interactive command in a lifecycle hook | Make hook commands non-interactive and rerun with `devcontainer run-user-commands` |
+| Command fails inside the container but works locally | Dependency is not in the image or hook path | Confirm the tool is installed by the image, Feature, or creation hooks |
+| Git behaves incorrectly in a worktree | Shared worktree metadata is not mounted | Retry with `--mount-git-worktree-common-dir` |
+| Config changes do not seem to apply | Old container or cached state is still being reused | Inspect with `read-configuration`, then retry `up --remove-existing-container` if needed |
 
-## Red Flags & Anti-Patterns
+## Debug Sequence
 
-1.  **Relative Pathing for Workspace:** Using `.` for `--workspace-folder` in a script.
-    *   *Correction:* Always resolve to an absolute path (`$(pwd)` or similar).
-2.  **Missing --workspace-folder:** Forgetting the flag in `exec` or `up`.
-    *   *Correction:* The CLI *always* requires the workspace context.
-3.  **Manual Docker Manipulation:** Manually stopping containers via `docker stop` instead of `devcontainer down`.
-    *   *Correction:* Use the CLI to ensure cleanup of volumes and labels.
-4.  **Interactive Prompts in Hooks:** Using a command like `npm install` without `-y` in `postCreateCommand`.
-    *   *Correction:* The Minion will hang indefinitely. Always use non-interactive flags.
+Use this order instead of random edits:
 
-## Troubleshooting Lifecycle Hooks
+1. `docker version`
+2. `devcontainer read-configuration --workspace-folder <abs-path>`
+3. `devcontainer up --workspace-folder <abs-path> --log-level debug`
+4. `devcontainer up --workspace-folder <abs-path> --log-level trace`
+5. `devcontainer run-user-commands --workspace-folder <abs-path>`
 
-If a hook like `postCreateCommand` fails:
-1.  **Inspect Logs:** Use `devcontainer up --workspace-folder . --log-level debug`.
-2.  **Manual Trigger:** Run `devcontainer run-user-commands --workspace-folder . postCreateCommand` to re-test.
-3.  **Check Context:** Verify if the command expects to be on the **Host** (`initializeCommand`) or the **Container** (all others).
+## High-Value Flags
 
-## Network & Connectivity
+- `--log-level debug` to expose decision points without full trace noise
+- `--include-merged-configuration` when the final config differs from
+  what `devcontainer.json` alone suggests
+- `--remove-existing-container` when debugging stale state
+- `--expect-existing-container` when automation should fail instead of
+  provisioning a fresh environment
+- `--skip-post-create` to isolate build and startup from hook failures
 
-- **Proxy Issues:** If the container needs to access the internet through a proxy, ensure the `HTTP_PROXY` and `HTTPS_PROXY` env vars are passed in via `devcontainer up` or defined in the Docker daemon settings.
-- **Port Conflicts:** If multiple Minions try to bind to the same host port, the `up` command will fail.
-    *   *Correction:* For "Minion" orchestration, disable port forwarding in `devcontainer.json` or use random port mapping.
+## Anti-Patterns
+
+- Using relative `--workspace-folder` values in automation
+- Editing the config before running `read-configuration`
+- Treating a hook failure as an image build failure without checking
+  which lifecycle phase broke
+- Assuming Git worktrees behave like normal clones without the extra
+  mount flag
+- Manually editing generated lockfiles instead of using
+  `devcontainer upgrade`
+
+## Maintenance Issues
+
+If lockfile or Feature drift is the problem:
+
+- Use `devcontainer outdated --workspace-folder <abs-path>` to inspect
+  version differences.
+- Use `devcontainer upgrade --workspace-folder <abs-path> --dry-run`
+  before writing.
+- Rebuild or recreate only after confirming what changed.

@@ -1,5 +1,10 @@
 # Troubleshooting
 
+## Contents
+
+- [Common Failures](#common-failures)
+- [Stop Conditions](#stop-conditions)
+
 ## Common Failures
 
 ### CLI Not Found
@@ -18,21 +23,36 @@ Symptom: Gemini rejects requests or exits immediately.
 
 Action:
 
-1. run a probe: `gemini -p "Respond with: OK"`
-2. re-authenticate per local Gemini setup
-3. retry the real task only after probe succeeds
+1. run a probe: `gemini -p "Respond with: OK" --output-format json`
+2. if using API keys, verify `GEMINI_API_KEY`
+3. if using Vertex, unset `GOOGLE_API_KEY` and `GEMINI_API_KEY`, then verify
+   `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION`, and credentials
+4. retry the real task only after the probe succeeds
 
 ### Interactive Hang
 
 Symptom: command appears stuck waiting for input.
 
-Cause: missing `-p` prompt flag.
+Cause: you started an interactive flow.
 
-Action: always run headless form:
+Action:
+
+1. use `-p` for headless automation
+2. use `--prompt-interactive` only when you want the session to remain open
 
 ```bash
 gemini -p "Your prompt" <paths>
 ```
+
+### `--help` or `--version` Appears To Stall
+
+Symptom: help or version does not return promptly in the current environment.
+
+Action:
+
+1. verify the installed package path and version from the package metadata
+2. inspect the shipped docs under the installed bundle when needed
+3. avoid assuming the TUI is safe to invoke from a non-interactive agent shell
 
 ### Low-Quality or Generic Output
 
@@ -65,7 +85,17 @@ Action:
 
 1. default to `--approval-mode plan`
 2. use `auto_edit` only when edits are explicitly requested
-3. avoid `-y` unless user requested full autonomy
+3. avoid `-y` or `yolo` unless user requested full autonomy
+
+### Session Resume Confusion
+
+Symptom: Gemini resumes the wrong thing or no session is resumed.
+
+Action:
+
+1. list sessions with `gemini --list-sessions`
+2. resume with `gemini --resume latest` or `gemini --resume N`
+3. remember sessions are project-scoped
 
 ## Stop Conditions
 

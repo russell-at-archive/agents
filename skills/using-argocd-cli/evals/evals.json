@@ -1,0 +1,65 @@
+{
+  "skill_name": "using-argocd-cli",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I need a safe argocd workflow for production. Show me the exact commands to inspect an app, diff it, sync only the out-of-sync resources, and wait for health with a timeout.",
+      "expected_output": "A command-first answer that uses `argocd app get`, `argocd app diff`, `argocd app sync --apply-out-of-sync-only`, and `argocd app wait --health --sync --operation --timeout ...`, with inspect-before-mutate guidance.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "uses-inspect-diff-sync-wait-sequence",
+          "description": "The answer follows the inspect -> diff -> sync -> wait sequence rather than jumping straight to mutation."
+        },
+        {
+          "name": "uses-apply-out-of-sync-only",
+          "description": "The answer includes `argocd app sync --apply-out-of-sync-only` for a narrow reconcile."
+        },
+        {
+          "name": "waits-for-terminal-state",
+          "description": "The answer uses `argocd app wait` with health and timeout flags instead of treating sync submission as success."
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Write me a short runbook for Argo CD admin tasks: add a private Git repo with SSH, register a cluster from kubeconfig, and create an AppProject with explicit source and destination guardrails.",
+      "expected_output": "A concise runbook using `argocd repo add`, `argocd cluster add`, and `argocd proj create` with concrete flags, plus brief scoping and verification steps.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "uses-repo-add-with-ssh-key",
+          "description": "The answer uses `argocd repo add` with `--ssh-private-key-path` or an equivalent SSH-auth pattern."
+        },
+        {
+          "name": "uses-cluster-add-from-kube-context",
+          "description": "The answer treats `argocd cluster add` as a kubeconfig-context operation, not an app operation."
+        },
+        {
+          "name": "uses-proj-create-guardrails",
+          "description": "The answer uses `argocd proj create` with explicit source repo and destination restrictions."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My `argocd app diff` step in CI returns exit code 1 and the server is behind an ingress. Explain what that exit code means, when to use `--grpc-web`, and give me a CI-safe command sequence with token auth.",
+      "expected_output": "An explanation that exit code 1 means a diff exists, not a generic failure, plus a CI-safe command sequence using `ARGOCD_AUTH_TOKEN`, optional `--grpc-web`, and explicit wait/timeout behavior.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "explains-diff-exit-code-1",
+          "description": "The answer states that `argocd app diff` returns exit code `1` when differences are present."
+        },
+        {
+          "name": "uses-grpc-web-for-ingress-case",
+          "description": "The answer recommends `--grpc-web` for proxy or ingress setups that break native gRPC."
+        },
+        {
+          "name": "uses-token-auth-in-ci",
+          "description": "The answer uses `ARGOCD_AUTH_TOKEN` or `--auth-token` rather than embedding credentials in the script."
+        }
+      ]
+    }
+  ]
+}

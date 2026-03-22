@@ -12,6 +12,8 @@ description: Create and manage isolated git worktrees for feature delivery.
 
 Use this skill to create a clean, isolated workspace before implementation.
 Follow the workflow in order. Do not skip safety or baseline verification.
+For Git installation and version checks, read
+[references/installation.md](references/installation.md).
 
 ## Load Order
 
@@ -33,14 +35,16 @@ Follow the workflow in order. Do not skip safety or baseline verification.
 
 ## Workflow
 
-1. Select worktree directory using this strict priority:
+1. Verify Git is installed and `git worktree` is available. If not, read
+   [references/installation.md](references/installation.md).
+2. Select worktree directory using this strict priority:
    existing directory, `CLAUDE.md` preference, then ask user.
-2. Verify ignore safety for project-local directories.
-3. Create worktree and base branch.
-4. Run project dependency bootstrap.
-5. Discover canonical validation commands.
-6. Run baseline validation.
-7. Report readiness with path and validation result.
+3. Verify ignore safety for project-local directories.
+4. Create worktree and base branch.
+5. Run project dependency bootstrap.
+6. Discover canonical validation commands.
+7. Run baseline validation.
+8. Report readiness with path and validation result.
 
 Use exact command sequences from `references/overview.md`.
 

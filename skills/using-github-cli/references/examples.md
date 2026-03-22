@@ -1,111 +1,97 @@
 # Examples
 
-## List PRs Requiring Review
+## Pull request triage
 
 ```bash
-gh pr list --search "review:required state:open" \
-  --json number,title,author,url \
-  --jq '.[] | {number, title, author: .author.login, url}'
+gh pr list --repo owner/repo --limit 20 \
+  --json number,title,author,reviewDecision,mergeStateStatus \
+  --jq '.[] | {number, title, author: .author.login, reviewDecision, mergeStateStatus}'
 ```
 
-## Create PR Non-Interactively
+## Safe PR merge
 
 ```bash
-gh pr create \
-  --base main \
-  --head <branch> \
-  --title "feat(api): add bulk import endpoint" \
-  --body "## Summary\n- add endpoint\n- add tests\n\nCloses #123"
-```
+pr=123
+head_sha="$(gh pr view "$pr" --repo owner/repo --json headRefOid --jq '.headRefOid')"
 
-## Gate Merge On Required Checks
-
-```bash
-gh pr checks <pr-number> --required --watch
-# exit code 0: checks passed
-# exit code 8: checks still pending
-# exit code 1: failed
-```
-
-## Merge With Head Commit Guard
-
-```bash
-gh pr merge <pr-number> \
+gh pr merge "$pr" \
+  --repo owner/repo \
   --squash \
   --delete-branch \
-  --match-head-commit <sha>
+  --match-head-commit "$head_sha"
 ```
 
-## Create And Route An Issue
+## Issue creation without prompts
 
 ```bash
-gh issue create \
-  --title "Bug: cache invalidation fails on tenant switch" \
-  --body "## Steps\n1. ...\n\n## Expected\n..." \
+GH_PROMPT_DISABLED=1 gh issue create \
+  --repo owner/repo \
+  --title "bug: startup panic in auth bootstrap" \
+  --body "Observed in v1.4.2 after config migration." \
   --label bug \
   --assignee @me
 ```
 
-## Bulk-Query Issues With Search Syntax
+## Watch a workflow run to completion
 
 ```bash
-gh issue list \
-  --search "label:bug no:assignee state:open sort:created-asc" \
-  --json number,title,createdAt,url \
-  --jq '.[] | {number, title, createdAt, url}'
+run_id="$(gh run list --repo owner/repo --limit 1 --json databaseId --jq '.[0].databaseId')"
+gh run watch "$run_id" --repo owner/repo --exit-status
 ```
 
-## Trigger Workflow Dispatch With Inputs
+## Trigger workflow_dispatch with inputs
 
 ```bash
 gh workflow run deploy.yml \
-  --ref main \
+  --repo owner/repo \
   -f environment=staging \
-  -f image_tag=sha-abc123
+  -f image_tag=2026.03.22
 ```
 
-## Watch A Workflow Run
+## Download artifacts from a run
 
 ```bash
-gh run watch <run-id> --exit-status
-gh run view <run-id> --log
+gh run download 123456789 --repo owner/repo --dir /tmp/build-artifacts
 ```
 
-## Create Release With Generated Notes
+## Search for stale bugs
 
 ```bash
-gh release create v1.8.0 \
-  --generate-notes \
-  --verify-tag \
-  --latest
+gh search issues \
+  --repo owner/repo \
+  --state open \
+  --label bug \
+  --json number,title,updatedAt,url \
+  --jq '.[] | select(.updatedAt < "2026-01-01T00:00:00Z")'
 ```
 
-## Use REST API For Missing CLI Coverage
+## Query the API with pagination
 
 ```bash
-gh api repos/{owner}/{repo}/rulesets \
+gh api repos/{owner}/{repo}/issues \
+  --repo owner/repo \
   --paginate \
-  --slurp \
-  --jq '.[].name'
+  --jq '.[] | select(.state == "open") | .number'
 ```
 
-## Use GraphQL Pagination
+## GraphQL for compact repository data
 
 ```bash
-gh api graphql --paginate -f query='query($endCursor: String) {
-  viewer {
-    repositories(first: 100, after: $endCursor) {
-      nodes { nameWithOwner }
-      pageInfo { hasNextPage endCursor }
-    }
-  }
-}' --jq '.data.viewer.repositories.nodes[].nameWithOwner'
+gh api graphql \
+  -F owner='owner' \
+  -F repo='repo' \
+  -f query='
+    query($owner: String!, $repo: String!) {
+      repository(owner: $owner, name: $repo) {
+        defaultBranchRef { name }
+        openIssues: issues(states: OPEN) { totalCount }
+        openPullRequests: pullRequests(states: OPEN) { totalCount }
+      }
+    }'
 ```
 
-## Cross-Repo Operation Pattern
+## Cross-repo release inspection
 
 ```bash
-gh issue comment 123 \
-  --repo octo-org/platform \
-  --body "Investigating now; status update in 30 minutes."
+gh release list --repo owner/infrastructure --limit 5
 ```

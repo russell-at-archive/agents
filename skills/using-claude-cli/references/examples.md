@@ -1,62 +1,124 @@
-# Examples
+# Claude Code CLI Examples
 
-## Run A One-Shot Analysis
+## Interactive work
 
-```bash
-claude -p "\
-Task: Summarize auth architecture.\
-Context: Node API with JWT + refresh tokens.\
-Output: Risks, trust boundaries, and test gaps with file paths.\
-" src/auth src/middleware
-```
-
-## Produce JSON Output For Tooling
+Start a new session:
 
 ```bash
-claude -p "List risky TODOs in src/ with severity and file path" \
-  --output-format json
+claude
 ```
 
-## Stream Results For A Supervisor Process
+Start with context:
 
 ```bash
-claude -p "Review open migration tasks and propose order" \
-  --output-format stream-json \
-  --verbose
+claude "Review the recent changes in src/main.ts"
 ```
 
-## Continue Previous Session In Current Directory
+Continue the most recent local conversation:
 
 ```bash
 claude --continue
 ```
 
-## Resume From Session Picker Or Explicit ID
+Resume a specific session:
 
 ```bash
-claude --resume
-claude --resume 550e8400-e29b-41d4-a716-446655440000
+claude --resume 8b4c0d6e-1111-2222-3333-444455556666
 ```
 
-## Constrain Tools And Permission Mode
+Useful interactive slash commands:
 
-```bash
-claude -p "Run unit tests and fix TypeScript errors only" \
-  --permission-mode plan \
-  --allowedTools "Bash(npm test:*) Bash(npm run typecheck:*) Edit Read"
+```text
+/help
+/resume
+/memory
+/permissions
+/mcp
+/compact focus on test failures
 ```
 
-## Use A Specific Agent And Model
+## One-shot automation
+
+Plain text result:
 
 ```bash
-claude -p "Review this diff for regressions" \
-  --agent reviewer \
-  --model sonnet
+claude -p "Explain the contents of Makefile"
 ```
 
-## Expand Accessible Workspace
+JSON output:
 
 ```bash
-claude -p "Compare shared docs and update local summary" \
-  --add-dir ../shared-docs
+claude -p "Summarize this repository" --output-format json
+```
+
+Schema-constrained JSON:
+
+```bash
+claude -p "Extract route names from src/router.ts" \
+  --output-format json \
+  --json-schema '{"type":"object","properties":{"routes":{"type":"array","items":{"type":"string"}}},"required":["routes"]}'
+```
+
+Stream events:
+
+```bash
+claude -p "Explain recursion" \
+  --output-format stream-json \
+  --verbose \
+  --include-partial-messages
+```
+
+Continue an automated thread:
+
+```bash
+session_id=$(claude -p "Start a review" --output-format json | jq -r '.session_id')
+claude -p "Now focus on auth edge cases" --resume "$session_id"
+```
+
+## Permission-aware automation
+
+Allow only what is needed:
+
+```bash
+claude -p "Run the tests and fix simple failures" \
+  --allowedTools "Bash(pytest *),Read,Edit"
+```
+
+Create a commit from staged changes:
+
+```bash
+claude -p "Look at my staged changes and create an appropriate commit" \
+  --allowedTools "Bash(git diff *),Bash(git log *),Bash(git status *),Bash(git commit *)"
+```
+
+## MCP and configuration
+
+List configured MCP servers:
+
+```bash
+claude mcp list
+```
+
+Add an HTTP MCP server:
+
+```bash
+claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
+```
+
+Add a stdio MCP server:
+
+```bash
+claude mcp add my-server -- npx my-mcp-server
+```
+
+Inspect auth state:
+
+```bash
+claude auth status
+```
+
+Inspect available agents:
+
+```bash
+claude agents
 ```

@@ -11,6 +11,14 @@ Output: concise architecture map with file references.\
 " src/auth/ src/middleware/ src/routes/
 ```
 
+## Interactive Kickoff
+
+```bash
+gemini --prompt-interactive "\
+Read the repository context, summarize the major subsystems, then wait for more questions.\
+"
+```
+
 ## Migration Impact Mapping
 
 ```bash
@@ -20,6 +28,23 @@ Questions: Which modules import cache APIs, what breakages are likely,\
 what test areas are required.\
 Output: dependency graph + prioritized risk list.\
 " src/ package.json
+```
+
+## Structured JSON For Downstream Parsing
+
+```bash
+gemini --approval-mode plan --output-format json -p "\
+Task: list all modules depending on src/core/events.ts.\
+Output: JSON array with fields module, import_path, risk_level.\
+" src/
+```
+
+## Stream Events For Long Runs
+
+```bash
+gemini --approval-mode plan --output-format stream-json -p "\
+Run the test suite, summarize failures, and emit machine-readable progress.\
+"
 ```
 
 ## Parallel Analysis Runs
@@ -35,13 +60,12 @@ gemini -p "Identify risky runtime config assumptions" src/ config/ \
   > /tmp/gemini-config-risks.md 2>&1
 ```
 
-## Structured Output for Tooling
+## Multi-Root Workspace Context
 
 ```bash
-gemini -o json -p "\
-Task: list all modules depending on src/core/events.ts.\
-Output: JSON array with fields module, import_path, risk_level.\
-" src/
+gemini --include-directories ../shared,../docs \
+  --approval-mode plan \
+  -p "Explain how this service depends on the shared library and docs contracts"
 ```
 
 ## Prompt Tightening Retry

@@ -1,72 +1,133 @@
 # DevContainer CLI Examples
 
-Common patterns and use cases for the `@devcontainers/cli`.
+## Inspect Before Startup
 
-## Basic Lifecycle
+Resolve and inspect the workspace before changing anything:
 
-### Provisioning and Starting
-To start a development environment from the current folder:
 ```bash
-devcontainer up --workspace-folder .
+devcontainer read-configuration --workspace-folder /abs/path/to/repo
 ```
 
-### Executing a Task
-To run npm install inside the container:
+Include merged configuration when Features or overrides are involved:
+
 ```bash
-devcontainer exec --workspace-folder . npm install
+devcontainer read-configuration \
+  --workspace-folder /abs/path/to/repo \
+  --include-merged-configuration \
+  --include-features-configuration
 ```
 
-### Cleaning Up
-To stop and remove containers for a workspace:
+## Start or Recreate a Workspace
+
+Start a workspace with debug logs:
+
 ```bash
-devcontainer down --workspace-folder .
+devcontainer up --workspace-folder /abs/path/to/repo --log-level debug
 ```
 
----
+Force a clean recreate when the existing container is suspect:
 
-## "Minion Orchestrator" Patterns
-
-### Unique Feature Containers
-If you're running multiple "Minions" in parallel on the same host, use
-labels and unique folders:
 ```bash
-# Feature 1
-devcontainer up --workspace-folder /tmp/feature-1 --id-label "minion-job=123"
-
-# Feature 2
-devcontainer up --workspace-folder /tmp/feature-2 --id-label "minion-job=456"
+devcontainer up \
+  --workspace-folder /abs/path/to/repo \
+  --remove-existing-container
 ```
 
-### Injecting Secrets via --env
-To pass credentials (like `GH_TOKEN`) into an active Minion:
+Start a Git worktree and mount common Git metadata for containerized Git:
+
 ```bash
-devcontainer exec --workspace-folder . --env GH_TOKEN=$GH_TOKEN git push
+devcontainer up \
+  --workspace-folder /abs/path/to/worktree \
+  --mount-git-worktree-common-dir
 ```
 
-### Pre-building an Image for Minions
-Use build to pre-cache heavy dependencies (e.g., node_modules, apt packages):
+## Execute Commands Inside the Container
+
+Run tests in the active container:
+
 ```bash
-devcontainer build --workspace-folder . --image-name ghcr.io/my-repo/minion-base:latest
+devcontainer exec --workspace-folder /abs/path/to/repo npm test
 ```
 
----
+Inject environment variables for the command:
 
-## Troubleshooting & Debugging
-
-### Inspecting Configuration
-To see exactly how features and Docker Compose files are being merged:
 ```bash
-devcontainer read-configuration --workspace-folder .
+devcontainer exec \
+  --workspace-folder /abs/path/to/repo \
+  --remote-env GH_TOKEN="$GH_TOKEN" \
+  gh auth status
 ```
 
-### Running Lifecycle Hooks Manually
-To re-run the `postCreateCommand` after a manual fix:
+Target a running container by label instead of path:
+
 ```bash
-devcontainer run-user-commands --workspace-folder . postCreateCommand
+devcontainer exec --id-label repo=my-service make verify
 ```
 
-### Checking for Dev Container Status
-To list all active dev containers on the host using Docker:
+## Build Without Starting
+
+Build an image for CI or cache warming:
+
 ```bash
-docker ps --filter "label=devcontainer.local_folder=*"
+devcontainer build \
+  --workspace-folder /abs/path/to/repo \
+  --image-name ghcr.io/example/service-devcontainer:latest
+```
+
+Push a multi-platform image:
+
+```bash
+devcontainer build \
+  --workspace-folder /abs/path/to/repo \
+  --platform linux/amd64,linux/arm64 \
+  --image-name ghcr.io/example/service-devcontainer:latest \
+  --push
+```
+
+## Rerun Hooks or Attach to Existing Containers
+
+Rerun user commands after fixing a broken hook:
+
+```bash
+devcontainer run-user-commands \
+  --workspace-folder /abs/path/to/repo \
+  --log-level debug
+```
+
+Set up a container that already exists:
+
+```bash
+devcontainer set-up \
+  --container-id <container-id> \
+  --config /abs/path/to/repo/.devcontainer/devcontainer.json
+```
+
+## Maintenance
+
+Check version drift:
+
+```bash
+devcontainer outdated --workspace-folder /abs/path/to/repo --output-format json
+```
+
+Preview lockfile updates:
+
+```bash
+devcontainer upgrade --workspace-folder /abs/path/to/repo --dry-run
+```
+
+## Features and Templates
+
+Inspect a published Feature:
+
+```bash
+devcontainer features info manifest ghcr.io/devcontainers/features/node:1
+```
+
+Apply a published Template:
+
+```bash
+devcontainer templates apply \
+  --workspace-folder /abs/path/to/repo \
+  --template-id ghcr.io/devcontainers/templates/node:latest
 ```

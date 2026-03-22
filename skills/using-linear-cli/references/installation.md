@@ -1,42 +1,93 @@
-# Using Linear CLI: Installation
+# Linear CLI: Installation
 
-## Install Command
+## Install
 
-Install the `linear` CLI globally using `npm`:
+**Homebrew (macOS/Linux, recommended):**
+
+```bash
+brew install schpet/tap/linear
+```
+
+**npm (global):**
 
 ```bash
 npm install -g @schpet/linear-cli
 ```
 
-Alternatively, use `npx @schpet/linear-cli <args>` if global installation is restricted.
+**Deno (via JSR):**
 
-## Verification
+```bash
+deno install -A --reload -f -g -n linear jsr:@schpet/linear-cli
+```
 
-Check the version and ensure the binary is in your `PATH`:
+**npx (no install, any environment):**
+
+```bash
+npx @schpet/linear-cli issue list
+```
+
+**Pre-built binaries** are available at
+`https://github.com/schpet/linear-cli/releases/latest` for macOS, Linux, and
+Windows.
+
+## Verify
 
 ```bash
 linear --version
 ```
 
-## Authentication
+## Authenticate
 
-Run the login command to configure your API key:
+**Interactive (first time):**
 
 ```bash
 linear auth login
 ```
 
-- Follow the prompt to open your browser and generate an API key.
-- Paste the key back into the terminal.
-- For automation, use the `LINEAR_API_KEY` environment variable or `linear auth login --key <key>`.
+Follow the prompt to open `linear.app/settings/account/security`, create a
+personal API key (prefix: `lin_api_...`), and paste it into the terminal. Keys
+are stored in the OS native keyring (macOS Keychain, Linux libsecret, Windows
+Credential Manager).
 
-## Multi-Workspace Setup
-
-The CLI supports multiple workspace credentials:
+**Non-interactive / CI:**
 
 ```bash
-linear auth login -w personal
-linear auth login -w archive
-linear auth list
-linear auth default archive
+linear auth login --key "$LINEAR_API_KEY"
+# or just set the env var — no login command needed:
+export LINEAR_API_KEY=lin_api_...
 ```
+
+**Multi-workspace:**
+
+```bash
+linear auth login            # first workspace becomes default
+linear auth login            # add a second workspace
+linear auth list             # see all workspaces (* = default)
+linear auth default <slug>   # change the default
+```
+
+## Shell completions
+
+```bash
+linear completions           # outputs completion script (bash/zsh/fish)
+```
+
+Pipe to your shell's completions directory per its documentation.
+
+## Configuration file (`.linear.toml`)
+
+Run `linear config` to generate one interactively. The file is looked up from
+`./linear.toml` up to `<repo-root>/.linear.toml` and
+`$XDG_CONFIG_HOME/linear/linear.toml`.
+
+Key fields:
+
+```toml
+team_id        = "ENG"         # default team key
+workspace      = "mycompany"   # workspace slug
+issue_sort     = "priority"    # "priority" or "manual"
+vcs            = "git"         # "git" or "jj"
+```
+
+Any field can be overridden with an env var:
+`LINEAR_TEAM_ID`, `LINEAR_WORKSPACE`, `LINEAR_ISSUE_SORT`, `LINEAR_VCS`.

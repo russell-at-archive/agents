@@ -1,286 +1,531 @@
-# Using argo (Argo Workflows CLI): Overview
+# Argo Workflows CLI: Overview
 
 ## Contents
 
 - Environment and authentication
-- Command posture
-- Submitting workflows
-- Monitoring and inspection
-- Workflow lifecycle management
+- Global flags
+- Submit workflows
+- List and inspect
+- Stream logs
+- Workflow lifecycle (wait, watch, stop, terminate, suspend, resume)
+- Retry and resubmit
+- Delete workflows
+- Lint and validate
 - Template management
 - Cron workflow management
+- Cluster template management
+- Archive operations
+- Node operations
 - Output formats
-- High-signal command set
+- Node field selectors
+
+---
 
 ## Environment and Authentication
 
-Set these environment variables before running any command:
-
 ```bash
-export ARGO_SERVER=<host>:<port>        # e.g. localhost:2746
-export ARGO_TOKEN="Bearer <token>"      # must include "Bearer " prefix
-export ARGO_NAMESPACE=<namespace>       # optional namespace default
-export ARGO_SECURE=true                 # set false only for local dev
+export ARGO_SERVER=argo.example.com:2746   # host:port — NO https:// prefix
+export ARGO_TOKEN="Bearer <token>"          # literal "Bearer " prefix required
+export ARGO_NAMESPACE=argo                  # optional default namespace
+export ARGO_SECURE=true                     # false only for non-TLS local dev
+export ARGO_INSECURE_SKIP_VERIFY=false      # corresponds to -k flag
 ```
 
-Generate a token for automation:
+Check what token the CLI is using: `argo auth token`
+
+Skip TLS verification (non-production only):
 
 ```bash
-argo auth token
+argo list -n argo -k
+# or
+export ARGO_INSECURE_SKIP_VERIFY=true
 ```
 
-To run against a local port-forwarded server without TLS:
+---
+
+## Global Flags
+
+These flags work on every subcommand:
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--namespace` | `-n` | Kubernetes namespace (always pass explicitly) |
+| `--argo-server` | `-s` | API server host:port (overrides ARGO_SERVER) |
+| `--token` | | Bearer token (overrides ARGO_TOKEN) |
+| `--secure` | `-e` | Use TLS (default: true) |
+| `--insecure-skip-verify` | `-k` | Skip cert validation (non-production only) |
+| `--kubeconfig` | | Path to kubeconfig |
+| `--context` | | Kubeconfig context name |
+| `--loglevel` | | debug\|info\|warn\|error |
+| `--verbose` | `-v` | Shorthand for --loglevel debug |
+| `--output` | `-o` | name\|json\|yaml\|wide (where applicable) |
+| `--request-timeout` | | Per-request timeout |
+| `--instanceid` | | Controller instance ID label |
+
+---
+
+## Submit Workflows
 
 ```bash
-export ARGO_SERVER=localhost:2746
-export ARGO_SECURE=false
-export ARGO_TOKEN=""
+argo submit -n <ns> workflow.yaml
 ```
 
-To skip TLS verification (non-production only):
+Key flags:
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--wait` | `-w` | Block until done; exit non-zero on failure |
+| `--watch` | | Stream live node-tree until done |
+| `--log` | | Stream logs until done |
+| `--parameter` | `-p` | Override input parameter: `-p key=value` (repeatable) |
+| `--parameter-file` | `-f` | YAML/JSON file of all input parameters |
+| `--from` | | Submit from existing resource: `workflowtemplate/<name>`, `cronwf/<name>`, `clusterworkflowtemplate/<name>` |
+| `--entrypoint` | | Override `spec.entrypoint` |
+| `--name` | | Override `metadata.name` |
+| `--generate-name` | | Override `metadata.generateName` |
+| `--labels` | `-l` | Comma-separated labels to apply |
+| `--serviceaccount` | | Run all pods as this service account |
+| `--priority` | | Workflow priority |
+| `--dry-run` | | Resolve and print spec client-side without creating |
+| `--server-dry-run` | | Server validates without persisting |
+| `--output` | `-o` | name\|json\|yaml\|wide |
 
 ```bash
-argo list -n <namespace> --insecure-skip-verify
+# CI-safe: submit and wait, exit non-zero on failure
+argo submit -n argo workflow.yaml --wait
+
+# Capture workflow name for later use
+NAME=$(argo submit -n argo workflow.yaml -o name)
+
+# Submit from template with parameters
+argo submit -n argo --from workflowtemplate/ci-pipeline \
+  -p branch=main -p commit=abc1234 --wait
+
+# Submit with parameter file
+argo submit -n argo workflow.yaml -f params.yaml --wait
+
+# Server-side validate without creating
+argo submit -n argo workflow.yaml --server-dry-run
+
+# Preview resolved spec client-side
+argo submit -n argo workflow.yaml --dry-run -o yaml
 ```
 
-## Command Posture
+---
 
-Treat every `argo` session as a sequence:
-
-1. Scope: set namespace and server.
-2. Observe: inspect state with read-only commands.
-3. Decide: identify the required action.
-4. Act: execute with explicit flags.
-5. Verify: confirm outcome with `argo get` or `argo list`.
-
-Never begin with destructive commands (`delete`, `stop`, `terminate`)
-without first running `argo get` to confirm the target.
-
-## Submitting Workflows
-
-Basic submission:
+## List and Inspect
 
 ```bash
-argo submit -n <namespace> workflow.yaml
+argo list -n <ns>
+argo get -n <ns> <workflow-name>
+argo get -n <ns> @latest
 ```
 
-Submit with parameter overrides:
+### argo list flags
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--all-namespaces` | `-A` | Show all namespaces |
+| `--running` | | Show running workflows only |
+| `--completed` | | Show completed workflows only |
+| `--status` | | Filter: `Pending,Running,Succeeded,Failed,Error` |
+| `--prefix` | | Filter by name prefix |
+| `--selector` | `-l` | Label selector |
+| `--field-selector` | | Field query filter |
+| `--since` | | Show workflows created after duration (e.g. `1h`) |
+| `--older` | | Show completed workflows finished before duration (e.g. `7d`) |
+| `--output` | `-o` | name\|json\|yaml\|wide |
+| `--limit` | | Maximum results |
+| `--chunk-size` | | Paginate large lists |
+| `--no-headers` | | Suppress column headers |
 
 ```bash
-argo submit -n <namespace> workflow.yaml \
-  -p message="hello world" \
-  -p env="production"
+argo list -n argo --running
+argo list -n argo --status Failed,Error
+argo list -n argo --prefix nightly- --completed
+argo list -n argo --since 1h
+argo list -n argo --completed --older 7d
+argo list -n argo -A -o wide
 ```
 
-Submit and wait for completion (CI-safe):
+### argo get flags
+
+| Flag | Description |
+|------|-------------|
+| `--output` / `-o` | name\|json\|yaml\|short\|wide |
+| `--node-field-selector` | Filter displayed nodes |
+| `--status` | Filter nodes by phase |
+| `--no-color` | Suppress colored output |
 
 ```bash
-argo submit -n <namespace> workflow.yaml --wait
+argo get -n argo my-workflow -o yaml
+argo get -n argo my-workflow -o json | jq '.status.phase'
+argo get -n argo my-workflow --node-field-selector phase=Failed
 ```
 
-Submit and stream logs while watching:
+---
+
+## Stream Logs
 
 ```bash
-argo submit -n <namespace> workflow.yaml --watch
+argo logs -n <ns> <workflow-name> [pod-name]
 ```
 
-Submit from a workflow template:
+Omit `pod-name` to aggregate logs across all pods. Include it to target a
+specific step's pod.
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--follow` | `-f` | Stream continuously |
+| `--tail` | | Return last N lines |
+| `--since` | | Only logs newer than duration (e.g. `5m`) |
+| `--since-time` | | Only logs after RFC3339 timestamp |
+| `--grep` | | Filter lines matching pattern |
+| `--timestamps` | | Prefix each line with timestamp |
+| `--no-color` | | Suppress colorized output (useful for piping) |
+| `--container` | `-c` | Container name (default: `main`) |
+| `--previous` | `-p` | Logs from previous (terminated) container |
+| `--selector` | `-l` | Pod label selector |
 
 ```bash
-argo submit -n <namespace> --from workflowtemplate/<template-name>
+argo logs -n argo my-workflow --follow
+argo logs -n argo my-workflow --tail=200 --timestamps
+argo logs -n argo my-workflow --grep "ERROR"
+argo logs -n argo my-workflow --since=10m
+argo logs -n argo my-workflow <pod-name> --previous   # crashed container
+argo logs -n argo my-workflow --no-color | grep WARN  # pipe-friendly
 ```
 
-Override entrypoint:
+---
+
+## Wait and Watch
+
+### argo wait
+
+Block until the workflow reaches a terminal state. Use when you submitted
+without `--wait`.
 
 ```bash
-argo submit -n <namespace> workflow.yaml \
-  --entrypoint <template-name>
+argo wait -n argo my-workflow
+argo wait -n argo my-workflow --ignore-not-found
 ```
 
-Dry-run validation (prints resolved spec without submitting):
+### argo watch
+
+Render a live-updating node-tree until completion (interactive terminal use).
 
 ```bash
-argo submit -n <namespace> workflow.yaml --dry-run
+argo watch -n argo my-workflow
+argo watch -n argo my-workflow --node-field-selector phase=Running
 ```
 
-## Monitoring and Inspection
+---
 
-List workflows (defaults to running):
+## Stop and Terminate
+
+### argo stop (graceful)
+
+Marks the workflow as `Stopped` and allows exit handlers to run. Prefer this
+over `terminate` when cleanup matters.
 
 ```bash
-argo list -n <namespace>
-argo list -n <namespace> --all-namespaces
-argo list -n <namespace> --running
-argo list -n <namespace> --completed
-argo list -n <namespace> --failed
+argo stop -n argo my-workflow
+argo stop -n argo my-workflow --message "stopped: maintenance window"
+argo stop -n argo -l app=myapp --dry-run
 ```
 
-Get full workflow status:
+Flags: `--message`, `--node-field-selector`, `--selector`/`-l`,
+`--field-selector`, `--dry-run`
+
+### argo terminate (hard stop)
+
+Immediately kills the workflow without running exit handlers. Use only when
+`stop` is insufficient.
 
 ```bash
-argo get -n <namespace> <workflow-name>
-argo get -n <namespace> @latest
+argo terminate -n argo my-workflow
+argo terminate -n argo -l app=myapp --dry-run
 ```
 
-Stream logs for a workflow:
+---
+
+## Suspend and Resume
+
+### argo suspend
+
+Pauses the workflow at the next `suspend` template node; does not kill running
+pods.
 
 ```bash
-argo logs -n <namespace> <workflow-name>
-argo logs -n <namespace> <workflow-name> --follow
-argo logs -n <namespace> <workflow-name> -c main --tail=200
+argo suspend -n argo my-workflow
 ```
 
-Stream logs for a specific pod/step:
+### argo resume
+
+Releases a suspended workflow. Target a specific node with
+`--node-field-selector` to approve a named approval step.
 
 ```bash
-argo logs -n <namespace> <workflow-name> <pod-name>
+argo resume -n argo my-workflow
+argo resume -n argo my-workflow --node-field-selector displayName=await-approval
 ```
 
-## Workflow Lifecycle Management
+---
 
-### Stop
+## Retry and Resubmit
 
-Gracefully stop a running workflow (marks as stopped, allows cleanup):
+**Key distinction:**
+- `argo retry` — resets failed/error nodes in-place on the same workflow object
+- `argo resubmit` — creates a new workflow object (new name, fresh state)
+
+### argo retry
 
 ```bash
-argo stop -n <namespace> <workflow-name>
+argo retry -n argo my-workflow
 ```
 
-### Terminate
-
-Immediately terminate a workflow without cleanup:
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--node-field-selector` | | Scope retry to matching nodes |
+| `--restart-successful` | | Also restart successful nodes in the selector scope |
+| `--parameter` | `-p` | Override input parameters |
+| `--wait` | `-w` | Wait for completion |
+| `--watch` | | Watch until completion |
+| `--selector` | `-l` | Label selector for bulk retry |
+| `--field-selector` | | Field selector for bulk retry |
 
 ```bash
-argo terminate -n <namespace> <workflow-name>
+# Retry from a specific step (resets it and all downstream)
+argo retry -n argo my-workflow \
+  --node-field-selector templateName=build-step \
+  --restart-successful
+
+# Retry all failed workflows with a label
+argo retry -n argo -l app=myapp
+
+# Retry with parameter override
+argo retry -n argo my-workflow -p env=production --wait
 ```
 
-### Suspend and Resume
-
-Pause a running workflow at the next suspend node:
+### argo resubmit
 
 ```bash
-argo suspend -n <namespace> <workflow-name>
+argo resubmit -n argo my-workflow
 ```
 
-Resume a suspended workflow:
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--memoized` | | Re-use successful steps and outputs from the previous run |
+| `--parameter` | `-p` | Override input parameters |
+| `--priority` | | Set workflow priority |
+| `--wait` | `-w` | Wait for completion |
+| `--watch` | | Watch until completion |
 
 ```bash
-argo resume -n <namespace> <workflow-name>
+# Resubmit reusing cached successful steps (most common recovery pattern)
+argo resubmit -n argo my-workflow --memoized --wait
+
+# Resubmit with new parameters
+argo resubmit -n argo my-workflow -p env=production --wait
 ```
 
-### Retry
+---
 
-Retry a failed workflow from the point of failure:
+## Delete Workflows
+
+Always dry-run first for bulk operations.
 
 ```bash
-argo retry -n <namespace> <workflow-name>
+argo delete -n argo my-workflow
+argo delete -n argo --completed --dry-run
+argo delete -n argo --completed
+argo delete -n argo --completed --older 7d
+argo delete -n argo --status Failed,Error
+argo delete -n argo --prefix nightly- --completed
 ```
 
-Retry only failed nodes:
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--all` | | Delete all workflows in namespace |
+| `--completed` | | Delete completed workflows |
+| `--older` | | Delete completed workflows finished before duration |
+| `--status` | | Delete by status (comma-separated) |
+| `--prefix` | | Delete by name prefix |
+| `--selector` | `-l` | Label selector |
+| `--field-selector` | | Field selector |
+| `--force` | | Force delete by removing finalizers |
+| `--dry-run` | | Print what would be deleted without deleting |
 
-```bash
-argo retry -n <namespace> <workflow-name> \
-  --node-field-selector phase=Failed
-```
+---
 
-Retry and restart successful steps too:
-
-```bash
-argo retry -n <namespace> <workflow-name> \
-  --restart-successful \
-  --node-field-selector templateName=<step-name>
-```
-
-### Delete
-
-Delete a completed or failed workflow:
-
-```bash
-argo delete -n <namespace> <workflow-name>
-```
-
-Delete completed workflows older than a duration:
-
-```bash
-argo delete -n <namespace> --completed
-```
-
-## Template Management
-
-Lint a workflow spec before submission:
+## Lint and Validate
 
 ```bash
 argo lint workflow.yaml
-argo lint workflows/
+argo lint workflows/               # entire directory
+argo lint --offline workflow.yaml  # no server connection needed
+argo lint --kinds=workflowtemplates templates/
+argo lint --output=simple workflow.yaml  # machine-parseable
 ```
 
-List, get, and delete workflow templates:
+Flags: `--kinds` (workflows\|workflowtemplates\|cronworkflows\|clusterworkflowtemplates),
+`--offline`, `--output` (pretty\|simple), `--strict`
+
+---
+
+## Template Management
 
 ```bash
-argo template list -n <namespace>
-argo template get -n <namespace> <template-name>
-argo template delete -n <namespace> <template-name>
+argo template list -n argo
+argo template get -n argo my-template
+argo template get -n argo my-template -o yaml
+argo template create -n argo template.yaml
+argo template update -n argo template.yaml
+argo template lint template.yaml
+argo template delete -n argo my-template
 ```
 
-Create or update a workflow template:
-
-```bash
-argo template create -n <namespace> template.yaml
-```
+---
 
 ## Cron Workflow Management
 
-List cron workflows:
-
 ```bash
-argo cron list -n <namespace>
+argo cron list -n argo
+argo cron get -n argo nightly-report
+argo cron get -n argo nightly-report -o yaml
+argo cron create -n argo cron.yaml
+argo cron update -n argo cron.yaml
+argo cron lint cron.yaml
+argo cron suspend -n argo nightly-report
+argo cron resume -n argo nightly-report
+argo cron delete -n argo nightly-report
 ```
 
-Get a cron workflow:
+Key status fields on `cron get`: `suspended`, `lastScheduledTime`, `active`
+(currently running instances).
+
+---
+
+## Cluster Template Management
+
+Cluster workflow templates are cluster-scoped (no namespace). They can be
+referenced by workflows in any namespace.
 
 ```bash
-argo cron get -n <namespace> <cron-name>
+argo cluster-template list
+argo cluster-template get my-cluster-template
+argo cluster-template get my-cluster-template -o yaml
+argo cluster-template create cluster-template.yaml
+argo cluster-template update cluster-template.yaml
+argo cluster-template lint cluster-template.yaml
+argo cluster-template delete my-cluster-template
 ```
 
-Create a cron workflow:
+Submit a workflow from a cluster template:
 
 ```bash
-argo cron create -n <namespace> cron.yaml
+argo submit -n argo --from clusterworkflowtemplate/my-cluster-template \
+  -p param1=value1 --wait
 ```
 
-Suspend and resume a cron workflow:
+---
+
+## Archive Operations
+
+Archived workflows are identified by **UID** (not name). Archiving must be
+enabled in the workflow-controller-configmap.
 
 ```bash
-argo cron suspend -n <namespace> <cron-name>
-argo cron resume -n <namespace> <cron-name>
+argo archive list -n argo
+argo archive list -n argo -o wide
+argo archive get <uid>
+argo archive list-label-keys -n argo
+argo archive list-label-values -n argo --label-key=app
+argo archive retry <uid> -n argo
+argo archive resubmit <uid> -n argo
+argo archive delete <uid>
 ```
 
-Delete a cron workflow:
+---
+
+## Node Operations
+
+Used to inject output parameters into a waiting node or manually set node
+phase for testing. The `supplied` output parameter type must be declared in
+the workflow template.
 
 ```bash
-argo cron delete -n <namespace> <cron-name>
+# Provide a "supplied" output parameter to unblock a waiting node
+argo node -n argo my-workflow \
+  --node-field-selector displayName=await-approval \
+  --output-parameter approved=true
+
+# Set a message on a node
+argo node -n argo my-workflow \
+  --node-field-selector displayName=await-approval \
+  --message "approved by operator"
+
+# Manually complete a node (testing/debug only)
+argo node -n argo my-workflow \
+  --node-field-selector displayName=manual-step \
+  --phase Succeeded
 ```
+
+---
 
 ## Output Formats
 
-Control output verbosity:
+| Value | Description |
+|-------|-------------|
+| `name` | Workflow name only — scriptable |
+| `json` | Full JSON — pipe to `jq` |
+| `yaml` | Full YAML |
+| `wide` | Extended table with extra columns |
+| `short` | Compact summary (argo get only) |
 
 ```bash
-argo get -n <namespace> <workflow-name> -o yaml   # full YAML spec
-argo get -n <namespace> <workflow-name> -o json   # JSON
-argo list -n <namespace> -o wide                  # wide table
+# Extract phase for CI gate
+argo get -n argo my-workflow -o json | jq -r '.status.phase'
+
+# Get failed node names
+argo get -n argo my-workflow -o json \
+  | jq '.status.nodes | to_entries[]
+        | select(.value.phase=="Failed")
+        | .value.displayName'
+
+# Capture name at submit time
+NAME=$(argo submit -n argo workflow.yaml -o name)
+# NAME is: workflow.argoproj.io/my-wf-abc12
+# Strip prefix for use in subsequent commands:
+WF=${NAME#workflow.argoproj.io/}
 ```
 
-## High-Signal Command Set
+---
 
-Keep these commands close:
+## Node Field Selectors
 
-- Auth: `auth token`
-- Discovery: `list`, `get @latest`
-- Submission: `submit`, `submit --from`, `submit --wait`
-- Lifecycle: `suspend`, `resume`, `retry`, `stop`, `terminate`, `delete`
-- Logs: `logs --follow`, `logs --tail`
-- Templates: `lint`, `template list`, `template get`
-- Cron: `cron list`, `cron suspend`, `cron resume`
+Used with `--node-field-selector` in: `retry`, `resume`, `stop`, `watch`,
+`get`, `submit`, `node`. Syntax: `FIELD=VALUE` or `FIELD!=VALUE`. Multiple
+selectors are AND-ed (comma-separated).
 
-Use `argo <command> --help` when uncertain about available flags.
+| Field | Example |
+|-------|---------|
+| `displayName` | `displayName=build` |
+| `name` | `name=my-wf.step1.substep` |
+| `templateName` | `templateName=build-image` |
+| `phase` | `phase=Failed` |
+| `id` | `id=my-wf-1234567890` |
+| `templateRef.name` | `templateRef.name=ci-templates` |
+| `templateRef.template` | `templateRef.template=build-step` |
+| `inputs.parameters.<NAME>.value` | `inputs.parameters.env.value=production` |
+
+```bash
+# Retry only the failed nodes in a specific template
+argo retry -n argo my-workflow --node-field-selector templateName=deploy,phase=Failed
+
+# Resume a named approval step
+argo resume -n argo my-workflow --node-field-selector displayName=manual-approval
+
+# Inspect only failed nodes
+argo get -n argo my-workflow --node-field-selector phase=Failed
+```

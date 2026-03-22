@@ -1,95 +1,95 @@
 # Troubleshooting
 
-## Red Flags
+## Common Failures
 
+### Wrong Instance Or Repo
 
-Stop and correct if any of these appear:
+Symptoms:
 
-- Interactive prompts in automation context
-- Mutations without explicit project confirmation
-- Wrong object type or ID (issue vs MR IID, job vs pipeline ID)
-- Parsing table output when JSON output exists
+- `404 Not Found` for a known object
+- command succeeds against the wrong project
 
-## Common Failures and Fixes
+Checks:
 
-### Authentication failures
+```bash
+glab auth status
+glab repo view
+glab mr list -R group/project --output json
+```
+
+Fix:
+
+- pass `-R/--repo` explicitly on follow-up commands
+- re-auth against the correct hostname if the wrong instance is selected
+
+### Authentication Or Token Scope
 
 Symptoms:
 
 - `401 Unauthorized`
-- `authentication required`
-
-Fix:
-
-```bash
-glab auth status
-glab auth login --hostname gitlab.com
-```
-
-If token-based auth is required, re-run with a valid token input path.
-
-### Wrong repository scope
-
-Symptoms:
-
-- command succeeds but data is from a different project
-- `404 Not Found` for known objects
-
-Fix:
-
-```bash
-glab repo view
-glab mr list -R <group>/<project> --state opened --output json
-```
-
-Use `-R/--repo` explicitly for all follow-up writes.
-
-### Permission denied on write operations
-
-Symptoms:
-
 - `403 Forbidden`
-- cannot merge, close, or create resources
+- prompts to log in despite existing config
+
+Checks:
+
+```bash
+glab auth status --all
+env | rg '^(GITLAB|GLAB|OAUTH|CI_)'
+```
 
 Fix:
 
-- Verify GitLab role for target project/group.
-- Confirm branch protection and merge permissions.
-- Fall back to read-only commands and report the blocked action.
+- remember that `GITLAB_TOKEN`, `GITLAB_ACCESS_TOKEN`, and `OAUTH_TOKEN`
+  override stored credentials
+- for PAT login, prefer `glab auth login --stdin`
+- for CI jobs, confirm the command supports `CI_JOB_TOKEN`
 
-### CI inspection confusion
+### Interactive Prompt Dead-End
 
 Symptoms:
 
-- wrong ID passed to `glab ci view`
-- command output does not match intended pipeline/job
+- command hangs waiting for editor, browser, or prompt input
+
+Fix:
+
+- add explicit flags such as `--title`, `--description`, `--yes`, `--web=false`
+  where supported
+- set `NO_PROMPT=true` in automation if needed
+
+### CI Object Confusion
+
+Symptoms:
+
+- wrong result from `glab ci view`
+- job ID used where a pipeline ID was expected
 
 Fix:
 
 ```bash
 glab ci list
 glab ci view <id>
+glab ci trace <id>
 ```
 
-Select the ID directly from the list output before rerunning.
+Re-select the ID from the list before retrying writes.
 
-### API request shape errors
+### API Shape Errors
 
 Symptoms:
 
 - `400 Bad Request`
-- missing required parameters
+- missing field or invalid method
 
 Fix:
 
-- Add explicit method with `-X`.
-- Pass typed fields with `-F` instead of string concatenation.
-- Use `--paginate` for complete list retrieval.
+- add explicit `-X GET|POST|PUT|DELETE`
+- prefer `-F` fields over hand-built query strings
+- add `--paginate` for complete list retrieval
 
 ## Recovery Pattern
 
-1. Reproduce with a read-only command first.
-2. Confirm auth and repository scope.
-3. Re-run with explicit flags and JSON output if supported.
-4. Verify the result with a second read command.
-5. Report exact command, error text, and next action.
+1. Reproduce with a read-only command.
+2. Confirm host, auth source, and repo scope.
+3. Re-run with explicit flags and structured output.
+4. Verify the resource state after the command.
+5. Report the exact failure and next corrective action.

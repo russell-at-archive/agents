@@ -1,210 +1,261 @@
-# Using argo (Argo Workflows CLI): Troubleshooting
+# Argo Workflows CLI: Troubleshooting
 
 ## Contents
 
 - Server unreachable
 - Authentication denied
+- TLS errors
 - Version mismatch errors
 - Workflow stuck in Pending
-- Step in Error state
+- Step in Error state (vs. Failed)
 - CrashLoopBackOff in workflow pod
-- Workflow never reaches a step
+- Workflow never reaches a step (Omitted)
 - Retry does not re-run expected steps
 - Cron workflow not triggering
-- Unsafe command patterns to stop
+- Unsafe command patterns
+
+---
 
 ## Server Unreachable
 
-Symptoms:
-
-- `dial tcp: connection refused`
-- `transport: Error while dialing`
-
-Checks:
+Symptoms: `dial tcp: connection refused`, `transport: Error while dialing`
 
 ```bash
-echo $ARGO_SERVER
-echo $ARGO_SECURE
+echo $ARGO_SERVER    # must be host:port with NO https:// prefix
+echo $ARGO_SECURE    # false for local dev, true for remote
+kubectl get pods -n argo -l app=argo-server
 kubectl get svc -n argo
-kubectl port-forward svc/argo-server 2746:2746 -n argo
 ```
 
 Fix:
 
-- Set `ARGO_SERVER` to `<host>:<port>` without `https://` prefix.
-- Set `ARGO_SECURE=false` for local port-forwarded access.
-- Confirm the Argo Server pod is running in the target namespace.
+- `ARGO_SERVER` must be `host:port` format — no scheme prefix.
+- Set `ARGO_SECURE=false` for local port-forwarded connections.
+- Port-forward if you cannot reach the server directly:
+
+```bash
+kubectl port-forward svc/argo-server 2746:2746 -n argo
+export ARGO_SERVER=localhost:2746
+export ARGO_SECURE=false
+```
+
+---
 
 ## Authentication Denied
 
-Symptoms:
-
-- `code = Unauthenticated`
-- `401 Unauthorized`
-
-Checks:
+Symptoms: `code = Unauthenticated`, `401 Unauthorized`
 
 ```bash
-argo auth token
-echo $ARGO_TOKEN
+argo auth token      # print what token the CLI is using
+echo $ARGO_TOKEN     # must start with "Bearer " (space included)
 ```
 
 Fix:
 
-- Ensure `ARGO_TOKEN` starts with `"Bearer "` (including the space).
-- Re-generate the token from the service account secret if expired.
-- Confirm the service account has correct RBAC roles in the target
+- `ARGO_TOKEN` must be exactly `"Bearer <token>"` — the literal `Bearer `
+  prefix including the space is required.
+- If the token is expired, re-generate from the service account secret:
+
+```bash
+TOKEN=$(kubectl get secret ci-runner.service-account-token \
+  -n argo -o jsonpath='{.data.token}' | base64 -d)
+export ARGO_TOKEN="Bearer $TOKEN"
+```
+
+- Confirm the service account has the required RBAC verbs in the target
   namespace.
+
+---
+
+## TLS Errors
+
+Symptoms: `x509: certificate signed by unknown authority`,
+`tls: failed to verify certificate`
+
+For development / self-signed certs:
+
+```bash
+argo list -n argo -k                         # per-command
+export ARGO_INSECURE_SKIP_VERIFY=true        # session-wide
+```
+
+For production, supply the CA certificate:
+
+```bash
+argo list -n argo --certificate-authority /path/to/ca.crt
+```
+
+Never use `-k` / `--insecure-skip-verify` in production without explicit
+approval from the security owner.
+
+---
 
 ## Version Mismatch Errors
 
-Symptoms:
-
-- `unknown flag` errors
-- Unexpected output format
-- Missing commands that exist in docs
-
-Checks:
+Symptoms: `unknown flag`, missing subcommands, unexpected output format
 
 ```bash
+# Check CLI version
 argo version
-kubectl -n argo get deploy argo-server -o jsonpath='{.spec.template.spec.containers[0].image}'
+
+# Find server version
+kubectl -n argo get deploy argo-server \
+  -o jsonpath='{.spec.template.spec.containers[0].image}'
 ```
 
-Fix:
+Fix: Download the CLI matching the server version. The server exposes its own
+matching binary at its `/assets` endpoint — no GitHub lookup required:
 
-- Download the CLI version matching the server from the server's
-  `/assets` endpoint or GitHub releases.
-- Never mix major versions between CLI and server.
+```bash
+curl -sL https://<argo-server-host>/assets/argo-linux-amd64.gz \
+  | gunzip > argo && chmod +x argo && sudo mv argo /usr/local/bin/argo
+```
+
+---
 
 ## Workflow Stuck in Pending
 
-Symptoms:
-
-- `argo get` shows `Running` but all steps show `Pending`
-- Pods never appear with `kubectl get pods`
-
-Checks:
+Symptoms: `argo get` shows `Running` but all steps are `Pending`; pods never
+appear in `kubectl get pods`
 
 ```bash
-kubectl describe pod -n <namespace> -l workflows.argoproj.io/workflow=<name>
-kubectl get events -n <namespace> --sort-by=.lastTimestamp
+kubectl get pods -n argo -l workflows.argoproj.io/workflow=<name>
+kubectl describe pod -n argo <pod-name>
+kubectl get events -n argo --sort-by=.lastTimestamp | tail -20
 kubectl top nodes
 ```
 
 Fix:
 
-- Check for node resource pressure (CPU, memory, ephemeral storage).
-- Resolve taints/tolerations or affinity constraints on the pod spec.
-- Confirm image pull secrets are present if using a private registry.
+- **Resource pressure**: nodes are out of CPU/memory/storage. Adjust resource
+  requests in the workflow template or add cluster capacity.
+- **Taint/toleration mismatch**: add tolerations to the workflow pod spec or
+  choose a different node pool.
+- **Image pull failure**: the pod cannot pull the container image. Check
+  `imagePullSecrets` and registry access.
+- **PVC not bound**: if the workflow uses a volume, confirm the PVC bound to a PV.
 
-## Step in Error State
+---
 
-Symptoms:
+## Step in Error State (vs. Failed)
 
-- `argo get` shows a step in `Error` (not `Failed`)
-- Step errored before the container ran
+This distinction matters for how you diagnose and fix the issue.
 
-Checks:
+- **`Failed`**: the container ran and exited with a non-zero exit code. Read
+  `argo logs` to see what the script/process output.
+- **`Error`**: the pod never successfully ran the container — this is a
+  Kubernetes-level failure (scheduling, image pull, init container,
+  config map not found, etc.). `argo logs` will often be empty.
 
 ```bash
-argo get -n <namespace> <workflow-name> -o yaml
-argo logs -n <namespace> <workflow-name> --follow
-kubectl describe pod -n <namespace> <pod-name>
+# For Error: read pod events, not logs
+argo get -n argo my-workflow -o yaml   # check node message field
+kubectl describe pod -n argo <pod-name>
+
+# For Failed: read logs
+argo logs -n argo my-workflow <pod-id>
+argo logs -n argo my-workflow <pod-id> --previous  # if container restarted
 ```
 
-Fix:
-
-- `Error` usually indicates a Kubernetes-level failure (scheduling,
-  image pull, init container). Read pod events, not just logs.
-- Fix the underlying resource or spec issue before retrying.
+---
 
 ## CrashLoopBackOff in Workflow Pod
 
-Symptoms:
-
-- Pod status shows `CrashLoopBackOff` in `kubectl get pods`
-- Argo step shows `Failed`
-
-Checks:
+Symptoms: pod status shows `CrashLoopBackOff`; Argo step shows `Failed`
 
 ```bash
-argo logs -n <namespace> <workflow-name> <pod-name> --previous
-kubectl describe pod -n <namespace> <pod-name>
+argo logs -n argo my-workflow <pod-name> --previous
+kubectl describe pod -n argo <pod-name>
 ```
 
 Fix:
 
-- Read the previous container logs for the actual exit reason.
-- Fix the script or command in the workflow template.
-- Use `argo retry` only after the root cause is resolved.
+- The previous container's logs contain the actual crash reason — read them
+  with `--previous`.
+- Fix the script, command, or entrypoint in the workflow template.
+- Only use `argo retry` after the root cause is resolved; retrying a broken
+  template just reproduces the crash.
 
-## Workflow Never Reaches a Step
+---
 
-Symptoms:
+## Workflow Never Reaches a Step (Omitted)
 
-- Workflow shows `Running` but downstream steps show `Omitted`
-
-Checks:
+Symptoms: workflow shows `Running` but downstream steps show `Omitted`
 
 ```bash
-argo get -n <namespace> <workflow-name>
+argo get -n argo my-workflow
+argo get -n argo my-workflow -o yaml
 ```
 
 Fix:
 
-- `Omitted` steps are skipped due to `when` conditions or DAG
-  dependencies not being met.
-- Review the upstream step output parameters referenced by `when:` clauses.
-- Use `--dry-run` to preview parameter resolution.
+- `Omitted` means the step was skipped because a `when:` condition evaluated
+  to false, or a DAG dependency was not satisfied.
+- Inspect the upstream step's output parameters that drive the `when:` expression.
+- Use `--dry-run` to preview parameter resolution before submitting.
+- For DAG: check the `dependencies` list — any dependency that failed or was
+  omitted propagates to dependents.
+
+---
 
 ## Retry Does Not Re-Run Expected Steps
 
-Symptoms:
-
-- `argo retry` completes but skips expected failed steps
-
-Checks:
+Symptoms: `argo retry` completes quickly but skips expected steps
 
 ```bash
-argo get -n <namespace> <workflow-name> -o yaml | grep phase
+argo get -n argo my-workflow -o json | jq '.status.nodes | to_entries[]
+  | {name: .value.displayName, phase: .value.phase}'
 ```
 
 Fix:
 
-- By default, `argo retry` only resets `Failed` and `Error` nodes.
-- Add `--restart-successful` with `--node-field-selector` to include
-  successful upstream steps in the retry scope.
+- By default, `argo retry` only resets `Failed` and `Error` nodes. Steps in
+  `Succeeded` state are left as-is.
+- Add `--restart-successful` together with `--node-field-selector` to include
+  successful steps in the retry scope:
+
+```bash
+argo retry -n argo my-workflow \
+  --node-field-selector templateName=flaky-step \
+  --restart-successful
+```
+
+- If you want a full re-run, use `argo resubmit` instead of `argo retry`.
+
+---
 
 ## Cron Workflow Not Triggering
 
-Symptoms:
-
-- Cron workflow shows no recent runs
-- `argo cron get` shows `suspended: true`
-
-Checks:
+Symptoms: no recent runs; `argo cron get` shows no activity
 
 ```bash
-argo cron get -n <namespace> <cron-name>
-kubectl get cronjob -n <namespace>
-kubectl get events -n <namespace> --sort-by=.lastTimestamp
+argo cron get -n argo <cron-name>
+kubectl get events -n argo --sort-by=.lastTimestamp
 ```
 
 Fix:
 
-- Run `argo cron resume -n <namespace> <cron-name>` if suspended.
-- Validate the cron schedule syntax (`* * * * *` format).
-- Check that the timezone field is set correctly if using non-UTC schedules.
+- **Suspended**: if `suspended: true`, run `argo cron resume -n argo <cron-name>`.
+- **Bad schedule**: verify the cron syntax is 5-field (`* * * * *`). The
+  `timezone` field uses IANA format (e.g. `America/New_York`).
+- **Controller unhealthy**: check workflow-controller pod logs for errors.
+- **Concurrent policy**: if `concurrencyPolicy: Forbid` and a previous run is
+  still active, the new run is skipped.
 
-## Unsafe Command Patterns to Stop
+```bash
+kubectl logs -n argo -l app=workflow-controller --tail=50
+```
 
-Stop and re-scope if any command includes:
+---
 
-- `argo delete -n <namespace> --all` — confirm scope before bulk deletes
-- `argo terminate` without first running `argo get` — may terminate the
-  wrong workflow
-- `--insecure-skip-verify` in shared or production clusters
-- Setting `ARGO_TOKEN` inline in shell scripts committed to source control
+## Unsafe Command Patterns
 
-Replace with explicit names, scoped selectors, and secrets management.
+Stop and re-scope before running any of these:
+
+| Pattern | Risk | Safer alternative |
+|---------|------|-------------------|
+| `argo delete -n <ns> --all` | Deletes every workflow in namespace | Use `--status`, `--prefix`, or `--older` to scope |
+| `argo terminate` without prior `argo get` | May terminate the wrong workflow | Always `argo get` first to confirm the target |
+| `--insecure-skip-verify` in production | Disables cert validation | Supply `--certificate-authority` with the CA cert |
+| `ARGO_TOKEN=...` inline in scripts committed to source control | Token leak | Use a secret manager or CI secret injection |
+| `argo delete -n <ns> --all-namespaces` | Cluster-wide deletion | Confirm scope with `argo list -A` first |

@@ -22,7 +22,7 @@ brew upgrade --cask cmux
 
 Download the latest DMG from GitHub releases and drag cmux to `/Applications`:
 
-```
+```txt
 https://github.com/manaflow-ai/cmux/releases/latest/download/cmux-macos.dmg
 ```
 
@@ -67,8 +67,8 @@ scrollback settings. Existing Ghostty configs work without modification.
 
 ## Official Resources
 
-- Homepage: https://cmux.com/
-- Getting started: https://cmux.com/docs/getting-started
-- API reference: https://cmux.com/docs/api
-- GitHub: https://github.com/manaflow-ai/cmux
-- Discord: https://discord.gg/xsgFEVrWCZ
+- [Homepage](https://cmux.com/)
+- [Getting started](https://cmux.com/docs/getting-started)
+- [API reference](https://cmux.com/docs/api)
+- [GitHub](https://github.com/manaflow-ai/cmux)
+- [Discord](https://discord.gg/xsgFEVrWCZ)

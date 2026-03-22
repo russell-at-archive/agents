@@ -1,0 +1,104 @@
+{
+  "skill_name": "writing-prompts",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm building a customer support chatbot for a SaaS product. I need a system prompt that makes it answer questions from our help docs, never make up features that don't exist, and politely redirect billing questions to the billing team. Can you write me a solid system prompt for this?",
+      "expected_output": "A complete, well-structured system prompt with: clear role definition, grounding instruction to stay within provided docs, explicit abstention path for unknown info, escalation path for billing questions, and tone/format guidance.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "1a",
+          "name": "has-source-grounding",
+          "description": "Prompt includes an explicit instruction to answer only from provided documentation"
+        },
+        {
+          "id": "1b",
+          "name": "has-billing-escalation",
+          "description": "Prompt includes a specific path to redirect billing questions to the billing team"
+        },
+        {
+          "id": "1c",
+          "name": "has-abstention-path",
+          "description": "Prompt includes what to say when the documentation doesn't cover a question (not just 'be honest')"
+        },
+        {
+          "id": "1d",
+          "name": "has-role-definition",
+          "description": "Prompt opens with a specific role or persona sentence, not a generic 'be helpful' line"
+        },
+        {
+          "id": "1e",
+          "name": "is-immediately-usable",
+          "description": "Output is a complete system prompt ready to copy-paste, not a template with unexplained placeholders"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My prompt keeps hallucinating. Here's what I have:\n\n'Summarize the key risks in the contract below and recommend whether to sign it.'\n\nThe model keeps making up risks that aren't in the contract. What's wrong and how do I fix it?",
+      "expected_output": "Diagnosis of the hallucination failure mode, explanation of why it's happening (no grounding constraint, no abstention path), and a rewritten prompt with: source-only constraint, quote-first pattern, null/unknown handling, and clear output format.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "2a",
+          "name": "names-hallucination-failure-mode",
+          "description": "Response correctly identifies this as a hallucination problem (not format or reasoning error)"
+        },
+        {
+          "id": "2b",
+          "name": "explains-root-cause",
+          "description": "Response explains WHY the original prompt hallucminates — missing grounding constraint, no abstention path, or equivalent"
+        },
+        {
+          "id": "2c",
+          "name": "provides-rewritten-prompt",
+          "description": "Response includes an actual rewritten prompt, not just advice or bullet points"
+        },
+        {
+          "id": "2d",
+          "name": "rewrite-has-source-constraint",
+          "description": "The rewritten prompt explicitly constrains the model to use only the provided contract"
+        },
+        {
+          "id": "2e",
+          "name": "rewrite-has-abstention-path",
+          "description": "The rewritten prompt tells the model what to do when something is uncertain or not in the contract"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need to classify customer support tickets by category: billing, technical, account, or feature-request. I want to use Claude for this at scale. Write me a production-ready prompt that's accurate and returns consistent JSON output I can parse reliably.",
+      "expected_output": "A production-quality prompt with: role/context, category definitions, 2-4 few-shot examples in XML tags, exact JSON output schema, instruction to output only JSON, and handling for ambiguous tickets.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "3a",
+          "name": "provides-complete-prompt",
+          "description": "Output is a full prompt ready to use, not just advice about how to write one"
+        },
+        {
+          "id": "3b",
+          "name": "includes-category-definitions",
+          "description": "Prompt defines what each category means, not just lists the names"
+        },
+        {
+          "id": "3c",
+          "name": "includes-few-shot-examples",
+          "description": "Prompt includes at least 2 concrete examples of ticket → category classification"
+        },
+        {
+          "id": "3d",
+          "name": "has-explicit-json-schema",
+          "description": "Prompt shows the exact JSON structure expected (field names and types)"
+        },
+        {
+          "id": "3e",
+          "name": "json-only-output-instruction",
+          "description": "Prompt explicitly instructs to output only JSON with no surrounding explanation or markdown"
+        }
+      ]
+    }
+  ]
+}

@@ -15,7 +15,8 @@ The Claude Agent SDK wraps the same tool loop, context management, and
 built-in tools that power Claude Code, exposing them as a Python or TypeScript
 library. Use this skill when building, reviewing, or debugging agents that
 call `query()` or `ClaudeSDKClient`. Full procedure and API reference:
-[references/overview.md](references/overview.md).
+[references/overview.md](references/overview.md). For package installation,
+read [references/installation.md](references/installation.md).
 
 ## When to Use
 
@@ -35,25 +36,23 @@ call `query()` or `ClaudeSDKClient`. Full procedure and API reference:
 
 - Python 3.10+ or Node.js 18+
 - `ANTHROPIC_API_KEY` set (or Bedrock/Vertex/Azure credentials configured)
-- Package installed:
-
-  ```bash
-  pip install claude-agent-sdk     # Python
-  npm install @anthropic-ai/claude-agent-sdk  # TypeScript
-  ```
+- Package installed. If missing, read
+  [references/installation.md](references/installation.md).
 
 ## Workflow
 
-1. Load [references/overview.md](references/overview.md) for the full API
+1. Verify the SDK package is installed. If missing, read
+   [references/installation.md](references/installation.md).
+2. Load [references/overview.md](references/overview.md) for the full API
    surface: `query()`, `ClaudeSDKClient`, options, message types, and patterns.
-2. Load [references/examples.md](references/examples.md) when mapping a task
+3. Load [references/examples.md](references/examples.md) when mapping a task
    to concrete code (tools, hooks, subagents, sessions, MCP, custom tools).
-3. Load [references/troubleshooting.md](references/troubleshooting.md) when
+4. Load [references/troubleshooting.md](references/troubleshooting.md) when
    blocked, hitting errors, or reviewing for anti-patterns.
-4. Choose `query()` for one-shot tasks; `ClaudeSDKClient` for multi-turn or
+5. Choose `query()` for one-shot tasks; `ClaudeSDKClient` for multi-turn or
    when hooks and custom tools are required.
-5. Set `allowed_tools` explicitly — omitting it grants broad default access.
-6. Validate outputs before treating agent results as ground truth.
+6. Set `allowed_tools` explicitly — omitting it grants broad default access.
+7. Validate outputs before treating agent results as ground truth.
 
 ## Hard Rules
 

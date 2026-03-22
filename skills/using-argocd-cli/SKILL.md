@@ -1,82 +1,98 @@
 ---
 name: using-argocd-cli
-description: Provides expert guidance for using the argocd CLI to manage
-  applications, repositories, clusters, and projects in Argo CD. Use when
-  requests involve argocd login, argocd app sync, argocd app get, argocd app
-  diff, argocd app rollback, argocd app wait, argocd repo add, argocd cluster
-  add, argocd proj, or argocd appset commands.
+description: >
+  Use this skill for Argo CD or argocd CLI tasks: logging in,
+  switching context, inspecting or diffing apps, syncing apps and waiting for
+  health, explaining argocd CI behavior such as `app diff` exit codes,
+  `--grpc-web`, or `ARGOCD_AUTH_TOKEN`, and administering Argo CD repos,
+  clusters, AppProjects, rollbacks, and ApplicationSets. Not for Argo
+  Workflows, kubectl-only, Helm, Kustomize, or Crossplane tasks.
 ---
 
-# Using argocd (Argo CD CLI)
+# Using argocd
 
 ## Overview
 
-The `argocd` CLI is the control surface for Argo CD — a declarative,
-GitOps-based continuous delivery tool for Kubernetes. Authenticate first,
-inspect before acting, and always confirm the target application and server
-context before running mutations. For full procedures, read
-[references/overview.md](references/overview.md).
+Use this skill for Argo CD CLI work. Treat `argocd` as a high-leverage control
+plane: confirm server context first, inspect before mutating, and prefer
+commands that make convergence visible (`app diff`, `app sync`, `app wait`).
+
+Read [references/overview.md](references/overview.md) for the operator model,
+[references/examples.md](references/examples.md) for copy-paste patterns,
+[references/troubleshooting.md](references/troubleshooting.md) for failure
+recovery, and [references/installation.md](references/installation.md) if the
+CLI is missing.
 
 ## When to Use
 
-- Syncing, diffing, or rolling back Argo CD applications
-- Inspecting application health, sync status, and resource trees
-- Managing repositories, clusters, and projects
-- Creating or managing ApplicationSets
-- Automating GitOps operations in CI/CD pipelines
+- The user asks to log into Argo CD or switch Argo CD contexts
+- The task involves application inspection, diff, sync, wait, rollback, or logs
+- The task involves repository, cluster, project, or ApplicationSet management
+- The task needs CI-safe, non-interactive `argocd` command patterns
 
 ## When Not to Use
 
-- Argo Workflows operations — use the `argo` CLI instead
-- Argo Rollouts operations — use `kubectl argo rollouts` plugin instead
-- Editing raw Kubernetes resources directly — use `kubectl` instead
+- Argo Workflows tasks: use the `argo` CLI skill
+- Raw Kubernetes object inspection or editing: use `kubectl`
+- Git changes to app manifests without Argo CD operations: use Git tooling
 
 ## Prerequisites
 
-- `argocd` CLI installed and matching server version
-- Argo CD server running and reachable
-- `ARGOCD_SERVER` and `ARGOCD_AUTH_TOKEN` env vars set, or `--server` /
-  `--auth-token` flags supplied, or active login session via `argocd login`
-- Target application name and namespace known
+- `argocd` CLI installed; if not, follow
+  [references/installation.md](references/installation.md)
+- Reachable Argo CD API server or a deliberate `--core` / `--port-forward`
+  approach
+- Valid auth via `argocd login`, `ARGOCD_AUTH_TOKEN`, or an existing local
+  context
+- The target app, repo, cluster, or project name is known before mutating it
 
 ## Workflow
 
-1. Authenticate and set server context — see
-   [references/overview.md](references/overview.md).
-2. Inspect before acting: use `argocd app get` and `argocd app diff` first.
-3. Sync with explicit app name; use `--prune` and `--force` only when certain.
-4. Use `argocd app wait` in CI; never fire-and-forget sync operations.
-5. On failure, inspect with `argocd app get`, `argocd app logs`, and
-   `argocd app resources` before retrying.
-6. For full command reference, read
-   [references/examples.md](references/examples.md).
-7. For failure recovery, read
-   [references/troubleshooting.md](references/troubleshooting.md).
+1. Check whether `argocd` is installed. If not, use
+   [references/installation.md](references/installation.md).
+2. Establish scope before action: confirm server and context with `argocd
+   context`, `--argocd-context`, or explicit login.
+3. Prefer read-only inspection first: `argocd app get`, `argocd app diff`,
+   `argocd app history`, `argocd repo list`, `argocd cluster list`, `argocd
+   proj get`.
+4. For application changes, follow this sequence unless the user asks
+   otherwise:
+   `app get` -> `app diff` -> `app sync` -> `app wait`.
+5. In CI or automation, prefer token auth, explicit timeouts, and waiting for
+   a terminal state. Do not rely on interactive prompts.
+6. For admin operations, scope tightly and review existing state before add,
+   update, or remove commands.
+7. When commands fail, use
+   [references/troubleshooting.md](references/troubleshooting.md) before
+   suggesting retries or forceful mutations.
 
 ## Hard Rules
 
-- Always confirm `argocd context` before running any mutation.
-- Never run `argocd app delete` without first inspecting the app with
-  `argocd app get`.
-- Use `--dry-run` on sync operations when uncertain about drift scope.
-- Do not store auth tokens in shell scripts; use `ARGOCD_AUTH_TOKEN` env var
-  or a secret manager.
-- Use `argocd app wait --health` in CI; do not poll manually.
-- Match CLI version to server version; version skew causes silent failures.
+- Always identify the active server context before any mutating command.
+- Do not recommend `argocd app sync --force`, `--prune`, `app delete`, or
+  `cluster rm` without first inspecting the target and explaining the blast
+  radius.
+- Use `argocd app wait` or `argocd app sync --wait` for automation; do not
+  fire-and-forget syncs.
+- When behind an ingress or proxy that breaks HTTP/2, account for `--grpc-web`.
+- Keep `argocd` client and server versions aligned closely enough to avoid
+  command and flag skew.
+- Prefer `ARGOCD_AUTH_TOKEN` or existing context over embedding credentials in
+  scripts.
+- Use `--core` only when direct Kubernetes API access is intentional and the
+  user actually wants to bypass the Argo CD API server.
 
 ## Failure Handling
 
-- Server unreachable: verify `ARGOCD_SERVER` value and TLS settings.
-- Auth denied: re-run `argocd login` or validate `ARGOCD_AUTH_TOKEN`.
-- App OutOfSync: run `argocd app diff` to identify drift before syncing.
-- Sync degraded: use `argocd app get` and `argocd app logs` to identify the
-  failing resource.
-- Version mismatch: install matching CLI from server's `/download` page.
+- CLI missing: use [references/installation.md](references/installation.md)
+- Auth or connectivity issues: inspect
+  [references/troubleshooting.md](references/troubleshooting.md)
+- Unclear blast radius or ambiguous target: stop and ask the user before
+  destructive actions
 
 ## Red Flags
 
-- Running `argocd app delete` without a prior `argocd app get`.
-- Using `--force` on sync without understanding the resource impact.
-- Ignoring `argocd app diff` output before a production sync.
-- Using `--insecure` in shared or production clusters without approval.
-- Syncing with `--prune` without reviewing what would be pruned.
+- Mutating commands issued before `argocd context` or equivalent scoping
+- Habitual use of `--insecure`, `--plaintext`, `--force`, or `--prune`
+- Recommending retries without first checking `app get`, `app diff`, or logs
+- Confusing `argocd` responsibilities with `kubectl`, `argo`, or Git operations

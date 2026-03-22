@@ -1,53 +1,97 @@
-# Troubleshooting
+# Graphite CLI — Troubleshooting
 
-## Fast Diagnosis Checklist
+## Diagnostic Checklist
 
-1. Confirm CLI and auth:
-   `gt --version`, `gt auth`, `gt config`.
-2. Confirm repo is Graphite-initialized:
-   `gt trunk`, `gt log`.
-3. Inspect working tree:
-   `git status`.
-4. Inspect stack topology:
-   `gt log --stack`.
+```bash
+gt --version          # confirm CLI is installed and current
+gt trunk              # confirm trunk is set correctly
+git status            # check working tree state
+gt ls                 # inspect stack topology
+gt continue           # check for halted operation
+```
 
 ## Common Failures
 
-| Symptom                 | Likely cause      | Action              |
-| ----------------------- | ----------------- | ------------------- |
-| Wrong PR parent         | ancestry drift    | `gt restack`        |
-| Submit out-of-date refs | stale trunk/refs  | `gt sync`           |
-| Rebase conflict         | patch collision   | resolve + continue  |
-| Draft/no reviewer       | submit flags used | rerun with flags    |
-| Branch missing in log   | untracked branch  | `gt track <branch>` |
-| Local metadata drift    | rename/delete mix | run sync + restack  |
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| Branch has multiple commits | used `git commit` instead of `gt modify` | `gt squash` |
+| Wrong PR base / ancestry drift | used `git rebase` directly | `gt restack` |
+| Branch missing from `gt log` | untracked by Graphite | `gt track <branch>` |
+| Rebase conflict mid-stack | patch collision | resolve markers → `git add` → `gt continue` |
+| Force-with-lease false failure | another tool fetched remote refs | `gt submit --force` (get user approval first) |
+| Submit overwrites wrong branch | wrong trunk set | `gt move --onto <correct-trunk>` then re-submit |
+| Slow first command after upgrade | v1.8+ SQLite migration running | let it complete (safe to interrupt, will restart) |
+| `gt rename` breaks PR | GitHub PR branch names are immutable | only rename with intent; use `--force` |
+| 500 error after repo rename | stale remote/config | update git remote + `.git/.graphite_repo_config` |
+| Duplicate CI runs | GitHub sees both push and Graphite API events | configure GitHub Actions `concurrency.cancel-in-progress` |
 
-## Red Flags - Stop Before Proceeding
+## Metadata Corruption
 
-- About to run `git rebase`, `git push`, or `gh pr create` for stack work.
-- About to use `--force` on `gt submit` without explicit user approval.
-- Attempting to resolve an old halted operation without checking `gt continue`
-  or `gt abort`.
-- Stack graph looks incorrect but submitting anyway.
+**Mild** — wrong parent pointer:
+```bash
+gt move --onto <correct-parent>
+```
 
-## Conflict Recovery Template
+**Moderate** — branch not tracked:
+```bash
+gt untrack <branch>
+gt track <branch>     # re-select parent interactively
+```
 
-When `gt restack`, `gt sync`, or `gt submit --restack` hits conflicts:
+**Severe** — broken SQLite metadata:
+```bash
+gt dev cache --clear  # clears metadata cache only (safe)
+```
 
-1. Run `git status` to see conflicted files.
-2. Resolve conflict markers in files.
-3. Stage resolved files with `git add <file>`.
-4. Continue with `gt continue`.
-5. If recovery is wrong, stop with `gt abort`.
+**Nuclear** — total reset:
+```bash
+gt init --reset       # removes ALL Graphite metadata
+# then re-track every branch:
+gt track <branch1> --parent main
+gt track <branch2> --parent <branch1>
+# etc.
+```
 
-Do not launch new Graphite mutations until this flow is complete.
+## Conflict Resolution Flow
 
-## Escalation Criteria
+```bash
+# gt sync or gt restack stops on conflict
+git status                    # identify conflicted files
+# edit each file, remove <<<< ==== >>>> markers
+git add <resolved-files>
+gt continue                   # resume halted operation
 
-Escalate to the user when:
+# if you want to bail:
+gt abort
+```
 
-- trunk branch selection is unclear
-- force push is required on a shared branch
-- stack rewrite would invalidate existing review comments
-- Graphite reports metadata drift that cannot be fixed by `gt sync` +
-  `gt restack`
+If conflicts recur on the same branch repeatedly:
+1. `gt restack --only` — restack just this branch
+2. Manually resolve with `git rebase <parent-branch>` as a last resort
+3. Escalate to user if `gt restack` fails after multiple resolutions
+
+## Red Flags — Stop and Verify
+
+- About to run `git rebase -i`, `git commit`, `git merge`, or `git push -f` on a `gt`-managed branch
+- Starting a new `gt` command while a previous operation is halted for conflicts
+- `gt log` shows a parent relationship that doesn't make sense — fix topology with `gt move` before submitting
+- About to use `--force` on `gt submit` without confirming with the user
+
+## Escalation to User
+
+Escalate when:
+- Trunk branch selection is ambiguous
+- `gt restack` fails consistently after conflict resolution
+- A stack rewrite would invalidate critical existing review comments
+- Force push is required on a branch shared with other humans
+- `gt sync` cannot resolve deep metadata corruption
+
+## Debug Logs
+
+```bash
+# Logs retained for 24 hours at:
+~/.local/share/graphite/debug
+
+# Submit a bug report:
+gt feedback "description of issue"
+```

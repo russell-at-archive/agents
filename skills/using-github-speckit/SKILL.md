@@ -19,8 +19,8 @@ Announce at start:
 pipeline and deliver review-ready artifacts."
 
 Detailed guidance:
-`references/overview.md`, `references/examples.md`, and
-`references/troubleshooting.md`.
+`references/installation.md`, `references/overview.md`,
+`references/examples.md`, and `references/troubleshooting.md`.
 
 ## When to Use
 
@@ -36,22 +36,26 @@ Detailed guidance:
 
 ## Prerequisites
 
+- `specify` CLI available. If missing, read
+  [references/installation.md](references/installation.md).
 - Repository context is available.
 - Scope can be stated as one feature or one project slice.
 - No destructive actions are required.
 
 ## Workflow
 
-1. Load `references/overview.md` and follow its command sequence.
-2. Load `references/examples.md` and adapt starter prompts to context.
-3. Load `references/troubleshooting.md` before finalizing outputs.
-4. Run the mandatory planning pipeline:
+1. Verify the `specify` CLI is available. If missing, read
+   [references/installation.md](references/installation.md).
+2. Load `references/overview.md` and follow its command sequence.
+3. Load `references/examples.md` and adapt starter prompts to context.
+4. Load `references/troubleshooting.md` before finalizing outputs.
+5. Run the mandatory planning pipeline:
    1. `/specify`
    2. `/clarify` when ambiguity is material
    3. `/plan`
    4. `/tasks`
-5. Keep outputs scoped to one feature slice.
-6. Ask before moving to `/implement`.
+6. Keep outputs scoped to one feature slice.
+7. Ask before moving to `/implement`.
 
 ## Output Contract
 

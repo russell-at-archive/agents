@@ -10,7 +10,6 @@ A skill for creating new skills and iteratively improving them.
 ## Local Repository Overrides
 
 In this repository, follow the local policy recorded in
-`docs/adr/0002-adopt-an-iterative-skill-authoring-workflow.md` and
 `skills/writing-skills/SKILL.md`.
 
 When this skill creates or revises a skill here, apply these overrides:

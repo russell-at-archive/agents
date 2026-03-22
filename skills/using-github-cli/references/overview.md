@@ -1,154 +1,274 @@
 # Overview
 
-## Purpose
+## Contents
 
-Use GitHub CLI (`gh`) for GitHub-native operations that do not have a better
-Graphite (`gt`) equivalent.
+- [Operating model](#operating-model)
+- [Context and targeting](#context-and-targeting)
+- [Command selection](#command-selection)
+- [Pull requests](#pull-requests)
+- [Issues](#issues)
+- [Actions and workflows](#actions-and-workflows)
+- [Repositories and releases](#repositories-and-releases)
+- [Search](#search)
+- [API usage](#api-usage)
+- [Automation patterns](#automation-patterns)
+- [Safety rules](#safety-rules)
 
-Use `gh` first for:
+## Operating model
 
-- issue lifecycle work
-- Actions workflow and run operations
-- release lifecycle work
-- direct GitHub API calls (`gh api`)
-- cross-repo metadata queries
+Use `gh` as the first-choice interface for GitHub-native work. Optimize for:
 
-If the operation is stack or branch-flow management, use `gt` first.
+- Non-interactive execution
+- Explicit repository targeting
+- Structured output
+- Narrow commands before generic API calls
 
-## Context Setup
-
-Validate tool, auth, host, and repository before write operations.
+Baseline checks:
 
 ```bash
-gh --version
 gh auth status
 gh repo set-default --view
+gh --version
 ```
 
-Context controls:
+Useful environment variables:
 
-- `--repo [HOST/]OWNER/REPO` targets a specific repository.
-- `GH_REPO` sets default repo context.
-- `GH_HOST` targets GitHub Enterprise hosts.
-- `GH_PROMPT_DISABLED=1` disables interactive prompts.
+- `GH_PROMPT_DISABLED=1`: suppress prompts in automation
+- `GH_REPO=owner/repo`: override repo detection
+- `GH_HOST`: target GitHub Enterprise Server
+- `GH_TOKEN` or `GITHUB_TOKEN`: token-based auth for automation
 
-## Non-Interactive Standard
+## Context and targeting
 
-For deterministic execution:
+Prefer `--repo owner/repo` whenever any of these are true:
 
-- pass explicit flags instead of prompt-driven flows
-- pass `--title`, `--body`, `--label`, and similar fields directly
-- prefer `--json` and parse with `--jq` where available
-- use `--template` only when output must be formatted for humans
+- The current directory is not the target repository
+- The task spans multiple repositories
+- The command mutates state
+- The repo owner or host might be inferred incorrectly
 
-Formatting pattern:
+When a task depends on a specific object, identify it first:
+
+- Pull request: number, URL, or head branch
+- Issue: number or URL
+- Workflow run: run ID
+- Workflow: file name or workflow name
+- Release: tag name
+
+## Command selection
+
+Choose the narrowest command family that fits:
+
+1. `gh pr`
+2. `gh issue`
+3. `gh run`
+4. `gh workflow`
+5. `gh release`
+6. `gh repo`
+7. `gh search`
+8. `gh api`
+
+Use `gh api` when:
+
+- The dedicated subcommand cannot express the operation
+- The task needs REST or GraphQL fields the subcommand does not expose
+- Bulk or paginated collection reads are easier through the API
+
+## Pull requests
+
+Inspect first:
 
 ```bash
-gh pr list --state open \
-  --json number,title,author,updatedAt \
-  --jq '.[] | {number, title, author: .author.login, updatedAt}'
+gh pr view 123 --repo owner/repo --json number,title,state,headRefName,baseRefName,url
+gh pr checks 123 --repo owner/repo
+gh pr diff 123 --repo owner/repo
 ```
 
-## Command Selection
-
-### Pull Requests
-
-Common read operations:
+Create non-interactively:
 
 ```bash
-gh pr list --state open --limit 50
-gh pr view <number> --json number,title,state,reviewDecision,mergeStateStatus
-gh pr checks <number> --required --watch
+GH_PROMPT_DISABLED=1 gh pr create \
+  --repo owner/repo \
+  --base main \
+  --head feature-branch \
+  --title "feat: add oauth" \
+  --body-file .github/pull_request_template.md
 ```
 
-Common write operations:
+Review or comment:
 
 ```bash
-gh pr create --title "<title>" --body "<body>" --base <base>
-gh pr review <number> --approve --body "<note>"
-gh pr merge <number> --squash --delete-branch
+gh pr review 123 --repo owner/repo --approve --body "Approved."
+gh pr comment 123 --repo owner/repo --body "Please re-run the flaky test."
 ```
 
-Notes:
-
-- `gh pr checks` has additional exit code `8` for pending checks.
-- On merge-queue protected branches, `gh pr merge` may enqueue instead of
-  directly merging.
-
-### Issues
+Merge safely:
 
 ```bash
-gh issue list --state open --limit 100
-gh issue create --title "<title>" --body "<body>" --label bug
-gh issue comment <number> --body "<comment>"
-gh issue close <number> --comment "<resolution>"
+gh pr merge 123 \
+  --repo owner/repo \
+  --squash \
+  --delete-branch \
+  --match-head-commit "$(git rev-parse HEAD)"
 ```
 
-### Actions
+Rules:
+
+- Read the PR before reviewing or merging
+- Use `--match-head-commit` when merging from a checked-out branch
+- Verify checks and mergeability before attempting a merge
+
+## Issues
+
+Inspect and list with JSON:
 
 ```bash
-gh run list --limit 20
-gh run view <run-id> --log
-gh run rerun <run-id> --failed
-gh workflow run <workflow.yml> -f key=value -f key2=value2
+gh issue view 456 --repo owner/repo --json number,title,state,labels,assignees,url
+gh issue list --repo owner/repo --limit 50 --json number,title,state,labels
 ```
 
-For JSON workflow inputs:
+Create or update:
 
 ```bash
-echo '{"name":"value"}' | gh workflow run <workflow.yml> --json
+GH_PROMPT_DISABLED=1 gh issue create \
+  --repo owner/repo \
+  --title "bug: crash on startup" \
+  --body "Steps to reproduce..." \
+  --label bug
+
+gh issue edit 456 --repo owner/repo --add-label triaged --remove-label needs-info
 ```
 
-### Releases
+Issue-to-branch flow:
 
 ```bash
-gh release list --limit 20
-gh release create <tag> --generate-notes
-gh release create <tag> --notes-file <file> --verify-tag
+gh issue develop 456 --repo owner/repo --checkout
 ```
 
-Safety notes:
+## Actions and workflows
 
-- use `--verify-tag` when automatic tag creation is not desired
-- use `--fail-on-no-commits` to avoid duplicate empty releases
-
-### API
-
-Use `gh api` for endpoints not covered by high-level commands.
+List and inspect:
 
 ```bash
-gh api repos/{owner}/{repo}/pulls --jq '.[].number'
-gh api graphql -f query='<graphql>'
-gh api repos/{owner}/{repo}/issues --paginate --slurp
+gh workflow list --repo owner/repo
+gh run list --repo owner/repo --limit 10
+gh run view 123456789 --repo owner/repo
 ```
 
-Important `gh api` patterns:
+Dispatch and watch:
 
-- `-f` for string fields
-- `-F` for typed fields and `@file` payload injection
-- `--method GET` when fields must become query params
-- `--paginate` with `--slurp` for complete result sets
+```bash
+gh workflow run deploy.yml --repo owner/repo -f env=prod -f version=v1.2.0
+gh run watch 123456789 --repo owner/repo --exit-status
+```
 
-## Safety
+Rerun or cancel carefully:
 
-Before every mutating command:
+```bash
+gh run rerun 123456789 --repo owner/repo
+gh run cancel 123456789 --repo owner/repo
+```
 
-1. confirm target host and repository
-2. confirm object identity (issue number, PR number, tag)
-3. confirm mutation intent from the user
+Rules:
 
-Never run these without explicit user intent:
+- Identify the exact run ID before rerunning or canceling
+- Use `gh run watch --exit-status` for CI gating in automation
+- Distinguish workflow definition (`gh workflow`) from workflow execution (`gh run`)
 
-- `gh pr merge`
-- `gh pr close`
-- `gh issue delete`
-- `gh release delete`
+## Repositories and releases
 
-## Reporting Standard
+Repository inspection:
 
-Return concise, auditable output:
+```bash
+gh repo view owner/repo --json name,defaultBranchRef,isPrivate,url
+gh repo list owner --limit 50 --json name,nameWithOwner,isPrivate,url
+```
 
-- commands executed
-- changed resources (PR/issue/run/release identifiers)
-- verification command and result
-- unresolved blockers and next action
+Release operations:
+
+```bash
+gh release list --repo owner/repo --limit 10
+gh release view v1.2.0 --repo owner/repo
+gh release create v1.2.1 --repo owner/repo --title "v1.2.1" --notes "Bug fixes"
+```
+
+## Search
+
+Use GitHub search qualifiers rather than post-filtering when possible.
+
+```bash
+gh search issues --repo owner/repo --state open --label bug --json number,title,updatedAt
+gh search prs --owner owner --review-requested @me --json number,title,url
+gh search repos "topic:kubernetes archived:false" --json name,description,url
+```
+
+When excluding qualifiers on Unix-like shells, use `--` before the query:
+
+```bash
+gh search issues -- "is:open -label:bug"
+```
+
+## API usage
+
+REST example:
+
+```bash
+gh api repos/{owner}/{repo}/pulls \
+  --repo owner/repo \
+  --paginate \
+  --jq '.[].number'
+```
+
+Mutation example:
+
+```bash
+gh api repos/{owner}/{repo}/issues/456/comments \
+  --repo owner/repo \
+  -f body='Investigating now.'
+```
+
+GraphQL example:
+
+```bash
+gh api graphql \
+  -F owner='owner' \
+  -F repo='repo' \
+  -f query='
+    query($owner: String!, $repo: String!) {
+      repository(owner: $owner, name: $repo) {
+        pullRequests(last: 5, states: OPEN) {
+          nodes { number title url }
+        }
+      }
+    }'
+```
+
+API rules:
+
+- Use `--paginate` for complete collection reads
+- Use `--slurp` if downstream tooling needs a single JSON array
+- Prefer `-F/--field` for typed values and `-f/--raw-field` for strings
+- Use `--input` for larger JSON payloads instead of overloading shell quoting
+
+## Automation patterns
+
+Good patterns:
+
+- `--json` + `--jq` for single-command extraction
+- `GH_PROMPT_DISABLED=1` for any potentially interactive command
+- Read-before-write and read-after-write verification
+- Explicit `--repo` for scripts, cron jobs, and CI
+
+Avoid:
+
+- Scraping tables or prose output
+- Hidden repo inference in automation
+- Browser flows such as `--web` unless explicitly requested
+- Manual pagination loops when `gh api --paginate` exists
+
+## Safety rules
+
+- Treat merge, close, delete, cancel, rerun, enable, and disable as mutations
+- Verify resource identity before every mutation
+- Do not use policy-bypassing or admin flags without explicit user intent
+- If a command can target the wrong repo, make the repo explicit
